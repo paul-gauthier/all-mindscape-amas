@@ -8,12 +8,10 @@ from pathlib import Path
 from dump import dump
 from dotenv import load_dotenv
 
-load_dotenv()
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic._internal._config")
 
-# suppress this warning. ai!
-#/Users/gauthier/Projects/sean-carroll/.venv/lib/python3.12/site-packages/pydantic/_internal/_config.py:345: UserWarning: Valid config keys have changed in V2:
-#* 'fields' has been removed
-#  warnings.warn(message, UserWarning)
+load_dotenv()
 
 SYSTEM="""
 The user will share the transcript of a podcast episode.
