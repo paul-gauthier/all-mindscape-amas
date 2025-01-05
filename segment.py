@@ -66,7 +66,24 @@ def find_questions(words, start, end):
                 question = ' '.join(question)
                 offset = full_words_text.find(question)
             if offset == -1:
-                # do a fuzzy find with edit distance <10. ai!
+                # Try fuzzy matching with edit distance
+                from Levenshtein import distance as levenshtein_distance
+                
+                # Split text into overlapping chunks of question length
+                chunk_size = len(question)
+                min_distance = float('inf')
+                best_offset = -1
+                
+                for i in range(len(full_words_text) - chunk_size + 1):
+                    chunk = full_words_text[i:i+chunk_size]
+                    dist = levenshtein_distance(question.lower(), chunk.lower())
+                    if dist < min_distance and dist <= 10:
+                        min_distance = dist
+                        best_offset = i
+                        if dist == 0:
+                            break
+                
+                offset = best_offset
             present = offset != -1
 
             word_index = None
