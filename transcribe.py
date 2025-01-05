@@ -100,6 +100,18 @@ def transcribe_large_audio(audio_path):
             best_overlap = 0
             best_offset = 0
             
+            # Print debug info about the overlap region
+            print("\n=== CHUNK BOUNDARY ALIGNMENT ===")
+            print("Last words from previous chunk:")
+            for i in range(-OVERLAP_WORDS, 0):
+                word = all_words[i]
+                print(f"  {word['text']} [{word['start']:.2f}s]")
+            
+            print("\nFirst words from current chunk:")
+            for i in range(min(OVERLAP_WORDS, len(chunk_words) - overlap_start)):
+                word = chunk_words[overlap_start + i]
+                print(f"  {word['text']} [{word['start']:.2f}s]")
+
             # Try to align the overlapping words
             for i in range(OVERLAP_WORDS):
                 matches = sum(1 for j in range(min(OVERLAP_WORDS - i, len(chunk_words) - overlap_start))
@@ -112,7 +124,11 @@ def transcribe_large_audio(audio_path):
             # Trim overlapping words based on best alignment
             if best_overlap >= 3:  # Only trim if we found a good match
                 trim_point = overlap_start + best_offset
+                print(f"\nFound {best_overlap} matching words, trimming {trim_point} words")
                 chunk_words = chunk_words[trim_point:]
+            else:
+                print("\nWARNING: Poor word alignment at chunk boundary")
+            print("===============================\n")
         
         # Find a good cutting point for next chunk
         if len(chunk_words) > OVERLAP_WORDS:
