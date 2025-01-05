@@ -69,10 +69,14 @@ def align_transcription(input_file, output_file):
         merged.append(obj)
 
     with jsonlines.open(input_file) as reader, jsonlines.open(output_file, mode='w') as writer:
+        full_text = ""
         for obj in merged:
             writer.write(obj)
-
-        # print all the obj["text"] word wrapped to 80 cols. ai!
+            full_text += obj.get("text", "") + " "
+        
+        # Print word-wrapped text
+        import textwrap
+        print("\n".join(textwrap.wrap(full_text, width=80)))
 
 def main():
     if len(sys.argv) != 2:
