@@ -1,3 +1,5 @@
+# Q+A
+
 0:02:52.1 SC: Jeremy Dittman says, I really enjoyed your episode with
 Matt Strassler last month. At one point in your discussion, you asked
 Matt for his definition of a field at its most fundamental level. And
@@ -133,6 +135,9 @@ are far, far surpassing anything I could ever imagine. But I think
 that my attitude toward those people is one of admiration and being
 impressed, but not really one of being intimidated.
 
+
+# Q+A
+
 0:11:40.6 SC: Supendu Harsh says, hypothetically, if one of your
 colleagues, a brilliant human being and an even better theoretical
 physicist, leaves a note saying, all the evidence points to a single
@@ -151,7 +156,11 @@ are of physics not existing. So not to say that there aren't events
 that would cause me to believe that kind of dramatic claim, but the
 evidence would have to be enormously stronger than that.
 
-0:12:54.5 SC: That's all I will say about that. Jeffrey Segal says, I
+0:12:54.5 SC: That's all I will say about that. 
+
+# Q+A
+
+Jeffrey Segal says, I
 was struck by the sequence of your conversation with Sahar Haidari
 Fard with the possibility that social media might provide a universal
 coupling constant coordinating spins in an Ising transition model. And
