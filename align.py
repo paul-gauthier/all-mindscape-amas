@@ -27,8 +27,7 @@ def align_transcription(input_file, output_file):
                     #dump(word)
                     parts = re.split(r'\b' + re.escape(word) + r'\b', text, maxsplit=1)
 
-                    # don't just lstrip space, lstrip any non-alphanum. ai!
-                    text = parts[1].lstrip() if len(parts) > 1 else text
+                    text = parts[1].lstrip(''.join(c for c in parts[1] if not c.isalnum())) if len(parts) > 1 else text
 
                     #dump(text[:100])
 
