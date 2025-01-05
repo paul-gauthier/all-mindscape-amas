@@ -34,8 +34,6 @@ def transcribe_audio(audio_path):
             timestamp_granularities=["word"]
         )
 
-    dump(response)
-
     # Extract words with timestamps from response
     words = []
     for word in response.words:
@@ -55,8 +53,10 @@ def transcribe_large_audio(audio_path):
     audio = AudioSegment.from_file(audio_path)
     total_duration_ms = len(audio)
 
+    # print tot dur in minutes. ai!
+
     # Start with a chunk size that's safely under 25MB (e.g., 10 minutes)
-    chunk_duration_ms = 10 * 60 * 1000  # 10 minutes in milliseconds
+    chunk_duration_ms = 1 * 60 * 1000  # 10 minutes in milliseconds
 
     current_position_ms = 0
     all_words = []
@@ -135,7 +135,7 @@ def main():
 
         print(f"Transcription saved to {output_file}")
 
-        # Print formatted output to console
+        # move to a helper func; print after each chunk during long transcribe iterations. ai!
         for word in transcription:
             print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
 
