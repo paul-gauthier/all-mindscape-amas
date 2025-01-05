@@ -120,9 +120,9 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
         else:
             current_position_ms += chunk_duration_ms - 10*1000
 
-        # Write this chunk's words and text to the output file
+        # Write this chunk's words and text to the output file with immediate flush
         output_file = Path(audio_path).stem + "_transcription.jsonl"
-        with jsonlines.open(output_file, mode='a') as writer:
+        with jsonlines.open(output_file, mode='a', flush=True) as writer:
             for word in chunk_words:
                 writer.write(word)
             writer.write(chunk_text)
