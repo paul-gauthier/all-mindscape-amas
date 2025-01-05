@@ -98,42 +98,9 @@ def transcribe_large_audio(audio_path):
 
         # Handle overlap with previous chunk
         if all_words:
-            # Find matching words in overlap region
-            overlap_start = max(0, len(chunk_words) - OVERLAP_WORDS)
-            best_overlap = 0
-            best_offset = 0
-
-            # Print debug info about the overlap region
-            print("\n=== CHUNK BOUNDARY ALIGNMENT ===")
-            print("Last words from previous chunk:")
-            for i in range(-OVERLAP_WORDS, 0):
-                word = all_words[i]
-                print(f"  {word['text']} [{word['start']:.2f}s]")
-
-            print("\nFirst words from current chunk:")
-            for i in range(min(OVERLAP_WORDS, len(chunk_words) - overlap_start)):
-                word = chunk_words[overlap_start + i]
-                print(f"  {word['text']} [{word['start']:.2f}s]")
-
-            # Try to align the overlapping words
-            for i in range(OVERLAP_WORDS):
-                matches = sum(1 for j in range(min(OVERLAP_WORDS - i, len(chunk_words) - overlap_start))
-                            if chunk_words[overlap_start + j]["text"].lower() ==
-                               all_words[-OVERLAP_WORDS + i + j]["text"].lower())
-                if matches > best_overlap:
-                    best_overlap = matches
-                    best_offset = i
-
-            # Trim overlapping words based on best alignment
-            if best_overlap >= 3:  # Only trim if we found a good match
-                trim_point = overlap_start + best_offset
-                print(f"\nFound {best_overlap} matching words, trimming {trim_point} words")
-                chunk_words = chunk_words[trim_point:]
-            else:
-                print("\nWARNING: Poor word alignment at chunk boundary")
-            print("===============================\n")
-            sys.exit()
-
+            # trim leading words from chunk_words
+            # until the first SPLICE_WORDS match the last of all_words
+            # ai!
 
         # Find a good cutting point for next chunk
         if len(chunk_words) > OVERLAP_WORDS:
