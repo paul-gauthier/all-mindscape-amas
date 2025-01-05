@@ -5,6 +5,10 @@ import sys
 import json
 from pathlib import Path
 from openai import OpenAI
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
 
 def transcribe_audio(audio_path):
     """
