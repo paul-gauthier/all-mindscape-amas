@@ -119,7 +119,14 @@ def transcribe_large_audio(audio_path):
             else:
                 print("\nWARNING: Could not find good word alignment")
 
-            # print the last OVERLAP_WORDS of all_words and first of chunk_words. ai!
+            # Print debug info about word alignment
+            print("\nWord alignment details:")
+            print("Last words from previous chunk:")
+            for word in all_words[-OVERLAP_WORDS:]:
+                print(f"  {word['text']}")
+            print("\nFirst words of current chunk:")
+            for word in chunk_words[:OVERLAP_WORDS]:
+                print(f"  {word['text']}")
 
         # Find a good cutting point for next chunk
         if len(chunk_words) > OVERLAP_WORDS:
