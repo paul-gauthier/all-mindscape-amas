@@ -97,10 +97,12 @@ def transcribe_large_audio(audio_path):
             current_position_ms = int(last_complete_word_time * 1000)
             # Only add words up to the second-to-last word
             all_words.extend(chunk_words[:-1])
+            print_words(chunk_words[:-1])
         else:
             # If chunk has 1 or 0 words, move forward by chunk duration
             current_position_ms += chunk_duration_ms
             all_words.extend(chunk_words)
+            print_words(chunk_words)
 
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
