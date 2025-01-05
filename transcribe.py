@@ -53,7 +53,7 @@ def transcribe_audio(audio_path):
         "start": round(response.words[0].start, 2) if response.words else 0,
         "end": round(response.words[-1].end, 2) if response.words else response.duration
     }
-    
+
     return words, text_segment
 
 def transcribe_large_audio(audio_path):
@@ -128,11 +128,11 @@ def transcribe_large_audio(audio_path):
 def print_words(words_and_text):
     """Print words and text segments with their timestamps"""
     words, text = words_and_text if isinstance(words_and_text, tuple) else (words_and_text, None)
-    
+
     # Print word-level timestamps
     for word in words:
         print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
-    
+
     # Print full text segment if available
     if text:
         print("\nFull text segment:")
@@ -149,36 +149,32 @@ def main():
         print(f"Error: File {audio_path} not found")
         sys.exit(1)
 
-    try:
-        # Get file size in MB
-        file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
+    # Get file size in MB
+    file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
 
-        # Clear any existing output file
-        output_file = Path(audio_path).stem + "_transcription.jsonl"
-        Path(output_file).unlink(missing_ok=True)
+    # Clear any existing output file
+    output_file = Path(audio_path).stem + "_transcription.jsonl"
+    Path(output_file).unlink(missing_ok=True)
 
-        # Choose transcription method based on file size
-        if file_size_mb > 5:
-            print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
-            output_file = transcribe_large_audio(audio_path)
-        else:
-            words, text_segment = transcribe_audio(audio_path)
-            # Write single chunk to JSONL
-            with jsonlines.open(output_file, mode='w') as writer:
-                for word in words:
-                    writer.write(word)
-                writer.write(text_segment)
+    # Choose transcription method based on file size
+    if file_size_mb > 5:
+        print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
+        output_file = transcribe_large_audio(audio_path)
+    else:
+        words, text_segment = transcribe_audio(audio_path)
+        # Write single chunk to JSONL
+        with jsonlines.open(output_file, mode='w') as writer:
+            for word in words:
+                writer.write(word)
+            writer.write(text_segment)
 
-        print(f"Transcription saved to {output_file}")
+    print(f"Transcription saved to {output_file}")
 
-        # Print final output
-        with jsonlines.open(output_file) as reader:
-            for word in reader:
-                print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
+    # Print final output
+    with jsonlines.open(output_file) as reader:
+        for word in reader:
+            print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
 
-    except Exception as e:
-        print(f"Error during transcription: {str(e)}")
-        sys.exit(1)
 
 if __name__ == "__main__":
     main()
