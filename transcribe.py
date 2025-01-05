@@ -7,6 +7,7 @@ from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
 from dump import dump
+from pydub import AudioSegment
 
 # Load environment variables from .env file
 load_dotenv()
@@ -14,6 +15,7 @@ load_dotenv()
 def transcribe_audio(audio_path):
     """
     Transcribe audio file using OpenAI Whisper API with word-level timestamps
+    Returns list of words with timestamps
     """
     # Get API key from environment variable
     api_key = os.getenv('OPENAI_API_KEY')
@@ -45,6 +47,59 @@ def transcribe_audio(audio_path):
 
     return words
 
+def transcribe_large_audio(audio_path):
+    """
+    Handle large audio files by processing chunks sequentially,
+    using word timestamps to determine clean cut points
+    """
+    audio = AudioSegment.from_file(audio_path)
+    total_duration_ms = len(audio)
+    
+    # Start with a chunk size that's safely under 25MB (e.g., 20 minutes)
+    chunk_duration_ms = 20 * 60 * 1000  # 20 minutes in milliseconds
+    
+    current_position_ms = 0
+    all_words = []
+    
+    while current_position_ms < total_duration_ms:
+        # Extract chunk
+        chunk = audio[current_position_ms:current_position_ms + chunk_duration_ms]
+        
+        # Save chunk temporarily
+        temp_path = "temp_chunk.mp3"
+        chunk.export(temp_path, format="mp3")
+        
+        # Transcribe chunk
+        chunk_words = transcribe_audio(temp_path)
+        
+        # Clean up temporary file
+        os.remove(temp_path)
+        
+        if not chunk_words:
+            break
+            
+        # Adjust timestamps with offset
+        for word in chunk_words:
+            word["start"] += current_position_ms / 1000  # Convert ms to seconds
+            word["end"] += current_position_ms / 1000
+        
+        # Find a good cutting point for next chunk
+        # Use second-to-last word to avoid potential cut-off
+        if len(chunk_words) > 1:
+            last_complete_word_time = chunk_words[-2]["end"]
+            # Convert to milliseconds for pydub
+            current_position_ms = int(last_complete_word_time * 1000)
+            # Only add words up to the second-to-last word
+            all_words.extend(chunk_words[:-1])
+        else:
+            # If chunk has 1 or 0 words, move forward by chunk duration
+            current_position_ms += chunk_duration_ms
+            all_words.extend(chunk_words)
+        
+        print(f"Processed up to {current_position_ms/1000:.2f} seconds")
+    
+    return all_words
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python transcribe.py <audio_file.mp3>")
@@ -56,8 +111,15 @@ def main():
         sys.exit(1)
 
     try:
-        # Perform transcription
-        transcription = transcribe_audio(audio_path)
+        # Get file size in MB
+        file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
+        
+        # Choose transcription method based on file size
+        if file_size_mb > 25:
+            print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
+            transcription = transcribe_large_audio(audio_path)
+        else:
+            transcription = transcribe_audio(audio_path)
 
         # Save to JSON file
         output_file = Path(audio_path).stem + "_transcription.json"
