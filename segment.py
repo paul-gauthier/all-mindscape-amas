@@ -5,8 +5,9 @@ import re
 import sys
 from pathlib import Path
 from dump import dump
+from dotenv import load_dotenv
 
-# load_dotenv. ai!
+load_dotenv()
 
 
 def find_questions(text):
