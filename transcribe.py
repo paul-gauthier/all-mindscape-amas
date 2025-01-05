@@ -70,12 +70,13 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
     print(f"Total duration: {total_duration_ms/(1000*60):.1f} minutes")
 
     # Start with a chunk size that's safely under 25MB (e.g., 10 minutes)
-    chunk_duration_ms = 1 * 60 * 1000  # 10 minutes in milliseconds
+    chunk_duration_ms = 10 * 60 * 1000  # 10 minutes in milliseconds
 
     current_position_ms = start_position_ms
     all_words = []
 
     while current_position_ms < total_duration_ms:
+        print()
         dump(current_position_ms)
 
         # Extract chunk with overlap
@@ -105,7 +106,7 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
         for word in chunk_words:
             word["start"] += current_position_ms / 1000  # Convert ms to seconds
             word["end"] += current_position_ms / 1000
-        
+
         # Adjust text segment timestamps
         chunk_text["start"] += current_position_ms / 1000
         chunk_text["end"] += current_position_ms / 1000
@@ -134,12 +135,12 @@ def print_words(words_and_text):
     words, text = words_and_text if isinstance(words_and_text, tuple) else (words_and_text, None)
 
     # Print word-level timestamps
-    for word in words:
-        print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
+    #for word in words:
+    #    print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
 
     # Print full text segment if available
     if text:
-        print("\nFull text segment:")
+        #print("\nFull text segment:")
         print(f"[{text['start']:.2f} - {text['end']:.2f}]")
         print(text['text'])
 
@@ -157,7 +158,7 @@ def main():
     file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
 
     output_file = Path(audio_path).stem + "_transcription.jsonl"
-    
+
     # Check if we have an existing transcription to resume from
     current_position_ms = 0
     if Path(output_file).exists():
@@ -169,11 +170,11 @@ def main():
                 if obj.get("type") == "text":
                     last_text = obj
             if last_text:
-                current_position_ms = int(last_text["end"] * 1000)
+                current_position_ms = int(last_text["end"] * 1000) - 10*1000
                 print(f"Resuming transcription from {current_position_ms/1000:.2f} seconds")
-    
+
     # Choose transcription method based on file size
-    if file_size_mb > 5:
+    if file_size_mb > 24:
         print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
         output_file = transcribe_large_audio(audio_path, current_position_ms)
     else:
@@ -185,11 +186,6 @@ def main():
             writer.write(text_segment)
 
     print(f"Transcription saved to {output_file}")
-
-    # Print final output
-    with jsonlines.open(output_file) as reader:
-        for word in reader:
-            print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
 
 
 if __name__ == "__main__":
