@@ -24,6 +24,8 @@ def align_transcription(input_file, output_file):
                 text = obj["text"]
                 for word in skipped_words:
                     parts = re.split(r'\b' + re.escape(word) + r'\b', text, maxsplit=1)
+
+                    # don't just lstrip, lstrip all non-alphanums. ai!
                     text = parts[1].lstrip() if len(parts) > 1 else text
                 obj["text"] = text
 
@@ -39,10 +41,6 @@ def align_transcription(input_file, output_file):
                     continue
 
                 write.write(obj)
-
-        # Write any remaining words after the last text segment
-        for word in previous_words:
-            writer.write(word)
 
 def main():
     if len(sys.argv) != 2:
