@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
 import litellm
 import jsonlines
 import re
@@ -7,9 +10,6 @@ import sys
 from pathlib import Path
 from dump import dump
 from dotenv import load_dotenv
-
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="pydantic._internal._config")
 
 load_dotenv()
 
@@ -21,17 +21,25 @@ He reads a series of questions from listeners and then answers them.
 The questions often start like:
 - Raul says why is the sky blue?
 - AbacusPowerUser asks why do apples fall from trees?
+- Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in
+the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity?
 - etc
 
-Find all the sentences in the transcript which denote the start of a new
-question.
-Return every such sentence, one per line in a bullet list like this:
+Find all the sentences in the transcript which denote the start of a new question.
+Return *every* such sentence.
+Return questions exactly as they appear in the transcript, with all the same punctuation, spacing, etc.
+Return one question per line in a bulleted list like this:
 
 - Raul says why is the sky blue?
 - AbacusPowerUser asks why do apples fall from trees?
+- Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in
+the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity?
 """.strip()
 
-def find_questions(text):
+def find_questions(words):
+
+    text = pretty(words)
+
     model = "deepseek/deepseek-chat"
 
     messages=[
@@ -39,7 +47,7 @@ def find_questions(text):
         dict(role="user", content=text),
     ]
 
-    comp = litellm.completion(model=model, messages=messages)
+    comp = litellm.completion(model=model, messages=messages, temperature=0)
     res = comp.choices[0].message.content
     print(res)
 
@@ -48,7 +56,12 @@ def find_questions(text):
     for line in res.splitlines():
         if line.startswith("- "):
             question = line[2:].strip()
+
+            # find the offset of question in `words`, not in `text`. ai!
             present = question in text
+            if not present:
+                present = question[:100] in text
+
             print()
             print(present, question)
 
@@ -60,13 +73,7 @@ def align_transcription(input_file, output_file):
         words = [obj for obj in reader]
 
     while words:
-        text = pretty(words[:5000])
-        dump(len(text))
-
-
-        find_questions(text)
-
-
+        find_questions(words[:2000])
         break
 
 
@@ -76,6 +83,7 @@ def pretty(merged):
     for obj in merged:
         full_text += obj.get("text", "")
 
+    return full_text
     # Print word-wrapped text
     import textwrap
     return "\n".join(textwrap.wrap(full_text, width=80))
