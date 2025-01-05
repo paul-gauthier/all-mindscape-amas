@@ -41,14 +41,13 @@ def transcribe_audio(audio_path):
     words = []
     for word in response.words:
         words.append({
-            "text": word.word,
+            "word": word.word,
             "start": round(word.start, 2),
             "end": round(word.end, 2)
         })
 
     # Add the full text with timestamps
     text_segment = {
-        "type": "text",
         "text": response.text,
         "start": round(response.words[0].start, 2) if response.words else 0,
         "end": round(response.words[-1].end, 2) if response.words else response.duration
