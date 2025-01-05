@@ -48,8 +48,11 @@ def transcribe_audio(audio_path):
 def transcribe_large_audio(audio_path):
     """
     Handle large audio files by processing chunks sequentially,
-    using word timestamps to determine clean cut points
+    using word timestamps to determine clean cut points.
+    Includes overlap between chunks to ensure no words are lost.
     """
+    # Number of words to overlap between chunks
+    OVERLAP_WORDS = 10
     audio = AudioSegment.from_file(audio_path)
     total_duration_ms = len(audio)
     print(f"Total duration: {total_duration_ms/(1000*60):.1f} minutes")
@@ -63,9 +66,10 @@ def transcribe_large_audio(audio_path):
     while current_position_ms < total_duration_ms:
         dump(current_position_ms)
 
-        # Extract chunk
-        print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {(current_position_ms + chunk_duration_ms)/1000:.2f}s")
-        chunk = audio[current_position_ms:current_position_ms + chunk_duration_ms]
+        # Extract chunk with overlap
+        chunk_end = min(current_position_ms + chunk_duration_ms + 5000, total_duration_ms)  # Add 5 seconds overlap
+        print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {chunk_end/1000:.2f}s")
+        chunk = audio[current_position_ms:chunk_end]
 
         # Save chunk temporarily
         temp_path = "temp_chunk.mp3"
@@ -89,17 +93,34 @@ def transcribe_large_audio(audio_path):
             word["start"] += current_position_ms / 1000  # Convert ms to seconds
             word["end"] += current_position_ms / 1000
 
+        # Handle overlap with previous chunk
+        if all_words:
+            # Find matching words in overlap region
+            overlap_start = max(0, len(chunk_words) - OVERLAP_WORDS)
+            best_overlap = 0
+            best_offset = 0
+            
+            # Try to align the overlapping words
+            for i in range(OVERLAP_WORDS):
+                matches = sum(1 for j in range(min(OVERLAP_WORDS - i, len(chunk_words) - overlap_start))
+                            if chunk_words[overlap_start + j]["text"].lower() == 
+                               all_words[-OVERLAP_WORDS + i + j]["text"].lower())
+                if matches > best_overlap:
+                    best_overlap = matches
+                    best_offset = i
+
+            # Trim overlapping words based on best alignment
+            if best_overlap >= 3:  # Only trim if we found a good match
+                trim_point = overlap_start + best_offset
+                chunk_words = chunk_words[trim_point:]
+        
         # Find a good cutting point for next chunk
-        # Use second-to-last word to avoid potential cut-off
-        if len(chunk_words) > 1:
-            last_complete_word_time = chunk_words[-2]["end"]
-            # Convert to milliseconds for pydub
-            current_position_ms = int(last_complete_word_time * 1000)
-            # Only add words up to the second-to-last word
-            all_words.extend(chunk_words[:-1])
-            print_words(chunk_words[:-1])
+        if len(chunk_words) > OVERLAP_WORDS:
+            # Keep OVERLAP_WORDS at the end for next chunk alignment
+            current_position_ms = int(chunk_words[-OVERLAP_WORDS]["start"] * 1000)
+            all_words.extend(chunk_words[:-OVERLAP_WORDS])
+            print_words(chunk_words[:-OVERLAP_WORDS])
         else:
-            # If chunk has 1 or 0 words, move forward by chunk duration
             current_position_ms += chunk_duration_ms
             all_words.extend(chunk_words)
             print_words(chunk_words)
