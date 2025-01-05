@@ -100,9 +100,8 @@ def transcribe_large_audio(audio_path):
         if all_words:
             chunk_words = chunk_words[SPLICE_WORDS:]
 
-            # Find best overlap by sliding chunk_words back over end of all_words
-            best_overlap = 0
-            best_offset = 0
+            # Look for complete overlap of at least SPLICE_WORDS
+            trim_point = None
             
             # Get last N words from previous chunk to compare against
             prev_words = [w['text'].lower() for w in all_words[-OVERLAP_WORDS:]]
@@ -110,19 +109,16 @@ def transcribe_large_audio(audio_path):
             # Try different alignments
             for offset in range(min(OVERLAP_WORDS, len(chunk_words))):
                 # Get words from current chunk at this offset
-                curr_words = [w['text'].lower() for w in chunk_words[offset:offset+len(prev_words)]]
+                curr_words = [w['text'].lower() for w in chunk_words[offset:offset+SPLICE_WORDS]]
+                prev_slice = prev_words[-SPLICE_WORDS:]
                 
-                # Count matching words
-                matches = sum(1 for p, c in zip(prev_words, curr_words) if p == c)
-                
-                # Update if this is the best match so far
-                if matches > best_overlap:
-                    best_overlap = matches
-                    best_offset = offset
+                # Check if we have a complete match of SPLICE_WORDS
+                if len(curr_words) >= SPLICE_WORDS and all(p == c for p, c in zip(prev_slice, curr_words)):
+                    trim_point = offset
+                    break
 
-            # Only trim if we found a good match
-            if best_overlap >= 1:  # Require at least 1 matching word
-                trim_point = best_offset
+            # Trim if we found matching words
+            if trim_point is not None:
                 chunk_words = chunk_words[trim_point:]
                 print(f"\nTrimmed {trim_point} overlapping words")
             else:
