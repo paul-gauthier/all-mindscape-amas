@@ -1,35 +1,40 @@
 #!/usr/bin/env python3
 
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Force CPU usage
-
-import whisper
 import sys
 import json
 from pathlib import Path
+from openai import OpenAI
 
 def transcribe_audio(audio_path):
     """
-    Transcribe audio file using Whisper model with word-level timestamps
+    Transcribe audio file using OpenAI Whisper API with word-level timestamps
     """
-    # Load the Whisper model
-    model = whisper.load_model("base")
+    # Get API key from environment variable
+    api_key = os.getenv('OPENAI_API_KEY')
+    if not api_key:
+        raise ValueError("OPENAI_API_KEY environment variable not set")
     
-    # Transcribe with word timestamps
-    result = model.transcribe(
-        audio_path,
-        language="en",
-        word_timestamps=True
-    )
+    client = OpenAI(api_key=api_key)
     
-    # Extract words with timestamps
+    # Open audio file
+    with open(audio_path, "rb") as audio_file:
+        # Call OpenAI API
+        response = client.audio.transcriptions.create(
+            model="whisper-1",
+            file=audio_file,
+            response_format="verbose_json",
+            timestamp_granularities=["word"]
+        )
+    
+    # Extract words with timestamps from response
     words = []
-    for segment in result["segments"]:
-        for word in segment["words"]:
+    for segment in response.segments:
+        for word in segment.words:
             words.append({
-                "text": word["text"],
-                "start": round(word["start"], 2),
-                "end": round(word["end"], 2)
+                "text": word.text,
+                "start": round(word.start, 2),
+                "end": round(word.end, 2)
             })
     
     return words
