@@ -100,10 +100,22 @@ def align_transcription(input_file, output_file):
 
     final_questions = []
     questions = sorted(questions)
-    # send each question's words to find_questions
-    # if we get back just the same question, add to final_questions and remove from questions
-    # if we get back >1 question, queue them all to be reprocessed
-    # ai!
+    
+    # Process questions in chunks of 100 words before and after
+    while questions:
+        q_index = questions.pop(0)
+        start = max(0, q_index - 100)
+        end = min(len(words), q_index + 100)
+        
+        # Get verification results for this question
+        verified = find_questions(words, start, end)
+        
+        if len(verified) == 1 and abs(verified[0] - q_index) <= 100:
+            # Single verified question near our original index
+            final_questions.append(q_index)
+        elif len(verified) > 1:
+            # Multiple questions found - add them all back to be processed
+            questions.extend(verified)
 
 
 def pretty(merged):
