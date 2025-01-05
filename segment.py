@@ -98,6 +98,12 @@ def align_transcription(input_file, output_file):
         questions.extend(chunk_questions)
         start_index += chunk_size
 
+    final_questions = []
+    questions = sorted(questions)
+    # send each question's words to find_questions
+    # if we get back just the same question, add to final_questions and remove from questions
+    # if we get back >1 question, queue them all to be reprocessed
+    # ai!
 
 
 def pretty(merged):
