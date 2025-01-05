@@ -62,7 +62,11 @@ def find_questions(words, start, end):
             full_words_text = "".join(w["text"] for w in words)
             offset = full_words_text.find(question)
             if offset == -1:
-                offset = full_words_text.find(question[:100])
+                question = question.split()[:10]
+                question = ' '.join(question)
+                offset = full_words_text.find(question)
+            if offset == -1:
+                # do a fuzzy find. ai!
             present = offset != -1
 
             word_index = None
@@ -79,8 +83,8 @@ def find_questions(words, start, end):
             print("Question:", present)
             print(question)
             print("word_index:", word_index)
-            dump(words[word_index:word_index+3])
-            questions.append(word_index)
+            #dump(words[word_index:word_index+3])
+            questions.append(word_index+start)
 
     return questions
 
@@ -100,22 +104,35 @@ def align_transcription(input_file, output_file):
 
     final_questions = []
     questions = sorted(questions)
-    
+    questions.reverse()
+
     # Process questions in chunks of 100 words before and after
     while questions:
-        q_index = questions.pop(0)
-        start = max(0, q_index - 100)
-        end = min(len(words), q_index + 100)
-        
+        dump(questions)
+        q_index = questions.pop()
+        start = q_index
+        if questions:
+            end = questions[-1]
+        else:
+            end = len(words)
+
+        print()
+        print(pretty(words[start:start+20]))
+
         # Get verification results for this question
         verified = find_questions(words, start, end)
-        
-        if len(verified) == 1 and abs(verified[0] - q_index) <= 100:
-            # Single verified question near our original index
-            final_questions.append(q_index)
+
+        if len(verified) == 1:
+            if verified == q_index:
+                # Single verified question near our original index
+                final_questions.append(q_index)
+            else:
+                assert False
         elif len(verified) > 1:
             # Multiple questions found - add them all back to be processed
             questions.extend(verified)
+            questions = sorted(set(questions))
+            questions.reverse()
 
 
 def pretty(merged):
