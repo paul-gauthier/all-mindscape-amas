@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import litellm
 import jsonlines
 import re
 import sys
@@ -9,9 +10,38 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+SYSTEM="""
+The user will share the transcript of a podcast episode.
+It's an "Ask Me Anything" episode from Sean Carroll's Mindscape podcast.
+He reads a series of questions from listeners and then answers them.
+
+The questions often start like:
+- Raul says why is the sky blue?
+- AbacusPowerUser asks why do apples fall from trees?
+- etc
+
+Find all the sentences in the transcript which denote the start of a new
+question.
+Return every such sentence, one per line in a bullet list like this:
+
+- Raul says why is the sky blue?
+- AbacusPowerUser asks why do apples fall from trees?
+""".strip()
 
 def find_questions(text):
-    pass
+    model = "deepseek/deepseek-chat"
+
+    messages=[
+        dict(role="system", content=SYSTEM),
+        dict(role="user", content=text),
+    ]
+
+    comp = litellm.completion(model=model, messages=messages)
+    res = comp.choices[0].message.content
+
+
+    # parse all lines that start with "- " and check if each one is in text. ai!
+
 
 def align_transcription(input_file, output_file):
     with jsonlines.open(input_file) as reader:
