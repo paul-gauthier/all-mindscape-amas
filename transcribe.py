@@ -54,35 +54,37 @@ def transcribe_large_audio(audio_path):
     """
     audio = AudioSegment.from_file(audio_path)
     total_duration_ms = len(audio)
-    
+
     # Start with a chunk size that's safely under 25MB (e.g., 20 minutes)
     chunk_duration_ms = 20 * 60 * 1000  # 20 minutes in milliseconds
-    
+
     current_position_ms = 0
     all_words = []
-    
+
     while current_position_ms < total_duration_ms:
+        dump(current_position_ms)
+
         # Extract chunk
         chunk = audio[current_position_ms:current_position_ms + chunk_duration_ms]
-        
+
         # Save chunk temporarily
         temp_path = "temp_chunk.mp3"
         chunk.export(temp_path, format="mp3")
-        
+
         # Transcribe chunk
         chunk_words = transcribe_audio(temp_path)
-        
+
         # Clean up temporary file
         os.remove(temp_path)
-        
+
         if not chunk_words:
             break
-            
+
         # Adjust timestamps with offset
         for word in chunk_words:
             word["start"] += current_position_ms / 1000  # Convert ms to seconds
             word["end"] += current_position_ms / 1000
-        
+
         # Find a good cutting point for next chunk
         # Use second-to-last word to avoid potential cut-off
         if len(chunk_words) > 1:
@@ -95,9 +97,9 @@ def transcribe_large_audio(audio_path):
             # If chunk has 1 or 0 words, move forward by chunk duration
             current_position_ms += chunk_duration_ms
             all_words.extend(chunk_words)
-        
+
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
-    
+
     return all_words
 
 def main():
@@ -113,7 +115,7 @@ def main():
     try:
         # Get file size in MB
         file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
-        
+
         # Choose transcription method based on file size
         if file_size_mb > 25:
             print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
