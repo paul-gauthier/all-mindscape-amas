@@ -55,8 +55,8 @@ def transcribe_large_audio(audio_path):
     audio = AudioSegment.from_file(audio_path)
     total_duration_ms = len(audio)
 
-    # Start with a chunk size that's safely under 25MB (e.g., 20 minutes)
-    chunk_duration_ms = 20 * 60 * 1000  # 20 minutes in milliseconds
+    # Start with a chunk size that's safely under 25MB (e.g., 10 minutes)
+    chunk_duration_ms = 10 * 60 * 1000  # 10 minutes in milliseconds
 
     current_position_ms = 0
     all_words = []
@@ -65,13 +65,18 @@ def transcribe_large_audio(audio_path):
         dump(current_position_ms)
 
         # Extract chunk
+        print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {(current_position_ms + chunk_duration_ms)/1000:.2f}s")
         chunk = audio[current_position_ms:current_position_ms + chunk_duration_ms]
 
         # Save chunk temporarily
         temp_path = "temp_chunk.mp3"
+        print("Exporting chunk to temporary file...")
         chunk.export(temp_path, format="mp3")
+        chunk_size_mb = os.path.getsize(temp_path) / (1024 * 1024)
+        print(f"Chunk size: {chunk_size_mb:.1f}MB")
 
         # Transcribe chunk
+        print("Sending chunk to OpenAI API for transcription...")
         chunk_words = transcribe_audio(temp_path)
 
         # Clean up temporary file
