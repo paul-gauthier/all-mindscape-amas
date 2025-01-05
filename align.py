@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import jsonlines
+import re
 import sys
 from pathlib import Path
 
@@ -22,7 +23,8 @@ def align_transcription(input_file, output_file):
             if "text" in obj:
                 text = obj["text"]
                 for word in skipped_words:
-                    text = # split text on regex \bword\b and take everything after the first one. ai!
+                    parts = re.split(r'\b' + re.escape(word) + r'\b', text, maxsplit=1)
+                    text = parts[1].lstrip() if len(parts) > 1 else text
                 obj["text"] = text
 
                 # Write the text segment
