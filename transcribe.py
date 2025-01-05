@@ -53,6 +53,8 @@ def transcribe_large_audio(audio_path):
     """
     # Number of words to overlap between chunks
     OVERLAP_WORDS = 10
+    SPLICE_WORDS = 3
+
     audio = AudioSegment.from_file(audio_path)
     total_duration_ms = len(audio)
     print(f"Total duration: {total_duration_ms/(1000*60):.1f} minutes")
@@ -67,7 +69,7 @@ def transcribe_large_audio(audio_path):
         dump(current_position_ms)
 
         # Extract chunk with overlap
-        chunk_end = min(current_position_ms + chunk_duration_ms + 5000, total_duration_ms)  # Add 5 seconds overlap
+        chunk_end = min(current_position_ms + chunk_duration_ms, total_duration_ms)
         print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {chunk_end/1000:.2f}s")
         chunk = audio[current_position_ms:chunk_end]
 
@@ -81,6 +83,7 @@ def transcribe_large_audio(audio_path):
         # Transcribe chunk
         print("Sending chunk to OpenAI API for transcription...")
         chunk_words = transcribe_audio(temp_path)
+        print_words(chunk_words)
 
         # Clean up temporary file
         os.remove(temp_path)
@@ -99,14 +102,14 @@ def transcribe_large_audio(audio_path):
             overlap_start = max(0, len(chunk_words) - OVERLAP_WORDS)
             best_overlap = 0
             best_offset = 0
-            
+
             # Print debug info about the overlap region
             print("\n=== CHUNK BOUNDARY ALIGNMENT ===")
             print("Last words from previous chunk:")
             for i in range(-OVERLAP_WORDS, 0):
                 word = all_words[i]
                 print(f"  {word['text']} [{word['start']:.2f}s]")
-            
+
             print("\nFirst words from current chunk:")
             for i in range(min(OVERLAP_WORDS, len(chunk_words) - overlap_start)):
                 word = chunk_words[overlap_start + i]
@@ -115,7 +118,7 @@ def transcribe_large_audio(audio_path):
             # Try to align the overlapping words
             for i in range(OVERLAP_WORDS):
                 matches = sum(1 for j in range(min(OVERLAP_WORDS - i, len(chunk_words) - overlap_start))
-                            if chunk_words[overlap_start + j]["text"].lower() == 
+                            if chunk_words[overlap_start + j]["text"].lower() ==
                                all_words[-OVERLAP_WORDS + i + j]["text"].lower())
                 if matches > best_overlap:
                     best_overlap = matches
@@ -129,17 +132,18 @@ def transcribe_large_audio(audio_path):
             else:
                 print("\nWARNING: Poor word alignment at chunk boundary")
             print("===============================\n")
-        
+            sys.exit()
+
+
         # Find a good cutting point for next chunk
         if len(chunk_words) > OVERLAP_WORDS:
             # Keep OVERLAP_WORDS at the end for next chunk alignment
             current_position_ms = int(chunk_words[-OVERLAP_WORDS]["start"] * 1000)
-            all_words.extend(chunk_words[:-OVERLAP_WORDS])
-            print_words(chunk_words[:-OVERLAP_WORDS])
         else:
             current_position_ms += chunk_duration_ms
-            all_words.extend(chunk_words)
-            print_words(chunk_words)
+
+        # what is len() < splice? ai!
+        all_words.extend(chunk_words[:-SPLICE_WORDS])
 
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
@@ -165,7 +169,7 @@ def main():
         file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
 
         # Choose transcription method based on file size
-        if file_size_mb > 25:
+        if file_size_mb > 5:
             print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
             transcription = transcribe_large_audio(audio_path)
         else:
