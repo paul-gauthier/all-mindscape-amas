@@ -53,7 +53,6 @@ def transcribe_large_audio(audio_path):
     """
     # Number of words to overlap between chunks
     OVERLAP_WORDS = 10
-    SPLICE_WORDS = 3
 
     audio = AudioSegment.from_file(audio_path)
     total_duration_ms = len(audio)
@@ -96,55 +95,15 @@ def transcribe_large_audio(audio_path):
             word["start"] += current_position_ms / 1000  # Convert ms to seconds
             word["end"] += current_position_ms / 1000
 
-        # Handle overlap with previous chunk
-        if all_words:
-            chunk_words = chunk_words[SPLICE_WORDS:]
-
-            # Look for complete overlap of at least SPLICE_WORDS
-            trim_point = None
-            
-            # Get last N words from previous chunk to compare against
-            prev_words = [w['text'].lower() for w in all_words[-OVERLAP_WORDS:]]
-            
-            # Try different alignments
-            for offset in range(min(OVERLAP_WORDS, len(chunk_words))):
-                # Get words from current chunk at this offset
-                curr_words = [w['text'].lower() for w in chunk_words[offset:offset+SPLICE_WORDS]]
-                prev_slice = prev_words[-SPLICE_WORDS:]
-                
-                # Check if we have a complete match of SPLICE_WORDS
-                if len(curr_words) >= SPLICE_WORDS and all(p == c for p, c in zip(prev_slice, curr_words)):
-                    trim_point = offset
-                    break
-
-            # Trim if we found matching words
-            if trim_point is not None:
-                chunk_words = chunk_words[trim_point:]
-                print(f"\nTrimmed {trim_point} overlapping words")
-            else:
-                print("\nWARNING: Could not find good word alignment")
-
-            # Print debug info about word alignment
-            print("\nWord alignment details:")
-            print("Last words from previous chunk:")
-            for word in all_words[-OVERLAP_WORDS:]:
-                print(f"  {word['text']}")
-            print("\nFirst words of current chunk:")
-            for word in chunk_words[:OVERLAP_WORDS]:
-                print(f"  {word['text']}")
-
         # Find a good cutting point for next chunk
         if len(chunk_words) > OVERLAP_WORDS:
             # Keep OVERLAP_WORDS at the end for next chunk alignment
             current_position_ms = int(chunk_words[-OVERLAP_WORDS]["start"] * 1000)
         else:
-            current_position_ms += chunk_duration_ms
+            current_position_ms += chunk_duration_ms - 10*1000
 
         # Add words to the final list, keeping some overlap for next chunk
-        if len(chunk_words) > SPLICE_WORDS:
-            all_words.extend(chunk_words[:-SPLICE_WORDS])
-        else:
-            all_words.extend(chunk_words)
+        all_words.extend(chunk_words)
 
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
