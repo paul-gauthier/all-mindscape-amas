@@ -92,8 +92,8 @@ def transcribe_large_audio(audio_path):
 
         # Transcribe chunk
         print("Sending chunk to OpenAI API for transcription...")
-        chunk_words = transcribe_audio(temp_path)
-        print_words(chunk_words)
+        chunk_words, chunk_text = transcribe_audio(temp_path)
+        print_words((chunk_words, chunk_text))
 
         # Clean up temporary file
         os.remove(temp_path)
@@ -105,6 +105,10 @@ def transcribe_large_audio(audio_path):
         for word in chunk_words:
             word["start"] += current_position_ms / 1000  # Convert ms to seconds
             word["end"] += current_position_ms / 1000
+        
+        # Adjust text segment timestamps
+        chunk_text["start"] += current_position_ms / 1000
+        chunk_text["end"] += current_position_ms / 1000
 
         # Find a good cutting point for next chunk
         if len(chunk_words) > OVERLAP_WORDS:
@@ -116,9 +120,9 @@ def transcribe_large_audio(audio_path):
         # Write this chunk's words and text to the output file
         output_file = Path(audio_path).stem + "_transcription.jsonl"
         with jsonlines.open(output_file, mode='a') as writer:
-            for word in chunk_words[0]:  # chunk_words[0] contains word data
+            for word in chunk_words:
                 writer.write(word)
-            writer.write(chunk_words[1])  # chunk_words[1] contains text segment
+            writer.write(chunk_text)
 
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
