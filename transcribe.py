@@ -142,8 +142,11 @@ def transcribe_large_audio(audio_path):
         else:
             current_position_ms += chunk_duration_ms
 
-        # what is len() < splice? ai!
-        all_words.extend(chunk_words[:-SPLICE_WORDS])
+        # Add words to the final list, keeping some overlap for next chunk
+        if len(chunk_words) > SPLICE_WORDS:
+            all_words.extend(chunk_words[:-SPLICE_WORDS])
+        else:
+            all_words.extend(chunk_words)
 
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
