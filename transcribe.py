@@ -35,11 +35,13 @@ def transcribe_audio(audio_path):
             timestamp_granularities=["word"]
         )
 
+    dump(response)
+
     # Extract words with timestamps from response
     words = []
     for word in response.words:
         words.append({
-            "text": word.word,
+            "word": word.word,
             "start": round(word.start, 2),
             "end": round(word.end, 2)
         })
@@ -149,7 +151,7 @@ def main():
                     writer.write(word)
 
         print(f"Transcription saved to {output_file}")
-        
+
         # Print final output
         with jsonlines.open(output_file) as reader:
             for word in reader:
