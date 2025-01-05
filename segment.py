@@ -38,9 +38,16 @@ def find_questions(text):
 
     comp = litellm.completion(model=model, messages=messages)
     res = comp.choices[0].message.content
-
-
-    # parse all lines that start with "- " and check if each one is in text. ai!
+    
+    # Parse bullet points and verify they exist in text
+    questions = []
+    for line in res.splitlines():
+        if line.startswith("- "):
+            question = line[2:].strip()
+            if question in text:
+                questions.append(question)
+    
+    return questions
 
 
 def align_transcription(input_file, output_file):
