@@ -100,9 +100,25 @@ def transcribe_large_audio(audio_path):
         if all_words:
             chunk_words = chunk_words[SPLICE_WORDS:]
 
-            # slide chunk words back over the end of all_words at least
-            # SPLICE_WORDS spots. stop when the overlaps match. ai!
-
+            # Find best overlap by sliding chunk_words back over end of all_words
+            best_overlap = 0
+            best_offset = 0
+            
+            # Get last N words from previous chunk to compare against
+            prev_words = [w['text'].lower() for w in all_words[-OVERLAP_WORDS:]]
+            
+            # Try different alignments
+            for offset in range(min(OVERLAP_WORDS, len(chunk_words))):
+                # Get words from current chunk at this offset
+                curr_words = [w['text'].lower() for w in chunk_words[offset:offset+len(prev_words)]]
+                
+                # Count matching words
+                matches = sum(1 for p, c in zip(prev_words, curr_words) if p == c)
+                
+                # Update if this is the best match so far
+                if matches > best_overlap:
+                    best_overlap = matches
+                    best_offset = offset
 
             # Only trim if we found a good match
             if best_overlap >= 1:  # Require at least 1 matching word
