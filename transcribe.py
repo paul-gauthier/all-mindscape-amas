@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Force CPU usage
+
 import whisper
 import sys
 import json
