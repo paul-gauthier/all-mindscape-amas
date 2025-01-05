@@ -4,6 +4,7 @@ import jsonlines
 import re
 import sys
 from pathlib import Path
+from dump import dump
 
 def align_transcription(input_file, output_file):
     """
@@ -21,13 +22,23 @@ def align_transcription(input_file, output_file):
     with jsonlines.open(input_file) as reader, jsonlines.open(output_file, mode='w') as writer:
         for obj in reader:
             if "text" in obj:
-                text = obj["text"]
+                orig_text = text = obj["text"]
                 for word in skipped_words:
+                    #dump(word)
                     parts = re.split(r'\b' + re.escape(word) + r'\b', text, maxsplit=1)
 
-                    text = re.sub(r'^[^a-zA-Z0-9]+', '', parts[1]) if len(parts) > 1 else text
+                    # don't just lstrip space, lstrip any non-alphanum. ai!
+                    text = parts[1].lstrip() if len(parts) > 1 else text
+
+                    #dump(text[:100])
+
+                trimmed = len(orig_text) - len(text) -1
 
                 obj["text"] = text
+                print("...", orig_text[:100])
+                print("...", " "*trimmed, text[:100])
+                print()
+                print(text[-100:], "...")
 
                 # Write the text segment
                 writer.write(obj)
@@ -36,11 +47,11 @@ def align_transcription(input_file, output_file):
                 skipped_words = []
             elif "word" in obj:
                 # If current word starts before last word ends (with some threshold)
-                if obj["start"] <= last_word["end"]:
+                if obj["start"] <= prev_chunk_end:
                     skipped_words.append(obj["word"])
                     continue
 
-                write.write(obj)
+                writer.write(obj)
 
 def main():
     if len(sys.argv) != 2:
