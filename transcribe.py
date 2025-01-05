@@ -81,6 +81,9 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
 
         # Extract chunk with overlap
         chunk_end = min(current_position_ms + chunk_duration_ms, total_duration_ms)
+        # Calculate and display progress
+        percent_complete = (current_position_ms / total_duration_ms) * 100
+        print(f"\nProgress: {percent_complete:.1f}% complete")
         print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {chunk_end/1000:.2f}s")
         chunk = audio[current_position_ms:chunk_end]
 
