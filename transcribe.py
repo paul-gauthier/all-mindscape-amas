@@ -3,6 +3,7 @@
 import os
 import sys
 import json
+import jsonlines
 from pathlib import Path
 from openai import OpenAI
 from dotenv import load_dotenv
@@ -102,12 +103,16 @@ def transcribe_large_audio(audio_path):
         else:
             current_position_ms += chunk_duration_ms - 10*1000
 
-        # Add words to the final list, keeping some overlap for next chunk
-        all_words.extend(chunk_words)
+        # Write this chunk's words to the output file
+        output_file = Path(audio_path).stem + "_transcription.jsonl"
+        with jsonlines.open(output_file, mode='a') as writer:
+            for word in chunk_words:
+                writer.write(word)
 
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
-    return all_words
+    # Return the output file path
+    return output_file
 
 def print_words(words):
     """Print words with their timestamps"""
@@ -128,20 +133,27 @@ def main():
         # Get file size in MB
         file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
 
+        # Clear any existing output file
+        output_file = Path(audio_path).stem + "_transcription.jsonl"
+        Path(output_file).unlink(missing_ok=True)
+
         # Choose transcription method based on file size
         if file_size_mb > 5:
             print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
-            transcription = transcribe_large_audio(audio_path)
+            output_file = transcribe_large_audio(audio_path)
         else:
             transcription = transcribe_audio(audio_path)
-
-        # Save to JSON file
-        output_file = Path(audio_path).stem + "_transcription.json"
-        with open(output_file, "w", encoding="utf-8") as f:
-            json.dump(transcription, f, indent=2, ensure_ascii=False)
+            # Write single chunk to JSONL
+            with jsonlines.open(output_file, mode='w') as writer:
+                for word in transcription:
+                    writer.write(word)
 
         print(f"Transcription saved to {output_file}")
-        print_words(transcription)
+        
+        # Print final output
+        with jsonlines.open(output_file) as reader:
+            for word in reader:
+                print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
 
     except Exception as e:
         print(f"Error during transcription: {str(e)}")
