@@ -36,7 +36,9 @@ Return one question per line in a bulleted list like this:
 the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity?
 """.strip()
 
-def find_questions(words):
+def find_questions(words, start, end):
+
+    words = words[start:end]
 
     text = pretty(words)
 
@@ -74,7 +76,11 @@ def find_questions(words):
                     char_count = next_count
 
             print()
-            print("Found question:", present, question, "word_index:", word_index)
+            print("Question:", present)
+            print(question)
+            print("word_index:", word_index)
+            dump(words[word_index:word_index+3])
+            questions.append(word_index)
 
     return questions
 
@@ -83,9 +89,8 @@ def align_transcription(input_file, output_file):
     with jsonlines.open(input_file) as reader:
         words = [obj for obj in reader]
 
-    while words:
-        find_questions(words[:2000])
-        break
+    questions = []
+    # call find_questions with 5k word chunks of `words` and accumulate questions. ai!
 
 
 
