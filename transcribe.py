@@ -36,13 +36,12 @@ def transcribe_audio(audio_path):
 
     # Extract words with timestamps from response
     words = []
-    for segment in response.segments:
-        for word in segment.words:
-            words.append({
-                "text": word.text,
-                "start": round(word.start, 2),
-                "end": round(word.end, 2)
-            })
+    for word in response.words:
+        words.append({
+            "text": word.word,
+            "start": round(word.start, 2),
+            "end": round(word.end, 2)
+        })
 
     return words
 
