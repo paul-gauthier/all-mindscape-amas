@@ -169,7 +169,7 @@ def main():
             # Find the last text segment
             last_text = None
             for obj in reader:
-                if obj.get("type") == "text":
+                if obj.get("text"):
                     last_text = obj
             if last_text:
                 current_position_ms = int(last_text["end"] * 1000) - 10*1000

@@ -3,6 +3,7 @@
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning)
 
+import lox
 import litellm
 import jsonlines
 import re
@@ -36,7 +37,9 @@ Return one question per line in a bulleted list like this:
 the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity?
 """.strip()
 
+@lox.thread(10)
 def find_questions(words, start, end):
+    dump(start, end)
 
     words = words[start:end]
 
@@ -68,21 +71,21 @@ def find_questions(words, start, end):
             if offset == -1:
                 # Try fuzzy matching with edit distance
                 from Levenshtein import distance as levenshtein_distance
-                
+
                 # Split text into overlapping chunks of question length
                 chunk_size = len(question)
                 min_distance = float('inf')
                 best_offset = -1
-                
+
                 for i in range(len(full_words_text) - chunk_size + 1):
                     chunk = full_words_text[i:i+chunk_size]
                     dist = levenshtein_distance(question.lower(), chunk.lower())
-                    if dist < min_distance and dist <= 10:
+                    if dist < min_distance and dist <= 20:
                         min_distance = dist
                         best_offset = i
                         if dist == 0:
                             break
-                
+
                 offset = best_offset
             present = offset != -1
 
@@ -98,10 +101,12 @@ def find_questions(words, start, end):
 
             print()
             print("Question:", present)
+            print(pretty(words[word_index:word_index+10]))
             print(question)
-            print("word_index:", word_index)
             #dump(words[word_index:word_index+3])
-            questions.append(word_index+start)
+            word_index+= start
+            print("word_index:", word_index)
+            questions.append(word_index)
 
     return questions
 
@@ -115,9 +120,11 @@ def align_transcription(input_file, output_file):
     start_index = 0
     while start_index < len(words):
         end_index = min(start_index+chunk_size, len(words))
-        chunk_questions = find_questions(words, start_index, end_index)
-        questions.extend(chunk_questions)
+        find_questions.scatter(words, start_index, end_index)
         start_index += chunk_size
+
+    for chunk_questions in find_questions.gather(tqdm=True):
+        questions.extend(chunk_questions)
 
     final_questions = []
     questions = sorted(questions)
@@ -125,6 +132,8 @@ def align_transcription(input_file, output_file):
 
     # Process questions in chunks of 100 words before and after
     while questions:
+
+        # use lox to parallelize this. ai!
         dump(questions)
         q_index = questions.pop()
         start = q_index
@@ -140,7 +149,7 @@ def align_transcription(input_file, output_file):
         verified = find_questions(words, start, end)
 
         if len(verified) == 1:
-            if verified == q_index:
+            if verified[0] == q_index:
                 # Single verified question near our original index
                 final_questions.append(q_index)
             else:

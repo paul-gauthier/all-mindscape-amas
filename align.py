@@ -14,7 +14,7 @@ def align_transcription(input_file, output_file):
         input_file: Path to input JSONL file with transcription data
         output_file: Path to output JSONL file for aligned transcription
     """
-    overlap_threshold = 0.1  # seconds for considering words as overlapping
+    overlap_threshold = 0.05  # seconds for considering words as overlapping
 
     prev_chunk_end = 0
     skipped_words = []
@@ -46,7 +46,7 @@ def align_transcription(input_file, output_file):
                 skipped_words = []
             elif "word" in obj:
                 # If current word starts before last word ends (with some threshold)
-                if obj["start"] <= prev_chunk_end:
+                if obj["start"] <= prev_chunk_end + overlap_threshold:
                     skipped_words.append(obj["word"])
                     continue
 

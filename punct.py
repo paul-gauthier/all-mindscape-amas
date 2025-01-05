@@ -29,7 +29,7 @@ def align_transcription(input_file, output_file):
             for wobj in words:
                 word = wobj["word"]
                 if not [c for c in word if c.isalnum()]:
-                    dump(word)
+                    print("skipping non-alphanum:", word)
                     continue
 
                 parts = re.split(r'\b' + re.escape(word) + r'\b', text, maxsplit=1)
@@ -59,7 +59,7 @@ def align_transcription(input_file, output_file):
         start = obj["start"]
         if start < last_time:
             mid = (start + last_time)/2.0
-            merged = [m for m in merged if m["start"] < mid]
+            merged = [m for m in merged if m["start"] <= mid]
 
             while obj["start"] < mid and aligned:
                 obj = aligned.pop()
@@ -72,8 +72,8 @@ def align_transcription(input_file, output_file):
         full_text = ""
         for obj in merged:
             writer.write(obj)
-            full_text += obj.get("text", "") + " "
-        
+            full_text += obj.get("text", "")
+
         # Print word-wrapped text
         import textwrap
         print("\n".join(textwrap.wrap(full_text, width=80)))
