@@ -149,8 +149,7 @@ def align_transcription(input_file, output_file):
         verified = find_questions(words, start, end)
 
         if len(verified) == 1:
-            if verified[0] == q_index:
-                # Single verified question near our original index
+            if abs(verified[0] - q_index) < 3:
                 final_questions.append(q_index)
             else:
                 assert False
