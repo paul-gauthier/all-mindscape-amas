@@ -25,8 +25,7 @@ def align_transcription(input_file, output_file):
                 for word in skipped_words:
                     parts = re.split(r'\b' + re.escape(word) + r'\b', text, maxsplit=1)
 
-                    # don't just lstrip, lstrip all non-alphanums. ai!
-                    text = parts[1].lstrip() if len(parts) > 1 else text
+                    text = re.sub(r'^[^a-zA-Z0-9]+', '', parts[1]) if len(parts) > 1 else text
                 obj["text"] = text
 
                 # Write the text segment
