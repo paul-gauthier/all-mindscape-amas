@@ -112,7 +112,7 @@ def transcribe_large_audio(audio_path):
                     best_offset = i
 
             # Only trim if we found a good match
-            if best_overlap >= 2:  # Require at least 2 matching words
+            if best_overlap >= 1:  # Require at least 1 matching word
                 trim_point = best_offset
                 chunk_words = chunk_words[trim_point:]
                 print(f"\nTrimmed {trim_point} overlapping words")
