@@ -90,7 +90,13 @@ def align_transcription(input_file, output_file):
         words = [obj for obj in reader]
 
     questions = []
-    # call find_questions with 5k word chunks of `words` and accumulate questions. ai!
+    chunk_size = 5000
+    start_index = 0
+    while start_index < len(words):
+        end_index = min(start_index+chunk_size, len(words))
+        chunk_questions = find_questions(words, start_index, end_index)
+        questions.extend(chunk_questions)
+        start_index += chunk_size
 
 
 
