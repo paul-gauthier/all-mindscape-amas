@@ -26,6 +26,7 @@ def align_transcription(input_file, output_file):
                     parts = re.split(r'\b' + re.escape(word) + r'\b', text, maxsplit=1)
 
                     text = re.sub(r'^[^a-zA-Z0-9]+', '', parts[1]) if len(parts) > 1 else text
+
                 obj["text"] = text
 
                 # Write the text segment
