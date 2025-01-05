@@ -56,7 +56,7 @@ def transcribe_audio(audio_path):
 
     return words, text_segment
 
-def transcribe_large_audio(audio_path):
+def transcribe_large_audio(audio_path, start_position_ms=0):
     """
     Handle large audio files by processing chunks sequentially,
     using word timestamps to determine clean cut points.
@@ -72,7 +72,7 @@ def transcribe_large_audio(audio_path):
     # Start with a chunk size that's safely under 25MB (e.g., 10 minutes)
     chunk_duration_ms = 1 * 60 * 1000  # 10 minutes in milliseconds
 
-    current_position_ms = 0
+    current_position_ms = start_position_ms
     all_words = []
 
     while current_position_ms < total_duration_ms:
@@ -156,14 +156,26 @@ def main():
     # Get file size in MB
     file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
 
-    # Clear any existing output file
     output_file = Path(audio_path).stem + "_transcription.jsonl"
-    Path(output_file).unlink(missing_ok=True)
-
+    
+    # Check if we have an existing transcription to resume from
+    current_position_ms = 0
+    if Path(output_file).exists():
+        print(f"Found existing transcription file {output_file}")
+        with jsonlines.open(output_file) as reader:
+            # Find the last text segment
+            last_text = None
+            for obj in reader:
+                if obj.get("type") == "text":
+                    last_text = obj
+            if last_text:
+                current_position_ms = int(last_text["end"] * 1000)
+                print(f"Resuming transcription from {current_position_ms/1000:.2f} seconds")
+    
     # Choose transcription method based on file size
     if file_size_mb > 5:
         print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
-        output_file = transcribe_large_audio(audio_path)
+        output_file = transcribe_large_audio(audio_path, current_position_ms)
     else:
         words, text_segment = transcribe_audio(audio_path)
         # Write single chunk to JSONL
