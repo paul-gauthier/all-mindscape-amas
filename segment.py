@@ -57,13 +57,24 @@ def find_questions(words):
         if line.startswith("- "):
             question = line[2:].strip()
 
-            # find the offset of question in `words`, not in `text`. ai!
-            present = question in text
-            if not present:
-                present = question[:100] in text
+            full_words_text = "".join(w["text"] for w in words)
+            offset = full_words_text.find(question)
+            if offset == -1:
+                offset = full_words_text.find(question[:100])
+            present = offset != -1
+
+            word_index = None
+            if present:
+                char_count = 0
+                for i, w_obj in enumerate(words):
+                    next_count = char_count + len(w_obj["text"])
+                    if offset < next_count:
+                        word_index = i
+                        break
+                    char_count = next_count
 
             print()
-            print(present, question)
+            print("Found question:", present, question, "word_index:", word_index)
 
     return questions
 
