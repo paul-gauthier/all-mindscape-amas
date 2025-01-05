@@ -98,9 +98,26 @@ def transcribe_large_audio(audio_path):
 
         # Handle overlap with previous chunk
         if all_words:
-            # trim leading words from chunk_words
-            # until the first SPLICE_WORDS match the last of all_words
-            # ai!
+            overlap_start = 0
+            best_overlap = 0
+            best_offset = 0
+
+            # Try to align the overlapping words
+            for i in range(SPLICE_WORDS):
+                matches = sum(1 for j in range(min(SPLICE_WORDS - i, len(chunk_words)))
+                            if chunk_words[j]["text"].lower() == 
+                               all_words[-SPLICE_WORDS + i + j]["text"].lower())
+                if matches > best_overlap:
+                    best_overlap = matches
+                    best_offset = i
+
+            # Only trim if we found a good match
+            if best_overlap >= 2:  # Require at least 2 matching words
+                trim_point = best_offset
+                chunk_words = chunk_words[trim_point:]
+                print(f"\nTrimmed {trim_point} overlapping words")
+            else:
+                print("\nWARNING: Could not find good word alignment")
 
         # Find a good cutting point for next chunk
         if len(chunk_words) > OVERLAP_WORDS:
