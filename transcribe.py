@@ -52,8 +52,7 @@ def transcribe_large_audio(audio_path):
     """
     audio = AudioSegment.from_file(audio_path)
     total_duration_ms = len(audio)
-
-    # print tot dur in minutes. ai!
+    print(f"Total duration: {total_duration_ms/(1000*60):.1f} minutes")
 
     # Start with a chunk size that's safely under 25MB (e.g., 10 minutes)
     chunk_duration_ms = 1 * 60 * 1000  # 10 minutes in milliseconds
@@ -107,6 +106,11 @@ def transcribe_large_audio(audio_path):
 
     return all_words
 
+def print_words(words):
+    """Print words with their timestamps"""
+    for word in words:
+        print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
+
 def main():
     if len(sys.argv) != 2:
         print("Usage: python transcribe.py <audio_file.mp3>")
@@ -134,10 +138,7 @@ def main():
             json.dump(transcription, f, indent=2, ensure_ascii=False)
 
         print(f"Transcription saved to {output_file}")
-
-        # move to a helper func; print after each chunk during long transcribe iterations. ai!
-        for word in transcription:
-            print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
+        print_words(transcription)
 
     except Exception as e:
         print(f"Error during transcription: {str(e)}")
