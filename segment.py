@@ -10,6 +10,11 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+# suppress this warning. ai!
+#/Users/gauthier/Projects/sean-carroll/.venv/lib/python3.12/site-packages/pydantic/_internal/_config.py:345: UserWarning: Valid config keys have changed in V2:
+#* 'fields' has been removed
+#  warnings.warn(message, UserWarning)
+
 SYSTEM="""
 The user will share the transcript of a podcast episode.
 It's an "Ask Me Anything" episode from Sean Carroll's Mindscape podcast.
@@ -38,15 +43,17 @@ def find_questions(text):
 
     comp = litellm.completion(model=model, messages=messages)
     res = comp.choices[0].message.content
-    
+    print(res)
+
     # Parse bullet points and verify they exist in text
     questions = []
     for line in res.splitlines():
         if line.startswith("- "):
             question = line[2:].strip()
-            if question in text:
-                questions.append(question)
-    
+            present = question in text
+            print()
+            print(present, question)
+
     return questions
 
 
