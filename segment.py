@@ -66,13 +66,7 @@ def find_questions(words, start, end):
                 question = ' '.join(question)
                 offset = full_words_text.find(question)
             if offset == -1:
-                # Try case-insensitive search
-                offset = full_words_text.lower().find(question.lower())
-                if offset == -1:
-                    # Try removing common punctuation
-                    clean_text = re.sub(r"[.,;:!?]", "", full_words_text.lower())
-                    clean_question = re.sub(r"[.,;:!?]", "", question.lower())
-                    offset = clean_text.find(clean_question)
+                # do a fuzzy find with edit distance <10. ai!
             present = offset != -1
 
             word_index = None
