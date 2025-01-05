@@ -37,16 +37,24 @@ def transcribe_audio(audio_path):
 
     dump(response)
 
-    # Extract words with timestamps from response
+    # Extract words and full text with timestamps
     words = []
     for word in response.words:
         words.append({
-            "word": word.word,
+            "text": word.word,
             "start": round(word.start, 2),
             "end": round(word.end, 2)
         })
 
-    return words
+    # Add the full text with timestamps
+    text_segment = {
+        "type": "text",
+        "text": response.text,
+        "start": round(response.words[0].start, 2) if response.words else 0,
+        "end": round(response.words[-1].end, 2) if response.words else response.duration
+    }
+    
+    return words, text_segment
 
 def transcribe_large_audio(audio_path):
     """
@@ -105,21 +113,31 @@ def transcribe_large_audio(audio_path):
         else:
             current_position_ms += chunk_duration_ms - 10*1000
 
-        # Write this chunk's words to the output file
+        # Write this chunk's words and text to the output file
         output_file = Path(audio_path).stem + "_transcription.jsonl"
         with jsonlines.open(output_file, mode='a') as writer:
-            for word in chunk_words:
+            for word in chunk_words[0]:  # chunk_words[0] contains word data
                 writer.write(word)
+            writer.write(chunk_words[1])  # chunk_words[1] contains text segment
 
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
     # Return the output file path
     return output_file
 
-def print_words(words):
-    """Print words with their timestamps"""
+def print_words(words_and_text):
+    """Print words and text segments with their timestamps"""
+    words, text = words_and_text if isinstance(words_and_text, tuple) else (words_and_text, None)
+    
+    # Print word-level timestamps
     for word in words:
         print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
+    
+    # Print full text segment if available
+    if text:
+        print("\nFull text segment:")
+        print(f"[{text['start']:.2f} - {text['end']:.2f}]")
+        print(text['text'])
 
 def main():
     if len(sys.argv) != 2:
@@ -144,11 +162,12 @@ def main():
             print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
             output_file = transcribe_large_audio(audio_path)
         else:
-            transcription = transcribe_audio(audio_path)
+            words, text_segment = transcribe_audio(audio_path)
             # Write single chunk to JSONL
             with jsonlines.open(output_file, mode='w') as writer:
-                for word in transcription:
+                for word in words:
                     writer.write(word)
+                writer.write(text_segment)
 
         print(f"Transcription saved to {output_file}")
 
