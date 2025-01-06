@@ -97,6 +97,8 @@ def main():
         input_path = Path(input_file).with_suffix(".transcription.jsonl")
         output_file = input_path.with_suffix(".punct.jsonl")
         output_text = input_path.with_suffix(".punct.txt")
+
+        # if output_file exists, skip. ai!
         align_transcription(input_path, output_file, output_text)
         print(f"Aligned transcription saved to {output_file}")
         print(f"Word-wrapped text saved to {output_text}")
