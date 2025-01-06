@@ -38,20 +38,18 @@ def align_transcription(input_file, output_file, output_text):
                 # Strip non-alnums from ends only
                 clean_word = word.strip(''.join(c for c in word if not c.isalnum()))
                 # Try splitting with original word first
-                parts = text.split(word, 1)
+                parts = text.split(clean_word, 1)
                 if len(parts) != 2:
-                    # If that fails, try with cleaned word
-                    parts = text.split(clean_word, 1)
-                    if len(parts) != 2:
-                        # If still failing, skip this word
-                        print(f"Warning: Could not align word '{word}' in text")
-                        continue
+                    print(f"Warning: Could not align word '{word}' in text: {text[:100]}")
+                    continue
 
                 rest = parts[1]
                 rest = rest.lstrip(" ".join(c for c in rest if not c.isalnum()))
 
                 this = text[:len(text) - len(rest)]
                 wobj["text"] = this
+
+                assert abs(len(this) - len(word)) < 10, f"{word} // {this}"
 
                 aligned.append(wobj)
 

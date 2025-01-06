@@ -49,17 +49,10 @@ Do not skip, re-order or summarize.
 def find_questions(words, start, end):
 
     words = words[start:end]
-
     duration = words[-1]['end'] - words[0]['start']
-
-    print()
-    print()
-    print()
     dump(start, end, duration)
 
     text = pretty(words)
-    print()
-    dump(text)
 
     model = "deepseek/deepseek-chat"
 
@@ -70,8 +63,10 @@ def find_questions(words, start, end):
 
     comp = litellm.completion(model=model, messages=messages, temperature=0)
     res = comp.choices[0].message.content
-    print()
-    dump(res)
+
+    lines = res.splitlines()
+    lines = [l[:70] for l in lines]
+    print("\n".join(lines))
 
     # Parse bullet points and verify they exist in text
     question_dict = {}
@@ -81,23 +76,20 @@ def find_questions(words, start, end):
             raw_question = question = line[2:].strip()
 
             word_index = find_question_in_words(question, words)
-            if not word_index:
-                #    print("X"*70)
+            if word_index is None:
                 unfound_questions.append(question)
                 continue
 
-            print()
-            print("question:", question[:50])
-            print("start word_index:", word_index)
-            print(pretty(words[word_index:word_index+10]))
+            print("Question:", question[:50])
+            #print("start word_index:", word_index)
+            #print(pretty(words[word_index:word_index+10]))
             #dump(words[word_index:word_index+3])
             word_index+= start
             question_dict[word_index] = raw_question
 
     if unfound_questions:
-        print("\nUnfound questions:")
         for q in unfound_questions:
-            print(f"- {q}")
+            print(f"Not Found: {q}")
         print()
 
     return question_dict
@@ -107,7 +99,13 @@ def find_question_in_words(question, words):
     question = question.strip().lower()
     num_words = len(words)
 
+    #dump(question)
+    #full_text = "".join(w["text"] for w in words).strip().lower()
+    #dump(full_text)
+
     for i in range(num_words):
+        if not question.startswith(words[i]["text"].strip().lower()):
+            continue
         text = "".join(w["text"] for w in words[i:]).strip().lower()
         if text.startswith(question):
             return i
@@ -119,26 +117,27 @@ def find_question_in_words(question, words):
     question = ' '.join(question[:N])
 
     for i in range(num_words):
+        if not question.startswith(words[i]["text"].strip().lower()):
+            continue
         text = "".join(w["text"] for w in words[i:]).strip().lower()
         if text.startswith(question):
             return i
-
 
     from Levenshtein import distance as levenshtein_distance
 
     # Find position with minimum Levenshtein distance
     min_dist = float('inf')
     best_index = None
-    
+
     for i in range(num_words):
         text = "".join(w["text"] for w in words[i:]).strip().lower()
         text = text[:len(question)]
-        
+
         dist = levenshtein_distance(question, text)
         if dist < min_dist:
             min_dist = dist
             best_index = i
-            
+
     if min_dist < 10:
         return best_index
 
@@ -155,7 +154,7 @@ def segment(input_file, output_file, text_file):
             raise ValueError(f"Words are not sorted by start time at index {i}")
 
     ###
-    words = words[8_500:10_000]
+    # words = words[8_000:10_000]
 
     merged_questions = {}
     chunk_size = 5000
@@ -187,14 +186,14 @@ def segment(input_file, output_file, text_file):
             if len(verified_dict) == 1:
                 verified_index = list(verified_dict.keys())[0]
                 diff = abs(verified_index - q_index)
-                if diff < 15:
-                    final_questions[verified_index] = questions[q_index]
-                else:
-                    dump(diff)
-                    assert False, output_file
+                #if diff < 15:
+                final_questions[verified_index] = questions[q_index]
+                #else:
+                #    dump(diff, questions[q_index])
+                #    assert False, output_file
             elif len(verified_dict) > 1:
                 # Multiple questions found - add them all back to be processed
-                new_questions.extend(verified_dict.items())
+                new_questions.update(verified_dict.items())
 
         questions = new_questions
 
@@ -234,7 +233,7 @@ def segment(input_file, output_file, text_file):
             import textwrap
             wrapped_text = "\n".join(textwrap.wrap(segment_text, width=80))
 
-            txt_writer.write(f"=====\nQuestion: {final_questions[q_index]}\n\n{wrapped_text}\n\n")
+            txt_writer.write(f"=====\n{final_questions[q_index]}\n\n{wrapped_text}\n\n")
 
 
 def pretty(merged):
@@ -256,14 +255,14 @@ def main():
     args = parser.parse_args()
 
     for input_file in args.files:
-        if not Path(input_file).exists():
-            print(f"Error: File {input_file} not found")
-            continue
-
         base_path = Path(input_file).with_suffix("")
         input_path = base_path.with_suffix('.punct.jsonl')
         output_path = base_path.with_suffix(".segments.jsonl")
         text_path = base_path.with_suffix(".segments.txt")
+
+        if not Path(input_path).exists():
+            print(f"Error: File {input_path} not found")
+            continue
 
         if output_path.exists() and not args.force:
             print(f"Skipping {input_path} - output already exists at {output_path}")
