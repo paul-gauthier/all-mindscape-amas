@@ -26,23 +26,31 @@ def align_transcription(input_file, output_file):
                 continue
 
             text = obj["text"]
+            dump(text)
             for wobj in words:
                 word = wobj["word"]
+                print()
+                dump(repr(word))
+                dump(repr(text[:100]))
+
                 if not [c for c in word if c.isalnum()]:
                     print("skipping non-alphanum:", word)
                     continue
 
-                parts = re.split(r'\b' + re.escape(word) + r'\b', text, maxsplit=1)
+                parts = text.split(word, 1)
+                dump(parts)
                 if len(parts) != 2:
                     dump(word)
                     dump(text[:100])
                     dump(len(parts))
                     assert False
 
-                rest = parts[1].lstrip(''.join(c for c in parts[1] if not c.isalnum()))
+                rest = parts[1]
 
                 this = text[:len(text) - len(rest)]
                 wobj["text"] = this
+                dump(repr(this))
+                dump(repr(rest[:100]))
 
                 aligned.append(wobj)
 
@@ -89,9 +97,11 @@ def main():
             continue
 
         # Create output file with same path prefix but new suffix
-        input_path = Path(input_file)
-        output_file = str(input_path.with_name(input_path.stem + "_punct.jsonl"))
-        align_transcription(input_file, output_file)
+        input_path = Path(input_file).with_suffix(".transcription.jsonl")
+        output_file = input_path.with_suffix(".punct.jsonl")
+        # pass output_text into align and write textwrap output to it. ai!
+        output_text = input_path.with_suffix(".punct.txt")
+        align_transcription(input_path, output_file)
         print(f"Aligned transcription saved to {output_file}")
 
 if __name__ == "__main__":
