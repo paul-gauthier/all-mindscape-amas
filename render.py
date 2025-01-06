@@ -5,9 +5,7 @@ import json
 import sys
 from pathlib import Path
 
-def generate_html(input_file):
-    # Get the corresponding metadata file
-    metadata_file = input_file.replace('.segments.jsonl', '.json')
+def generate_html(input_file, metadata_file):
     try:
         with open(metadata_file) as f:
             metadata = json.load(f)
@@ -53,9 +51,9 @@ def main():
 
         base_path = Path(input_file).with_suffix("")
         input_path = base_path.with_suffix('.segments.jsonl')
-        # form the metadata_path here, pass it in. ai!
+        metadata_path = base_path.with_suffix('.json')
         output_file = base_path.with_suffix(".links.html")
-        html = generate_html(input_path)
+        html = generate_html(input_path, metadata_path)
 
         with open(output_file, 'w') as f:
             f.write(html)
