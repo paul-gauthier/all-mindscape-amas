@@ -76,15 +76,17 @@ def align_transcription(input_file, output_file):
 
         merged.append(obj)
 
-    with jsonlines.open(input_file) as reader, jsonlines.open(output_file, mode='w') as writer:
+    with jsonlines.open(input_file) as reader, jsonlines.open(output_file, mode='w') as writer, open(output_text, 'w') as txt_writer:
         full_text = ""
         for obj in merged:
             writer.write(obj)
             full_text += obj.get("text", "")
 
-        # Print word-wrapped text
+        # Write word-wrapped text to output file
         import textwrap
-        print("\n".join(textwrap.wrap(full_text, width=80)))
+        wrapped_text = "\n".join(textwrap.wrap(full_text, width=80))
+        txt_writer.write(wrapped_text)
+        print(wrapped_text)
 
 def main():
     if len(sys.argv) < 2:
