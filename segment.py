@@ -159,6 +159,7 @@ def align_transcription(input_file, output_file):
     # log the final_questions to the output file. ai!
 
 
+
 def pretty(merged):
     full_text = ""
     for obj in merged:
