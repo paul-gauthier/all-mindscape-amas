@@ -99,11 +99,13 @@ def main():
         else:
             print(f"Could not parse date for {episode['title']}")
     
-    # Save metadata to JSON file
-    metadata_file = 'data/2024-12-AMA.json'
-    with open(metadata_file, 'w') as f:
-        json.dump(metadata, f, indent=2)
-    print(f"Saved episode metadata to {metadata_file}")
+    # Save metadata for each episode
+    for episode_meta in metadata:
+        # Create JSON filename based on MP3 filename
+        json_filename = os.path.splitext(episode_meta['filename'])[0] + '.json'
+        with open(json_filename, 'w') as f:
+            json.dump(episode_meta, f, indent=2)
+        print(f"Saved episode metadata to {json_filename}")
 
 if __name__ == "__main__":
     main()
