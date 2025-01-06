@@ -71,11 +71,16 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
     # Start with a chunk size that's safely under 25MB (e.g., 10 minutes)
     chunk_duration_ms = 10 * 60 * 1000  # 10 minutes in milliseconds
 
+    # Precompute all chunk positions
+    chunk_positions = []
     current_position_ms = start_position_ms
+    while current_position_ms < total_duration_ms:
+        chunk_positions.append(current_position_ms)
+        current_position_ms += chunk_duration_ms - 10*1000
+
     all_words = []
 
-    # precompute an array of all the current_position_ms values, then for current_position_ms in current_position_ms_array: ai!
-    while current_position_ms < total_duration_ms:
+    for current_position_ms in chunk_positions:
         print()
         dump(current_position_ms)
 
@@ -113,8 +118,6 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
         # Adjust text segment timestamps
         chunk_text["start"] += current_position_ms / 1000
         chunk_text["end"] += current_position_ms / 1000
-
-        current_position_ms += chunk_duration_ms - 10*1000
 
         # Write this chunk's words and text to the output file with immediate flush
         output_file = Path(audio_path).stem + "_transcription.jsonl"
