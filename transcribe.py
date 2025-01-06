@@ -162,15 +162,12 @@ def main():
             continue
 
 
-        # build all the paths like in punct.py ai!
+        # Create output file with same path prefix but new suffix
+        base_path = Path(audio_path).with_suffix("")
+        output_file = base_path.with_suffix('.transcription.jsonl')
+        output_text = base_path.with_suffix(".transcription.txt")
 
-        # Check if transcription files already exist
-        output_file = Path(audio_path).with_suffix(".transcription.jsonl")
-        output_text = Path(audio_path).with_suffix(".transcription.txt")
-        dump(output_file)
-        dump(output_text)
-
-        if Path(output_file).exists():
+        if output_file.exists():
             print(f"Skipping {audio_path} - transcription files already exist")
             continue
 
