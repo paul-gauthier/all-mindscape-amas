@@ -37,6 +37,7 @@ def align_transcription(input_file, output_file, output_text):
 
                 parts = text.split(word, 1)
                 if len(parts) != 2:
+                    # try again, stripping non-alnums from word. ai!
                     dump(word)
                     dump(text[:100])
                     dump(len(parts))
