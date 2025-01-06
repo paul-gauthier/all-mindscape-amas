@@ -14,7 +14,7 @@ import lox
 # Load environment variables from .env file
 load_dotenv()
 
-lox.thread(10)
+@lox.thread(10)
 def transcribe_audio(audio_path):
     """
     Transcribe audio file using OpenAI Whisper API with word-level timestamps
@@ -37,27 +37,25 @@ def transcribe_audio(audio_path):
             timestamp_granularities=["word"]
         )
 
-    dump(response)
-
     # Extract words and full text with timestamps
     words = []
     for word in response.words:
         words.append({
             "word": word.word,
-            "start": round(word.start, 2),
-            "end": round(word.end, 2)
+            "start": round(word.start, 6),
+            "end": round(word.end, 6)
         })
 
     # Add the full text with timestamps
     text_segment = {
         "text": response.text,
-        "start": round(response.words[0].start, 2) if response.words else 0,
-        "end": round(response.words[-1].end, 2) if response.words else response.duration
+        "start": round(response.words[0].start, 6) if response.words else 0,
+        "end": round(response.words[-1].end, 6) if response.words else response.duration
     }
 
     return words, text_segment
 
-def transcribe_large_audio(audio_path, start_position_ms=0):
+def transcribe_large_audio(audio_path):
     """
     Handle large audio files by processing chunks sequentially,
     using word timestamps to determine clean cut points.
@@ -75,13 +73,13 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
 
     # Precompute all chunk positions
     chunk_positions = []
-    current_position_ms = start_position_ms
+    current_position_ms = 0
     while current_position_ms < total_duration_ms:
         chunk_positions.append(current_position_ms)
         current_position_ms += chunk_duration_ms - 10*1000
 
     all_words = []
-    
+
     # Create temporary directory for chunk files
     import tempfile
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -91,24 +89,26 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
 
             # Extract chunk with overlap
             chunk_end = min(current_position_ms + chunk_duration_ms, total_duration_ms)
-        # Calculate and display progress
-        percent_complete = (current_position_ms / total_duration_ms) * 100
-        print(f"\nProgress: {percent_complete:.1f}% complete")
-        print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {chunk_end/1000:.2f}s")
-        chunk = audio[current_position_ms:chunk_end]
 
-        # Save chunk to unique temp file
-        temp_path = os.path.join(temp_dir, f"chunk_{current_position_ms}.mp3")
-        print(f"Exporting chunk to {temp_path}...")
-        chunk.export(temp_path, format="mp3")
-        chunk_size_mb = os.path.getsize(temp_path) / (1024 * 1024)
-        print(f"Chunk size: {chunk_size_mb:.1f}MB")
+            # Calculate and display progress
+            percent_complete = (current_position_ms / total_duration_ms) * 100
+            print(f"\nProgress: {percent_complete:.1f}% done chunking file")
+            print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {chunk_end/1000:.2f}s")
+            chunk = audio[current_position_ms:chunk_end]
 
-        # Transcribe chunk
-        print("Sending chunk to OpenAI API for transcription...")
-        transcribe_audio.scatter(temp_path)
+            # Save chunk to unique temp file
+            temp_path = os.path.join(temp_dir, f"chunk_{current_position_ms}.mp3")
+            dump(temp_path)
+            print(f"Exporting chunk to {temp_path}...")
+            chunk.export(temp_path, format="mp3")
+            chunk_size_mb = os.path.getsize(temp_path) / (1024 * 1024)
+            print(f"Chunk size: {chunk_size_mb:.1f}MB")
 
-    results = transcribe_audio.gather(tqdm=True)
+            # Transcribe chunk
+            print("Sending chunk to OpenAI API for transcription...")
+            transcribe_audio.scatter(temp_path)
+
+        results = transcribe_audio.gather(tqdm=True)
 
     for current_position_ms,(chunk_words, chunk_text) in zip(chunk_positions, results):
         dump(current_position_ms)
@@ -128,7 +128,7 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
 
         # Write this chunk's words and text to the output file with immediate flush
         output_file = Path(audio_path).stem + "_transcription.jsonl"
-        with jsonlines.open(output_file, mode='a', flush=True) as writer:
+        with jsonlines.open(output_file, mode='w', flush=True) as writer:
             for word in chunk_words:
                 writer.write(word)
             writer.write(chunk_text)
@@ -169,24 +169,10 @@ def main():
     output_file = Path(audio_path).stem + "_transcription.jsonl"
     output_text = Path(audio_path).stem + "_transcription.txt"
 
-    # Check if we have an existing transcription to resume from
-    current_position_ms = 0
-    if Path(output_file).exists():
-        print(f"Found existing transcription file {output_file}")
-        with jsonlines.open(output_file) as reader:
-            # Find the last text segment
-            last_text = None
-            for obj in reader:
-                if obj.get("text"):
-                    last_text = obj
-            if last_text:
-                current_position_ms = int(last_text["end"] * 1000) - 10*1000
-                print(f"Resuming transcription from {current_position_ms/1000:.2f} seconds")
-
     # Choose transcription method based on file size
     if file_size_mb > 24:
         print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
-        output_file = transcribe_large_audio(audio_path, current_position_ms)
+        output_file = transcribe_large_audio(audio_path)
     else:
         words, text_segment = transcribe_audio(audio_path)
         # Write single chunk to JSONL
