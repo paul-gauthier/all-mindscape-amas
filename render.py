@@ -1,12 +1,20 @@
 #!/usr/bin/env python3
 
 import jsonlines
+import json
 import sys
 from pathlib import Path
 
-BASE_URL = "https://content.production.cdn.art19.com/validation=1736178977,3b923f91-5793-5eaa-82de-3bdc74aa5c29,1aDB2fPgm66XpRHYWfjutBUpsEE/episodes/fc3cf13a-51ac-472a-b070-de55023ed70a/912e4e62bbc513fa8caadfe2710a77198c1a8091b5eeee1fd8ff35730475f3dc028ff9e55e454f3d6ae046899cbfa3d5343f0eadc9e8467613a9706717201cd1/AMA-Dec-20.mp3"
-
 def generate_html(input_file):
+    # Get the corresponding metadata file
+    metadata_file = input_file.replace('.segments.jsonl', '.json')
+    try:
+        with open(metadata_file) as f:
+            metadata = json.load(f)
+        base_url = metadata['url']
+    except (FileNotFoundError, KeyError):
+        print(f"Warning: Could not find metadata for {input_file}, using default URL")
+        base_url = "https://content.production.cdn.art19.com/validation=1736178977,3b923f91-5793-5eaa-82de-3bdc74aa5c29,1aDB2fPgm66XpRHYWfjutBUpsEE/episodes/fc3cf13a-51ac-472a-b070-de55023ed70a/912e4e62bbc513fa8caadfe2710a77198c1a8091b5eeee1fd8ff35730475f3dc028ff9e55e454f3d6ae046899cbfa3d5343f0eadc9e8467613a9706717201cd1/AMA-Dec-20.mp3"
     html = """<!DOCTYPE html>
 <html>
 <head>
