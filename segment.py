@@ -156,6 +156,8 @@ def align_transcription(input_file, output_file):
 
         questions = new_questions
 
+    # sorted(final_questions once here. ai!
+
     # Write final questions to output file
     with jsonlines.open(output_file, mode='w') as writer:
         for q_index in sorted(final_questions):
@@ -165,10 +167,10 @@ def align_transcription(input_file, output_file):
                 if next_q > q_index:
                     next_q_index = next_q
                     break
-            
+
             # Get the last word before next question
             last_word = words[next_q_index - 1]
-            
+
             writer.write({
                 'start': words[q_index]['start'],
                 'end': last_word['end'],
