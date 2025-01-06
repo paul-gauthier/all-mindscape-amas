@@ -35,12 +35,26 @@ def get_ama_episodes(xml_file):
 
 def download_episode(url, filename):
     """Download an episode and save it to filename"""
+    if os.path.exists(filename):
+        print(f"File {filename} already exists - skipping")
+        return False
+        
+    temp_filename = f"{filename}.download"
     response = requests.get(url, stream=True)
     if response.status_code == 200:
-        with open(filename, 'wb') as f:
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
-        return True
+        try:
+            with open(temp_filename, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
+            # Atomic rename on success
+            os.rename(temp_filename, filename)
+            return True
+        except Exception as e:
+            # Clean up temp file on error
+            if os.path.exists(temp_filename):
+                os.remove(temp_filename)
+            print(f"Error downloading {filename}: {str(e)}")
+            return False
     return False
 
 def format_filename(date_str, title):
@@ -62,6 +76,10 @@ def main():
     for episode in episodes:
         filename = format_filename(episode['date'], episode['title'])
         if filename:
+            if os.path.exists(filename):
+                print(f"Skipping {episode['title']} - already exists at {filename}")
+                continue
+                
             print(f"Downloading {episode['title']} to {filename}...")
             if download_episode(episode['url'], filename):
                 print(f"Successfully saved {filename}")
