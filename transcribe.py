@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
+
 import os
 import sys
 import json
