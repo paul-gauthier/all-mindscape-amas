@@ -35,8 +35,8 @@ def align_transcription(input_file, output_file, output_text):
                     print("skipping non-alphanum:", word)
                     continue
 
-                # Create a clean version of the word without non-alphanumeric chars
-                clean_word = ''.join(c for c in word if c.isalnum())
+                # Strip non-alnums from ends only
+                clean_word = word.strip(''.join(c for c in word if not c.isalnum()))
                 # Try splitting with original word first
                 parts = text.split(word, 1)
                 if len(parts) != 2:
