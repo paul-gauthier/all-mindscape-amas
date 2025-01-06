@@ -161,6 +161,9 @@ def main():
 
     output_file = Path(audio_path).stem + "_transcription.jsonl"
 
+    # also make output_text = with suffix .txt and output a textwrapped
+    # version of all the transcribed text. ai!
+
     # Check if we have an existing transcription to resume from
     current_position_ms = 0
     if Path(output_file).exists():
