@@ -54,12 +54,9 @@ def generate_html(input_file, metadata_file):
             color: #666;
         }
         .player-container {
-            position: sticky;
-            top: 0;
             background: white;
             padding: 20px 0;
-            z-index: 100;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
         }
         audio {
             width: 100%;
