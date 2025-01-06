@@ -101,8 +101,13 @@ def find_questions(words, start, end):
 
             print()
             print("Question:", present)
-            print(pretty(words[word_index:word_index+10]))
             print(question)
+            if not present:
+                print("X"*70)
+                # accunulate questions that weren't found and display them at the end.ai!
+                continue
+
+            print(pretty(words[word_index:word_index+10]))
             #dump(words[word_index:word_index+3])
             word_index+= start
             print("word_index:", word_index)
