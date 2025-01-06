@@ -206,7 +206,7 @@ def segment(input_file, output_file, text_file):
                 'end': end_time,
                 'text': segment_text,
                 'question_index': q_index,
-                'question': final_questions[q_index]
+                'llm_found_question': final_questions[q_index]
             })
 
             # Write word-wrapped text to output file
