@@ -124,11 +124,13 @@ def find_question_in_words(question, words):
             return i
 
 
+    from Levenshtein import distance as levenshtein_distance
+    
     for i in range(num_words):
         text = "".join(w["text"] for w in words[i:]).strip().lower()
         text = text[:len(question)]
-
-        if # levenshein distance < 10 ai!
+        
+        if levenshtein_distance(question, text) < 10:
             return i
 
 
