@@ -43,8 +43,8 @@ def main():
             print(f"Error: File {input_file} not found")
             continue
 
-        # update the filename logic to work like the other scripts. ai!
-        output_file = Path(input_file).stem + "_links.html"
+        base_path = Path(input_file).with_suffix("")
+        output_file = base_path.with_suffix(".links.html")
         html = generate_html(input_file)
 
         with open(output_file, 'w') as f:
