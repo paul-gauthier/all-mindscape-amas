@@ -88,8 +88,9 @@ def main():
             print(f"Error: File {input_file} not found")
             continue
 
-        # output file should use the same path prefix. ai!
-        output_file = Path(input_file).stem + "_punct.jsonl"
+        # Create output file with same path prefix but new suffix
+        input_path = Path(input_file)
+        output_file = str(input_path.with_name(input_path.stem + "_punct.jsonl"))
         align_transcription(input_file, output_file)
         print(f"Aligned transcription saved to {output_file}")
 
