@@ -10,9 +10,6 @@ def generate_html(input_file, metadata_file):
         metadata = json.load(f)
     base_url = metadata['url']
 
-    # Use 'url' field as fallback if 'audio_url' isn't present
-    audio_url = metadata.get('audio_url', metadata['url'])
-
     html = """<!DOCTYPE html>
 <html>
 <head>
@@ -81,7 +78,7 @@ def generate_html(input_file, metadata_file):
     <script>
         const player = document.getElementById('audio-player');
         const segments = document.querySelectorAll('.segment-item');
-        const audioSrc = '""" + audio_url + """';
+        const audioSrc = '""" + base_url + """';
         let currentSegment = 0;
 
         player.src = audioSrc;
@@ -89,14 +86,14 @@ def generate_html(input_file, metadata_file):
         function playSegment(start, end) {
             player.currentTime = start;
             player.play();
-            
+
             // Stop at the end of the segment
             const stopAt = end;
             const checkTime = () => {
                 if (player.currentTime >= stopAt) {
                     player.pause();
                     player.removeEventListener('timeupdate', checkTime);
-                    
+
                     // Move to next segment if available
                     if (currentSegment < segments.length - 1) {
                         currentSegment++;
@@ -112,13 +109,13 @@ def generate_html(input_file, metadata_file):
             segment.addEventListener('click', () => {
                 // Remove playing class from all segments
                 segments.forEach(s => s.classList.remove('playing'));
-                
+
                 // Add playing class to current segment
                 segment.classList.add('playing');
-                
+
                 // Scroll segment into view
                 segment.scrollIntoView({behavior: 'smooth', block: 'center'});
-                
+
                 // Play the segment
                 currentSegment = index;
                 const start = parseFloat(segment.dataset.start);
