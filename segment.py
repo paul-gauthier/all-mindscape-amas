@@ -130,34 +130,33 @@ def align_transcription(input_file, output_file):
     questions = sorted(questions)
     questions.reverse()
 
-    # Process questions in chunks of 100 words before and after
     while questions:
+        questions = sorted(set(questions))
 
-        # use lox to parallelize this. ai!
-        dump(questions)
-        q_index = questions.pop()
-        start = q_index
-        if questions:
-            end = questions[-1]
-        else:
-            end = len(words)
-
-        print()
-        print(pretty(words[start:start+20]))
-
-        # Get verification results for this question
-        verified = find_questions(words, start, end)
-
-        if len(verified) == 1:
-            if abs(verified[0] - q_index) < 3:
-                final_questions.append(q_index)
+        for i,q_index in enumerate(questions):
+            start = q_index
+            if i < len(questions)-1:
+                end = questions[i+1]
             else:
-                assert False
-        elif len(verified) > 1:
-            # Multiple questions found - add them all back to be processed
-            questions.extend(verified)
-            questions = sorted(set(questions))
-            questions.reverse()
+                end = len(words)
+
+            find_questions.scatter(words, start, end)
+
+        found_questions = find_questions.gather(tqdm=True)
+        new_questions = []
+        for q_index,verified in zip(questions, found_questions):
+            if len(verified) == 1:
+                if abs(verified[0] - q_index) < 3:
+                    final_questions.append(q_index)
+                else:
+                    assert False
+            elif len(verified) > 1:
+                # Multiple questions found - add them all back to be processed
+                new_questions.extend(verified)
+
+        questions = new_questions
+
+    # log the final_questions to the output file. ai!
 
 
 def pretty(merged):
