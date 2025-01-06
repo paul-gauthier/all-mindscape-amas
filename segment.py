@@ -222,11 +222,14 @@ def pretty(merged):
     return "\n".join(textwrap.wrap(full_text, width=80))
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python segment.py file1.jsonl [file2.jsonl ...]")
-        sys.exit(1)
+    import argparse
+    
+    parser = argparse.ArgumentParser(description='Segment podcast transcripts into questions')
+    parser.add_argument('files', nargs='+', help='Input JSONL files to process')
+    parser.add_argument('--force', action='store_true', help='Overwrite existing output files')
+    args = parser.parse_args()
 
-    for input_file in sys.argv[1:]:
+    for input_file in args.files:
         if not Path(input_file).exists():
             print(f"Error: File {input_file} not found")
             continue
@@ -235,8 +238,10 @@ def main():
         input_path = base_path.with_suffix('.punct.jsonl')
         output_path = base_path.with_suffix(".segments.jsonl")
         text_path = base_path.with_suffix(".segments.txt")
-        if output_path.exists():
+        
+        if output_path.exists() and not args.force:
             print(f"Skipping {input_path} - output already exists at {output_path}")
+            print("Use --force to overwrite existing files")
             continue
 
         segment(input_path, output_path, text_path)
