@@ -111,7 +111,9 @@ def find_questions(words, start, end):
     return questions
 
 
-def align_transcription(input_file, output_file):
+def segment(input_file, output_file):
+    dump(input_file)
+
     with jsonlines.open(input_file) as reader:
         words = [obj for obj in reader]
 
@@ -176,7 +178,6 @@ def align_transcription(input_file, output_file):
             })
 
 
-
 def pretty(merged):
     full_text = ""
     for obj in merged:
@@ -197,9 +198,16 @@ def main():
             print(f"Error: File {input_file} not found")
             continue
 
-        output_file = Path(input_file).stem + "_segments.jsonl"
-        align_transcription(input_file, output_file)
-        print(f"Saved to {output_file}")
+        base_path = Path(input_file).with_suffix("")
+        input_path = base_path.with_suffix('.punct.jsonl')
+        output_path = base_path.with_suffix(".segements.jsonl")
+        text_path = #... .segments.txt; pass into segment() and output a textwrapped version of each segment. ai!
+        if output_path.exists():
+            print(f"Skipping {input_path} - output already exists at {output_path}")
+            continue
+
+        segment(input_path, output_path)
+        print(f"Saved to {output_path}")
 
 if __name__ == "__main__":
     main()
