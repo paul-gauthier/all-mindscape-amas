@@ -160,9 +160,7 @@ def main():
     file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
 
     output_file = Path(audio_path).stem + "_transcription.jsonl"
-
-    # also make output_text = with suffix .txt and output a textwrapped
-    # version of all the transcribed text. ai!
+    output_text = Path(audio_path).stem + "_transcription.txt"
 
     # Check if we have an existing transcription to resume from
     current_position_ms = 0
@@ -190,7 +188,17 @@ def main():
                 writer.write(word)
             writer.write(text_segment)
 
-    print(f"Transcription saved to {output_file}")
+    # Create text file with wrapped text
+    with open(output_text, 'w') as txt_file:
+        with jsonlines.open(output_file) as reader:
+            for obj in reader:
+                if obj.get("text"):
+                    # Wrap text at 80 columns
+                    import textwrap
+                    wrapped_text = textwrap.fill(obj["text"], width=80)
+                    txt_file.write(wrapped_text + "\n\n")
+
+    print(f"Transcription saved to {output_file} and {output_text}")
 
 
 if __name__ == "__main__":
