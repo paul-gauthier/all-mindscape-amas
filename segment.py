@@ -42,7 +42,6 @@ the early universe, and what challenges does it present for reconciling quantum 
 """.strip()
 
 
-# ai: return a dict mapping index->question where question is...
 @lox.thread(10)
 def find_questions(words, start, end):
     dump(start, end)
@@ -63,11 +62,11 @@ def find_questions(words, start, end):
     print(res)
 
     # Parse bullet points and verify they exist in text
-    questions = []
+    question_dict = {}
     unfound_questions = []
     for line in res.splitlines():
         if line.startswith("- "):
-            question = line[2:].strip() # ai: this question raw frmo the completion. ai!
+            question = line[2:].strip()
 
             full_words_text = "".join(w["text"] for w in words)
             offset = full_words_text.find(question)
@@ -118,7 +117,7 @@ def find_questions(words, start, end):
             #dump(words[word_index:word_index+3])
             word_index+= start
             print("word_index:", word_index)
-            questions.append(word_index)
+            question_dict[word_index] = question
 
     if unfound_questions:
         print("\nUnfound questions:")
@@ -126,7 +125,7 @@ def find_questions(words, start, end):
             print(f"- {q}")
         print()
 
-    return questions
+    return question_dict
 
 
 def segment(input_file, output_file, text_file):
@@ -135,7 +134,7 @@ def segment(input_file, output_file, text_file):
     with jsonlines.open(input_file) as reader:
         words = [obj for obj in reader]
 
-    questions = []
+    question_dicts = []
     chunk_size = 5000
     start_index = 0
     while start_index < len(words):
@@ -143,11 +142,16 @@ def segment(input_file, output_file, text_file):
         find_questions.scatter(words, start_index, end_index)
         start_index += chunk_size
 
-    for chunk_questions in find_questions.gather(tqdm=True):
-        questions.extend(chunk_questions)
+    for chunk_dict in find_questions.gather(tqdm=True):
+        question_dicts.append(chunk_dict)
+
+    # Merge all question dicts into one
+    merged_questions = {}
+    for q_dict in question_dicts:
+        merged_questions.update(q_dict)
 
     final_questions = []
-    questions = sorted(questions)
+    questions = sorted(merged_questions.keys())
     questions.reverse()
 
     while questions:
@@ -164,17 +168,18 @@ def segment(input_file, output_file, text_file):
 
         found_questions = find_questions.gather(tqdm=True)
         new_questions = []
-        for q_index,verified in zip(questions, found_questions):
-            if len(verified) == 1:
-                diff = abs(verified[0] - q_index)
+        for q_index,verified_dict in zip(questions, found_questions):
+            if len(verified_dict) == 1:
+                verified_index = list(verified_dict.keys())[0]
+                diff = abs(verified_index - q_index)
                 if diff < 15:
                     final_questions.append(q_index)
                 else:
                     dump(diff)
                     assert False, output_file
-            elif len(verified) > 1:
+            elif len(verified_dict) > 1:
                 # Multiple questions found - add them all back to be processed
-                new_questions.extend(verified)
+                new_questions.extend(verified_dict.keys())
 
         questions = new_questions
 
