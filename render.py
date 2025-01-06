@@ -34,22 +34,22 @@ def generate_html(input_file):
     return html
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python render.py file_segments.jsonl")
+    if len(sys.argv) < 2:
+        print("Usage: python render.py file1_segments.jsonl [file2_segments.jsonl ...]")
         sys.exit(1)
 
-    input_file = sys.argv[1]
-    if not Path(input_file).exists():
-        print(f"Error: File {input_file} not found")
-        sys.exit(1)
+    for input_file in sys.argv[1:]:
+        if not Path(input_file).exists():
+            print(f"Error: File {input_file} not found")
+            continue
 
-    output_file = Path(input_file).stem + "_links.html"
-    html = generate_html(input_file)
-    
-    with open(output_file, 'w') as f:
-        f.write(html)
-    
-    print(f"Saved to {output_file}")
+        output_file = Path(input_file).stem + "_links.html"
+        html = generate_html(input_file)
+        
+        with open(output_file, 'w') as f:
+            f.write(html)
+        
+        print(f"Saved to {output_file}")
 
 if __name__ == "__main__":
     main()

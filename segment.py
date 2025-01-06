@@ -188,18 +188,18 @@ def pretty(merged):
     return "\n".join(textwrap.wrap(full_text, width=80))
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python segment.py file.jsonl>")
+    if len(sys.argv) < 2:
+        print("Usage: python segment.py file1.jsonl [file2.jsonl ...]")
         sys.exit(1)
 
-    input_file = sys.argv[1]
-    if not Path(input_file).exists():
-        print(f"Error: File {input_file} not found")
-        sys.exit(1)
+    for input_file in sys.argv[1:]:
+        if not Path(input_file).exists():
+            print(f"Error: File {input_file} not found")
+            continue
 
-    output_file = Path(input_file).stem + "_segments.jsonl"
-    align_transcription(input_file, output_file)
-    print(f"Saved to {output_file}")
+        output_file = Path(input_file).stem + "_segments.jsonl"
+        align_transcription(input_file, output_file)
+        print(f"Saved to {output_file}")
 
 if __name__ == "__main__":
     main()

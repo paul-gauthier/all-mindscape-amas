@@ -147,14 +147,14 @@ def print_words(words_and_text):
         print(text['text'])
 
 def main():
-    if len(sys.argv) != 2:
-        print("Usage: python transcribe.py <audio_file.mp3>")
+    if len(sys.argv) < 2:
+        print("Usage: python transcribe.py <audio_file1.mp3> [file2.mp3 ...]")
         sys.exit(1)
 
-    audio_path = sys.argv[1]
-    if not Path(audio_path).exists():
-        print(f"Error: File {audio_path} not found")
-        sys.exit(1)
+    for audio_path in sys.argv[1:]:
+        if not Path(audio_path).exists():
+            print(f"Error: File {audio_path} not found")
+            continue
 
     # Get file size in MB
     file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
