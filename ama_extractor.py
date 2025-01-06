@@ -1,4 +1,5 @@
 import xml.etree.ElementTree as ET
+from urllib.parse import urlparse, urlunparse
 
 def extract_ama_episodes(xml_file):
     # Parse the XML file
@@ -18,9 +19,11 @@ def extract_ama_episodes(xml_file):
         if title and title.startswith('AMA'):
             enclosure = item.find('enclosure')
             if enclosure is not None:
-                url = enclosure.get('url')
+                # Parse URL and remove query parameters
+                parsed_url = urlparse(enclosure.get('url'))
+                clean_url = urlunparse(parsed_url._replace(query=''))
                 print(f"Title: {title}")
-                print(f"URL: {url}\n")
+                print(f"URL: {clean_url}\n")
 
 if __name__ == "__main__":
     # Replace 'podcast.xml' with your actual XML file path
