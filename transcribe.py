@@ -81,23 +81,25 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
         current_position_ms += chunk_duration_ms - 10*1000
 
     all_words = []
+    
+    # Create temporary directory for chunk files
+    import tempfile
+    with tempfile.TemporaryDirectory() as temp_dir:
+        for current_position_ms in chunk_positions:
+            print()
+            dump(current_position_ms)
 
-    # make a tempdir and place a bunch of temp_path_{cur-pos-ms}.mp3 files in it instead. ai!
-    for current_position_ms in chunk_positions:
-        print()
-        dump(current_position_ms)
-
-        # Extract chunk with overlap
-        chunk_end = min(current_position_ms + chunk_duration_ms, total_duration_ms)
+            # Extract chunk with overlap
+            chunk_end = min(current_position_ms + chunk_duration_ms, total_duration_ms)
         # Calculate and display progress
         percent_complete = (current_position_ms / total_duration_ms) * 100
         print(f"\nProgress: {percent_complete:.1f}% complete")
         print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {chunk_end/1000:.2f}s")
         chunk = audio[current_position_ms:chunk_end]
 
-        # Save chunk temporarily
-        temp_path = "temp_chunk.mp3"
-        print("Exporting chunk to temporary file...")
+        # Save chunk to unique temp file
+        temp_path = os.path.join(temp_dir, f"chunk_{current_position_ms}.mp3")
+        print(f"Exporting chunk to {temp_path}...")
         chunk.export(temp_path, format="mp3")
         chunk_size_mb = os.path.getsize(temp_path) / (1024 * 1024)
         print(f"Chunk size: {chunk_size_mb:.1f}MB")
@@ -134,6 +136,7 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
         print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
     # Return the output file path
+    # Temp files are automatically cleaned up when temp_dir context exits
     return output_file
 
 def print_words(words_and_text):
