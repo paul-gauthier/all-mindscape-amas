@@ -36,12 +36,22 @@ def generate_html(input_file, metadata_file):
             border-radius: 4px;
             cursor: pointer;
             transition: background 0.2s;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
         .segment-item:hover {
             background: #e0e0e0;
         }
         .segment-item.playing {
             background: #d1e8ff;
+        }
+        .segment-duration {
+            background: #e0e0e0;
+            padding: 2px 6px;
+            border-radius: 12px;
+            font-size: 0.9em;
+            color: #666;
         }
         .player-container {
             position: sticky;
@@ -72,7 +82,10 @@ def generate_html(input_file, metadata_file):
             url = f"{base_url}#t={start},{end}"
             text = segment['text'].replace("\n", " ")[:100] + "..."
 
-            html += f'        <li class="segment-item" data-start="{start}" data-end="{end}">[{duration}s] {text}</li>\n'
+            html += f'        <li class="segment-item" data-start="{start}" data-end="{end}">\n'
+            html += f'            <span class="segment-text">{text}</span>\n'
+            html += f'            <span class="segment-duration">{duration}s</span>\n'
+            html += f'        </li>\n'
 
     html += """    </ul>
     <script>
