@@ -14,10 +14,54 @@ def generate_html(input_file, metadata_file):
 <html>
 <head>
     <title>Audio Segments</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+        }
+        .segment-list {
+            list-style: none;
+            padding: 0;
+        }
+        .segment-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: #f5f5f5;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .segment-item:hover {
+            background: #e0e0e0;
+        }
+        .segment-item.playing {
+            background: #d1e8ff;
+        }
+        .player-container {
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 20px 0;
+            z-index: 100;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        audio {
+            width: 100%;
+        }
+    </style>
 </head>
 <body>
     <h1>Audio Segments</h1>
-    <ul>
+    <div class="player-container">
+        <audio id="audio-player" controls></audio>
+    </div>
+    <ul class="segment-list">
 """
 
     with jsonlines.open(input_file) as reader:
@@ -28,9 +72,58 @@ def generate_html(input_file, metadata_file):
             url = f"{base_url}#t={start},{end}"
             text = segment['text'].replace("\n", " ")[:100] + "..."
 
-            html += f'        <li><a href="{url}" target="_blank">[{duration}s] {text}</a></li>\n'
+            html += f'        <li class="segment-item" data-start="{start}" data-end="{end}">[{duration}s] {text}</li>\n'
 
     html += """    </ul>
+    <script>
+        const player = document.getElementById('audio-player');
+        const segments = document.querySelectorAll('.segment-item');
+        const audioSrc = '""" + metadata['audio_url'] + """';
+        let currentSegment = 0;
+
+        player.src = audioSrc;
+
+        function playSegment(start, end) {
+            player.currentTime = start;
+            player.play();
+            
+            // Stop at the end of the segment
+            const stopAt = end;
+            const checkTime = () => {
+                if (player.currentTime >= stopAt) {
+                    player.pause();
+                    player.removeEventListener('timeupdate', checkTime);
+                    
+                    // Move to next segment if available
+                    if (currentSegment < segments.length - 1) {
+                        currentSegment++;
+                        const nextSegment = segments[currentSegment];
+                        nextSegment.click();
+                    }
+                }
+            };
+            player.addEventListener('timeupdate', checkTime);
+        }
+
+        segments.forEach((segment, index) => {
+            segment.addEventListener('click', () => {
+                // Remove playing class from all segments
+                segments.forEach(s => s.classList.remove('playing'));
+                
+                // Add playing class to current segment
+                segment.classList.add('playing');
+                
+                // Scroll segment into view
+                segment.scrollIntoView({behavior: 'smooth', block: 'center'});
+                
+                // Play the segment
+                currentSegment = index;
+                const start = parseFloat(segment.dataset.start);
+                const end = parseFloat(segment.dataset.end);
+                playSegment(start, end);
+            });
+        });
+    </script>
 </body>
 </html>"""
 
