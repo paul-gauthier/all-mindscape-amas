@@ -114,7 +114,7 @@ def generate_html(input_file, metadata_file):
         const pauseButton = document.getElementById('pause-button');
         const shuffleButton = document.getElementById('shuffle-button');
         const segmentList = document.querySelector('.segment-list');
-        const segments = document.querySelectorAll('.segment-item');
+        let segments = document.querySelectorAll('.segment-item');
         const audioSrc = '""" + base_url + """';
         let currentSegment = 0;
 
@@ -160,8 +160,19 @@ def generate_html(input_file, metadata_file):
             // Update segments reference to the new order
             segments = document.querySelectorAll('.segment-item');
             
+            // Reset current segment
+            currentSegment = 0;
+            
+            // Remove playing class from all segments
+            segments.forEach(s => s.classList.remove('playing'));
+            
+            // Add playing class to new first segment
+            segments[0].classList.add('playing');
+            
             // Play the new first segment
-            segments[0].click();
+            const start = parseFloat(segments[0].dataset.start);
+            const end = parseFloat(segments[0].dataset.end);
+            playSegment(start, end);
         });
 
         let currentListener = null;
