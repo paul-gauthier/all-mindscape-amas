@@ -24,4 +24,4 @@ def extract_ama_episodes(xml_file):
 
 if __name__ == "__main__":
     # Replace 'podcast.xml' with your actual XML file path
-    extract_ama_episodes('podcast.xml')
+    extract_ama_episodes('sean-carrolls-mindscape.xml')
