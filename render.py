@@ -94,6 +94,7 @@ def generate_html(input_file, metadata_file):
         <div class="player-controls">
             <button id="play-button"><i class="fas fa-play"></i></button>
             <button id="pause-button"><i class="fas fa-pause"></i></button>
+            <button id="next-button"><i class="fas fa-forward"></i></button>
             <button id="shuffle-button"><i class="fas fa-random"></i></button>
         </div>
     </div>
@@ -118,6 +119,7 @@ def generate_html(input_file, metadata_file):
         const player = document.getElementById('audio-player');
         const playButton = document.getElementById('play-button');
         const pauseButton = document.getElementById('pause-button');
+        const nextButton = document.getElementById('next-button');
         const shuffleButton = document.getElementById('shuffle-button');
         const segmentList = document.querySelector('.segment-list');
         let segments = document.querySelectorAll('.segment-item');
@@ -143,6 +145,14 @@ def generate_html(input_file, metadata_file):
 
         pauseButton.addEventListener('click', () => {
             player.pause();
+        });
+
+        nextButton.addEventListener('click', () => {
+            if (currentSegment < segments.length - 1) {
+                currentSegment++;
+                const nextSegment = segments[currentSegment];
+                nextSegment.click();
+            }
         });
 
         shuffleButton.addEventListener('click', () => {
