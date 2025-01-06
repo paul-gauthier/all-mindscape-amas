@@ -94,10 +94,11 @@ def main():
             continue
 
         # Create output file with same path prefix but new suffix
-        input_path = Path(input_file).with_suffix(".transcription.jsonl")
-        # can we strip all the .suffixes before adding .punct... ai!
-        output_file = input_path.with_suffix(".punct.jsonl")
-        output_text = input_path.with_suffix(".punct.txt")
+        input_path = Path(input_file)
+        # Strip all suffixes and add new ones
+        base_path = input_path.with_suffix('')
+        output_file = base_path.with_suffix(".punct.jsonl")
+        output_text = base_path.with_suffix(".punct.txt")
 
         if output_file.exists():
             print(f"Skipping {input_file} - output already exists at {output_file}")
