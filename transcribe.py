@@ -162,8 +162,8 @@ def main():
             continue
 
         # Check if transcription files already exist
-        output_file = Path(audio_path).stem + "_transcription.jsonl"
-        output_text = Path(audio_path).stem + "_transcription.txt"
+        output_file = str(Path(audio_path).with_suffix("")) + "_transcription.jsonl"
+        output_text = str(Path(audio_path).with_suffix("")) + "_transcription.txt"
         dump(output_file)
         dump(output_text)
 
