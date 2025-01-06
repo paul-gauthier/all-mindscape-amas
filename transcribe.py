@@ -161,6 +161,9 @@ def main():
             print(f"Error: File {audio_path} not found")
             continue
 
+
+        # build all the paths like in punct.py ai!
+
         # Check if transcription files already exist
         output_file = Path(audio_path).with_suffix(".transcription.jsonl")
         output_text = Path(audio_path).with_suffix(".transcription.txt")
