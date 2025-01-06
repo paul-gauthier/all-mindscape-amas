@@ -93,7 +93,15 @@ def generate_html(input_file, metadata_file):
 
         player.src = audioSrc;
 
+        let currentListener = null;
+
         function playSegment(start, end) {
+            // Remove previous listener if it exists
+            if (currentListener) {
+                player.removeEventListener('timeupdate', currentListener);
+                currentListener = null;
+            }
+
             player.currentTime = start;
             player.play();
 
@@ -103,6 +111,7 @@ def generate_html(input_file, metadata_file):
                 if (player.currentTime >= stopAt) {
                     player.pause();
                     player.removeEventListener('timeupdate', checkTime);
+                    currentListener = null;
 
                     // Move to next segment if available
                     if (currentSegment < segments.length - 1) {
@@ -112,6 +121,8 @@ def generate_html(input_file, metadata_file):
                     }
                 }
             };
+            
+            currentListener = checkTime;
             player.addEventListener('timeupdate', checkTime);
         }
 
