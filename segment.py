@@ -174,6 +174,7 @@ def segment(input_file, output_file, text_file):
                     assert False, output_file
             elif len(verified_dict) > 1:
                 # Multiple questions found - add them all back to be processed
+                # we need to make new_questions a dict too ai!
                 new_questions.extend(verified_dict.keys())
 
         questions = new_questions
