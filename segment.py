@@ -164,10 +164,12 @@ def segment(input_file, output_file, text_file):
         new_questions = []
         for q_index,verified in zip(questions, found_questions):
             if len(verified) == 1:
-                if abs(verified[0] - q_index) < 3:
+                diff = abs(verified[0] - q_index)
+                if diff < 15:
                     final_questions.append(q_index)
                 else:
-                    assert False
+                    dump(diff)
+                    assert False, output_file
             elif len(verified) > 1:
                 # Multiple questions found - add them all back to be processed
                 new_questions.extend(verified)
@@ -188,8 +190,16 @@ def segment(input_file, output_file, text_file):
 
             segment_text = ''.join(w['text'] for w in words[q_index:q_index_end+1])
 
+            if not segment_text.strip():
+                continue
+
+            start_time = words[q_index]['start']
+
+            if end_time - start_time < 1:
+                continue
+
             writer.write({
-                'start': words[q_index]['start'],
+                'start': start_time,
                 'end': end_time,
                 'text': segment_text,
                 'question_index': q_index
@@ -223,7 +233,7 @@ def main():
 
         base_path = Path(input_file).with_suffix("")
         input_path = base_path.with_suffix('.punct.jsonl')
-        output_path = base_path.with_suffix(".segements.jsonl")
+        output_path = base_path.with_suffix(".segments.jsonl")
         text_path = base_path.with_suffix(".segments.txt")
         if output_path.exists():
             print(f"Skipping {input_path} - output already exists at {output_path}")
