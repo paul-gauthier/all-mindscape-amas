@@ -58,6 +58,7 @@ def find_questions(words, start, end):
 
     # Parse bullet points and verify they exist in text
     questions = []
+    unfound_questions = []
     for line in res.splitlines():
         if line.startswith("- "):
             question = line[2:].strip()
@@ -104,7 +105,7 @@ def find_questions(words, start, end):
             print(question)
             if not present:
                 print("X"*70)
-                # accunulate questions that weren't found and display them at the end.ai!
+                unfound_questions.append(question)
                 continue
 
             print(pretty(words[word_index:word_index+10]))
@@ -113,6 +114,12 @@ def find_questions(words, start, end):
             print("word_index:", word_index)
             questions.append(word_index)
 
+    if unfound_questions:
+        print("\nUnfound questions:")
+        for q in unfound_questions:
+            print(f"- {q}")
+        print()
+    
     return questions
 
 
