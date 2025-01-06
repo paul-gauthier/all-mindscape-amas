@@ -57,16 +57,37 @@ def generate_html(input_file, metadata_file):
             background: white;
             padding: 20px 0;
             margin-bottom: 20px;
+            text-align: center;
         }
         audio {
-            width: 100%;
+            display: none;
+        }
+        .player-controls {
+            display: inline-flex;
+            gap: 10px;
+        }
+        .player-controls button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background: #007bff;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        .player-controls button:hover {
+            background: #0056b3;
         }
     </style>
 </head>
 <body>
     <h1>Audio Segments</h1>
     <div class="player-container">
-        <audio id="audio-player" controls></audio>
+        <audio id="audio-player"></audio>
+        <div class="player-controls">
+            <button id="play-button">Play</button>
+            <button id="pause-button">Pause</button>
+        </div>
     </div>
     <ul class="segment-list">
 """
@@ -87,11 +108,21 @@ def generate_html(input_file, metadata_file):
     html += """    </ul>
     <script>
         const player = document.getElementById('audio-player');
+        const playButton = document.getElementById('play-button');
+        const pauseButton = document.getElementById('pause-button');
         const segments = document.querySelectorAll('.segment-item');
         const audioSrc = '""" + base_url + """';
         let currentSegment = 0;
 
         player.src = audioSrc;
+
+        playButton.addEventListener('click', () => {
+            player.play();
+        });
+
+        pauseButton.addEventListener('click', () => {
+            player.pause();
+        });
 
         let currentListener = null;
 
