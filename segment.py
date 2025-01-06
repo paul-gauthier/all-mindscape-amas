@@ -45,15 +45,21 @@ Do not skip, re-order or summarize.
 """.strip()
 
 
-@lox.thread(10)
+@lox.thread(1)
 def find_questions(words, start, end):
 
     words = words[start:end]
 
     duration = words[-1]['end'] - words[0]['start']
+
+    print()
+    print()
+    print()
     dump(start, end, duration)
 
     text = pretty(words)
+    print()
+    dump(text)
 
     model = "deepseek/deepseek-chat"
 
@@ -64,7 +70,8 @@ def find_questions(words, start, end):
 
     comp = litellm.completion(model=model, messages=messages, temperature=0)
     res = comp.choices[0].message.content
-    print(res)
+    print()
+    dump(res)
 
     # Parse bullet points and verify they exist in text
     question_dict = {}
@@ -73,52 +80,15 @@ def find_questions(words, start, end):
         if line.startswith("- "):
             raw_question = question = line[2:].strip()
 
-            full_words_text = "".join(w["text"] for w in words)
-            offset = full_words_text.find(question)
-            if offset == -1:
-                question = question.split()[:10]
-                question = ' '.join(question)
-                offset = full_words_text.find(question)
-            if offset == -1:
-                # Try fuzzy matching with edit distance
-                from Levenshtein import distance as levenshtein_distance
+            word_index = find_question_in_words(question, words)
+            if not word_index:
+                #    print("X"*70)
+                unfound_questions.append(question)
+                continue
 
-                # Split text into overlapping chunks of question length
-                chunk_size = len(question)
-                min_distance = float('inf')
-                best_offset = -1
-
-                for i in range(len(full_words_text) - chunk_size + 1):
-                    chunk = full_words_text[i:i+chunk_size]
-                    dist = levenshtein_distance(question.lower(), chunk.lower())
-                    if dist < min_distance and dist <= 20:
-                        min_distance = dist
-                        best_offset = i
-                        if dist == 0:
-                            break
-
-                offset = best_offset
-            present = offset != -1
-
-            word_index = None
-            if present:
-                char_count = 0
-                for i, w_obj in enumerate(words):
-                    next_count = char_count + len(w_obj["text"])
-                    if offset < next_count:
-                        word_index = i
-                        break
-                    char_count = next_count
-
-            ###
-            #print()
-            #print("Found question:", present)
-            #print(question)
-            #if not present:
-            #    print("X"*70)
-            #    unfound_questions.append(question)
-            #    continue
-
+            print()
+            print("question:", question[:50])
+            print("start word_index:", word_index)
             print(pretty(words[word_index:word_index+10]))
             #dump(words[word_index:word_index+3])
             word_index+= start
@@ -131,6 +101,35 @@ def find_questions(words, start, end):
         print()
 
     return question_dict
+
+def find_question_in_words(question, words):
+
+    question = question.strip().lower()
+    num_words = len(words)
+
+    for i in range(num_words):
+        text = "".join(w["text"] for w in words[i:]).strip().lower()
+        if text.startswith(question):
+            return i
+
+    N=10
+    question = question.split()
+    if len(question) <= N:
+        return
+    question = ' '.join(question[:N])
+
+    for i in range(num_words):
+        text = "".join(w["text"] for w in words[i:]).strip().lower()
+        if text.startswith(question):
+            return i
+
+
+    for i in range(num_words):
+        text = "".join(w["text"] for w in words[i:]).strip().lower()
+        text = text[:len(question)]
+
+        if # levenshein distance < 10 ai!
+            return i
 
 
 def segment(input_file, output_file, text_file):
@@ -145,7 +144,7 @@ def segment(input_file, output_file, text_file):
             raise ValueError(f"Words are not sorted by start time at index {i}")
 
     ###
-    # words = words[:5000]
+    words = words[8_500:10_000]
 
     merged_questions = {}
     chunk_size = 5000
@@ -159,29 +158,26 @@ def segment(input_file, output_file, text_file):
         merged_questions.update(chunk_dict)
 
     final_questions = {}
-    questions = sorted(merged_questions.keys())
-    questions.reverse()
-
+    questions = merged_questions
     while questions:
-        questions = sorted(set(questions))
-
-        for i,q_index in enumerate(questions):
+        question_indexes = sorted(questions.keys())
+        for i,q_index in enumerate(question_indexes):
             start = q_index
-            if i < len(questions)-1:
-                end = questions[i+1]
+            if i < len(question_indexes)-1:
+                end = question_indexes[i+1]
             else:
                 end = len(words)
 
             find_questions.scatter(words, start, end)
 
         found_questions = find_questions.gather(tqdm=True)
-        new_questions = []
+        new_questions = dict()
         for q_index,verified_dict in zip(questions, found_questions):
             if len(verified_dict) == 1:
                 verified_index = list(verified_dict.keys())[0]
                 diff = abs(verified_index - q_index)
                 if diff < 15:
-                    final_questions[q_index] = merged_questions[q_index]
+                    final_questions[verified_index] = questions[q_index]
                 else:
                     dump(diff)
                     assert False, output_file
@@ -189,9 +185,8 @@ def segment(input_file, output_file, text_file):
                 # Multiple questions found - add them all back to be processed
                 new_questions.extend(verified_dict.items())
 
-        # Convert list of (index, question) tuples back to dict
-        merged_questions.update(new_questions)
-        questions = [q[0] for q in new_questions]
+        questions = new_questions
+
 
     final_questions = dict(sorted(final_questions.items()))
 
