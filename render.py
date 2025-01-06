@@ -44,8 +44,9 @@ def main():
             continue
 
         base_path = Path(input_file).with_suffix("")
+        input_path = base_path.with_suffix('.segments.jsonl')
         output_file = base_path.with_suffix(".links.html")
-        html = generate_html(input_file)
+        html = generate_html(input_path)
 
         with open(output_file, 'w') as f:
             f.write(html)
