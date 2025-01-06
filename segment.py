@@ -163,7 +163,7 @@ def align_transcription(input_file, output_file):
             writer.write({
                 'start': word_obj['start'],
                 'end': word_obj['end'],
-                'text': word_obj['text'],
+                'text': word_obj['text'], # pretty print 20 of the words starting at q_index. ai!
                 'question_index': q_index
             })
 
