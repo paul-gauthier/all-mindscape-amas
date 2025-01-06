@@ -162,6 +162,13 @@ def main():
         if not Path(audio_path).exists():
             print(f"Error: File {audio_path} not found")
             continue
+            
+        # Check if transcription files already exist
+        output_file = Path(audio_path).stem + "_transcription.jsonl"
+        output_text = Path(audio_path).stem + "_transcription.txt"
+        if Path(output_file).exists() or Path(output_text).exists():
+            print(f"Skipping {audio_path} - transcription files already exist")
+            continue
 
     # Get file size in MB
     file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
