@@ -14,6 +14,7 @@ def generate_html(input_file, metadata_file):
 <html>
 <head>
     <title>Audio Segments</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -68,13 +69,18 @@ def generate_html(input_file, metadata_file):
             margin-bottom: 10px;
         }
         .player-controls button {
-            padding: 8px 16px;
+            padding: 8px 12px;
             border: none;
             border-radius: 4px;
             background: #007bff;
             color: white;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 16px;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
         .player-controls button:hover {
             background: #0056b3;
@@ -86,9 +92,9 @@ def generate_html(input_file, metadata_file):
     <div class="player-container">
         <audio id="audio-player"></audio>
         <div class="player-controls">
-            <button id="play-button">Play</button>
-            <button id="pause-button">Pause</button>
-            <button id="shuffle-button">Shuffle</button>
+            <button id="play-button"><i class="fas fa-play"></i></button>
+            <button id="pause-button"><i class="fas fa-pause"></i></button>
+            <button id="shuffle-button"><i class="fas fa-random"></i></button>
         </div>
     </div>
     <ul class="segment-list">
