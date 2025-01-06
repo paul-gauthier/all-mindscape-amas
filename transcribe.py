@@ -55,7 +55,7 @@ def transcribe_audio(audio_path):
 
     return words, text_segment
 
-def transcribe_large_audio(audio_path):
+def transcribe_large_audio(audio_path, output_file):
     """
     Handle large audio files by processing chunks sequentially,
     using word timestamps to determine clean cut points.
@@ -137,7 +137,7 @@ def transcribe_large_audio(audio_path):
 
     # Return the output file path
     # Temp files are automatically cleaned up when temp_dir context exits
-    return output_file
+    return output_file, output_text
 
 def print_words(words_and_text):
     """Print words and text segments with their timestamps"""
@@ -173,13 +173,15 @@ def main():
     # Get file size in MB
     file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
 
-    output_file = Path(audio_path).stem + "_transcription.jsonl"
-    output_text = Path(audio_path).stem + "_transcription.txt"
+    # Create output file paths once
+    input_path = Path(audio_path)
+    output_file = input_path.with_stem(input_path.stem + "_transcription").with_suffix(".jsonl")
+    output_text = input_path.with_stem(input_path.stem + "_transcription").with_suffix(".txt")
 
     # Choose transcription method based on file size
     if file_size_mb > 24:
         print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
-        output_file = transcribe_large_audio(audio_path)
+        output_file, output_text = transcribe_large_audio(audio_path, output_file)
     else:
         words, text_segment = transcribe_audio(audio_path)
         # Write single chunk to JSONL
