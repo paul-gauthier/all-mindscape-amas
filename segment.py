@@ -41,6 +41,8 @@ the early universe, and what challenges does it present for reconciling quantum 
 - I'm going to group 2 questions together. Anonymous asks why is water wet, and SuperStar10k wants to know why 2 hydrogen and 1 oxygen form water.
 """.strip()
 
+
+# ai: return a dict mapping index->question where question is...
 @lox.thread(10)
 def find_questions(words, start, end):
     dump(start, end)
@@ -65,7 +67,7 @@ def find_questions(words, start, end):
     unfound_questions = []
     for line in res.splitlines():
         if line.startswith("- "):
-            question = line[2:].strip()
+            question = line[2:].strip() # ai: this question raw frmo the completion. ai!
 
             full_words_text = "".join(w["text"] for w in words)
             offset = full_words_text.find(question)
@@ -223,7 +225,7 @@ def pretty(merged):
 
 def main():
     import argparse
-    
+
     parser = argparse.ArgumentParser(description='Segment podcast transcripts into questions')
     parser.add_argument('files', nargs='+', help='Input JSONL files to process')
     parser.add_argument('--force', action='store_true', help='Overwrite existing output files')
@@ -238,7 +240,7 @@ def main():
         input_path = base_path.with_suffix('.punct.jsonl')
         output_path = base_path.with_suffix(".segments.jsonl")
         text_path = base_path.with_suffix(".segments.txt")
-        
+
         if output_path.exists() and not args.force:
             print(f"Skipping {input_path} - output already exists at {output_path}")
             print("Use --force to overwrite existing files")
