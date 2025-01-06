@@ -99,7 +99,7 @@ def main():
         output_text = input_path.with_suffix(".punct.txt")
         align_transcription(input_path, output_file, output_text)
         print(f"Aligned transcription saved to {output_file}")
-        # print text filename. ai!
+        print(f"Word-wrapped text saved to {output_text}")
 
 if __name__ == "__main__":
     main()
