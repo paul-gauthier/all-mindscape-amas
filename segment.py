@@ -23,11 +23,8 @@ Sometimes Sean will group similar questions together, and read a few of them bef
 Treat such grouped questions as a single "grouped set of questions".
 
 The questions often start like these examples:
-- Raul says why is the sky blue?
-- AbacusPowerUser asks why do apples fall from trees?
-- Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in
-the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity?
-- I'm going to group 2 questions together. Anonymous asks why is water wet, and SuperStar10k wants to know why 2 hydrogen and 1 oxygen form water.
+
+Raul says why is the sky blue? ... AbacusPowerUser asks why do apples fall from trees? ... Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity? ... I'm going to group 2 questions together. Anonymous asks why is water wet, and SuperStar10k wants to know why 2 hydrogen and 1 oxygen form water.
 
 Find all the sentences in the transcript which denote the start of a new question or grouped set of questions.
 Return *every* such sentence.
@@ -39,6 +36,12 @@ Return one question per line in a bulleted list like this:
 - Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in
 the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity?
 - I'm going to group 2 questions together. Anonymous asks why is water wet, and SuperStar10k wants to know why 2 hydrogen and 1 oxygen form water.
+
+ONLY RETURN ONE ENTRY FOR A "GROUPED SET OF QUESTIONS", DO NOT BREAK THEM APART.
+
+EVERY ENTRY IN THE LIST MUST BE AN EXACT STRING OF CHARACTERS FROM THE TRANSCRIPT!
+All words, punctuation, spacing must be EXACTLY preserved.
+Do not skip, re-order or summarize.
 """.strip()
 
 
@@ -68,7 +71,7 @@ def find_questions(words, start, end):
     unfound_questions = []
     for line in res.splitlines():
         if line.startswith("- "):
-            question = line[2:].strip()
+            raw_question = question = line[2:].strip()
 
             full_words_text = "".join(w["text"] for w in words)
             offset = full_words_text.find(question)
@@ -107,19 +110,19 @@ def find_questions(words, start, end):
                         break
                     char_count = next_count
 
-            print()
-            print("Found question:", present)
-            print(question)
-            if not present:
-                print("X"*70)
-                unfound_questions.append(question)
-                continue
+            ###
+            #print()
+            #print("Found question:", present)
+            #print(question)
+            #if not present:
+            #    print("X"*70)
+            #    unfound_questions.append(question)
+            #    continue
 
             print(pretty(words[word_index:word_index+10]))
             #dump(words[word_index:word_index+3])
             word_index+= start
-            print("word_index:", word_index)
-            question_dict[word_index] = question
+            question_dict[word_index] = raw_question
 
     if unfound_questions:
         print("\nUnfound questions:")
@@ -136,8 +139,10 @@ def segment(input_file, output_file, text_file):
     with jsonlines.open(input_file) as reader:
         words = [obj for obj in reader]
 
+    # confirm that words are indeed sorted by start time. ai!
+
     ###
-    words = words[:5000]
+    # words = words[:5000]
 
     merged_questions = {}
     chunk_size = 5000
@@ -194,7 +199,7 @@ def segment(input_file, output_file, text_file):
             end_time = words[q_index_end]["end"]
             if i < len(final_questions)-1:
                 # Get next key from sorted keys list
-                next_key = list(final_questions.keys())[i+1]
+                next_key = sorted(final_questions.keys())[i+1]
                 q_index_end = next_key-1
                 end_time = words[q_index_end+1]["start"]
 
