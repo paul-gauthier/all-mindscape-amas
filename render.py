@@ -13,6 +13,7 @@ def generate_html(input_file, metadata_file):
     html = """<!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <title>Audio Segments</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
