@@ -53,6 +53,7 @@ def main():
 
         base_path = Path(input_file).with_suffix("")
         input_path = base_path.with_suffix('.segments.jsonl')
+        # form the metadata_path here, pass it in. ai!
         output_file = base_path.with_suffix(".links.html")
         html = generate_html(input_path)
 
