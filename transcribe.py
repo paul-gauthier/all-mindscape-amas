@@ -110,34 +110,32 @@ def transcribe_large_audio(audio_path, output_file):
 
         results = transcribe_audio.gather(tqdm=True)
 
-    for current_position_ms,(chunk_words, chunk_text) in zip(chunk_positions, results):
-        dump(current_position_ms)
-        print_words((chunk_words, chunk_text))
+    with jsonlines.open(output_file, mode='w', flush=True) as writer:
+        for current_position_ms,(chunk_words, chunk_text) in zip(chunk_positions, results):
+            dump(current_position_ms)
+            print_words((chunk_words, chunk_text))
 
-        if not chunk_words:
-            break
+            if not chunk_words:
+                break
 
-        # Adjust timestamps with offset
-        for word in chunk_words:
-            word["start"] += current_position_ms / 1000  # Convert ms to seconds
-            word["end"] += current_position_ms / 1000
+            # Adjust timestamps with offset
+            for word in chunk_words:
+                word["start"] += current_position_ms / 1000  # Convert ms to seconds
+                word["end"] += current_position_ms / 1000
 
-        # Adjust text segment timestamps
-        chunk_text["start"] += current_position_ms / 1000
-        chunk_text["end"] += current_position_ms / 1000
+            # Adjust text segment timestamps
+            chunk_text["start"] += current_position_ms / 1000
+            chunk_text["end"] += current_position_ms / 1000
 
-        # Write this chunk's words and text to the output file with immediate flush
-        output_file = Path(audio_path).stem + "_transcription.jsonl"
-        with jsonlines.open(output_file, mode='w', flush=True) as writer:
             for word in chunk_words:
                 writer.write(word)
             writer.write(chunk_text)
 
-        print(f"Processed up to {current_position_ms/1000:.2f} seconds")
+            print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
     # Return the output file path
     # Temp files are automatically cleaned up when temp_dir context exits
-    return output_file, output_text
+    return output_text
 
 def print_words(words_and_text):
     """Print words and text segments with their timestamps"""
@@ -162,45 +160,32 @@ def main():
         if not Path(audio_path).exists():
             print(f"Error: File {audio_path} not found")
             continue
-            
+
         # Check if transcription files already exist
         output_file = Path(audio_path).stem + "_transcription.jsonl"
         output_text = Path(audio_path).stem + "_transcription.txt"
+        dump(output_file)
+        dump(output_text)
+
         if Path(output_file).exists() or Path(output_text).exists():
             print(f"Skipping {audio_path} - transcription files already exist")
             continue
 
-    # Get file size in MB
-    file_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
+        # Create output file paths once
+        input_path = Path(audio_path)
+        transcribe_large_audio(audio_path, output_file)
 
-    # Create output file paths once
-    input_path = Path(audio_path)
-    output_file = input_path.with_stem(input_path.stem + "_transcription").with_suffix(".jsonl")
-    output_text = input_path.with_stem(input_path.stem + "_transcription").with_suffix(".txt")
+        # Create text file with wrapped text
+        with open(output_text, 'w') as txt_file:
+            with jsonlines.open(output_file) as reader:
+                for obj in reader:
+                    if obj.get("text"):
+                        # Wrap text at 80 columns
+                        import textwrap
+                        wrapped_text = textwrap.fill(obj["text"], width=80)
+                        txt_file.write(wrapped_text + "\n\n")
 
-    # Choose transcription method based on file size
-    if file_size_mb > 24:
-        print(f"File size is {file_size_mb:.1f}MB. Processing in chunks...")
-        output_file, output_text = transcribe_large_audio(audio_path, output_file)
-    else:
-        words, text_segment = transcribe_audio(audio_path)
-        # Write single chunk to JSONL
-        with jsonlines.open(output_file, mode='w') as writer:
-            for word in words:
-                writer.write(word)
-            writer.write(text_segment)
-
-    # Create text file with wrapped text
-    with open(output_text, 'w') as txt_file:
-        with jsonlines.open(output_file) as reader:
-            for obj in reader:
-                if obj.get("text"):
-                    # Wrap text at 80 columns
-                    import textwrap
-                    wrapped_text = textwrap.fill(obj["text"], width=80)
-                    txt_file.write(wrapped_text + "\n\n")
-
-    print(f"Transcription saved to {output_file} and {output_text}")
+        print(f"Transcription saved to {output_file} and {output_text}")
 
 
 if __name__ == "__main__":
