@@ -6,13 +6,14 @@ import sys
 from pathlib import Path
 from dump import dump
 
-def align_transcription(input_file, output_file):
+def align_transcription(input_file, output_file, output_text):
     """
     Align transcription chunks by removing overlapping words between chunks.
 
     Args:
         input_file: Path to input JSONL file with transcription data
         output_file: Path to output JSONL file for aligned transcription
+        output_text: Path to output text file for word-wrapped transcription
     """
     overlap_threshold = 0.05  # seconds for considering words as overlapping
 
@@ -103,7 +104,7 @@ def main():
         output_file = input_path.with_suffix(".punct.jsonl")
         # pass output_text into align and write textwrap output to it. ai!
         output_text = input_path.with_suffix(".punct.txt")
-        align_transcription(input_path, output_file)
+        align_transcription(input_path, output_file, output_text)
         print(f"Aligned transcription saved to {output_file}")
 
 if __name__ == "__main__":
