@@ -193,9 +193,9 @@ def segment(input_file, output_file, text_file):
             q_index_end = len(words)-1
             end_time = words[q_index_end]["end"]
             if i < len(final_questions)-1:
-                # find the key of the next entry in sorted(final_questions) ai!
-                next_key =
-                q_index_end = final_questions[next_key]-1
+                # Get next key from sorted keys list
+                next_key = list(final_questions.keys())[i+1]
+                q_index_end = next_key-1
                 end_time = words[q_index_end+1]["start"]
 
             segment_text = ''.join(w['text'] for w in words[q_index:q_index_end+1])
