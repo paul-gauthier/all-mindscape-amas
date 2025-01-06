@@ -19,14 +19,17 @@ The user will share the transcript of a podcast episode.
 It's an "Ask Me Anything" episode from Sean Carroll's Mindscape podcast.
 He reads a series of questions from listeners and then answers them.
 
-The questions often start like:
+Sometimes Sean will group similar questions together, and read a few of them before giving a combined answer that addresses all the questions in the group.
+Treat such grouped questions as a single "grouped set of questions".
+
+The questions often start like these examples:
 - Raul says why is the sky blue?
 - AbacusPowerUser asks why do apples fall from trees?
 - Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in
 the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity?
-- etc
+- I'm going to group 2 questions together. Anonymous asks why is water wet, and SuperStar10k wants to know why 2 hydrogen and 1 oxygen form water.
 
-Find all the sentences in the transcript which denote the start of a new question.
+Find all the sentences in the transcript which denote the start of a new question or grouped set of questions.
 Return *every* such sentence.
 Return questions exactly as they appear in the transcript, with all the same punctuation, spacing, etc.
 Return one question per line in a bulleted list like this:
@@ -35,6 +38,7 @@ Return one question per line in a bulleted list like this:
 - AbacusPowerUser asks why do apples fall from trees?
 - Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in
 the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity?
+- I'm going to group 2 questions together. Anonymous asks why is water wet, and SuperStar10k wants to know why 2 hydrogen and 1 oxygen form water.
 """.strip()
 
 @lox.thread(10)
@@ -101,7 +105,7 @@ def find_questions(words, start, end):
                     char_count = next_count
 
             print()
-            print("Question:", present)
+            print("Found question:", present)
             print(question)
             if not present:
                 print("X"*70)
@@ -119,7 +123,7 @@ def find_questions(words, start, end):
         for q in unfound_questions:
             print(f"- {q}")
         print()
-    
+
     return questions
 
 
