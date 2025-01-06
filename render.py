@@ -94,6 +94,7 @@ def generate_html(input_file, metadata_file):
         <div class="player-controls">
             <button id="play-button"><i class="fas fa-play"></i></button>
             <button id="pause-button"><i class="fas fa-pause"></i></button>
+            <button id="prev-button"><i class="fas fa-backward"></i></button>
             <button id="next-button"><i class="fas fa-forward"></i></button>
             <button id="shuffle-button"><i class="fas fa-random"></i></button>
         </div>
@@ -119,6 +120,7 @@ def generate_html(input_file, metadata_file):
         const player = document.getElementById('audio-player');
         const playButton = document.getElementById('play-button');
         const pauseButton = document.getElementById('pause-button');
+        const prevButton = document.getElementById('prev-button');
         const nextButton = document.getElementById('next-button');
         const shuffleButton = document.getElementById('shuffle-button');
         const segmentList = document.querySelector('.segment-list');
@@ -152,6 +154,19 @@ def generate_html(input_file, metadata_file):
                 currentSegment++;
                 const nextSegment = segments[currentSegment];
                 nextSegment.click();
+            }
+        });
+
+        prevButton.addEventListener('click', () => {
+            const currentStart = parseFloat(segments[currentSegment].dataset.start);
+            if (player.currentTime - currentStart > 2) {
+                // Restart current segment
+                segments[currentSegment].click();
+            } else if (currentSegment > 0) {
+                // Move to previous segment
+                currentSegment--;
+                const prevSegment = segments[currentSegment];
+                prevSegment.click();
             }
         });
 
