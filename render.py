@@ -10,6 +10,10 @@ def generate_html(input_file, metadata_file):
         metadata = json.load(f)
     base_url = metadata['url']
 
+    if 'audio_url' not in metadata:
+        print(f"Error: Metadata file {metadata_file} is missing required 'audio_url' field")
+        sys.exit(1)
+
     html = """<!DOCTYPE html>
 <html>
 <head>
