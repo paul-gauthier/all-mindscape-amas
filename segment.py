@@ -126,13 +126,21 @@ def find_question_in_words(question, words):
 
     from Levenshtein import distance as levenshtein_distance
 
-    # actually, find the min lev dist across all i. ai!
+    # Find position with minimum Levenshtein distance
+    min_dist = float('inf')
+    best_index = None
+    
     for i in range(num_words):
         text = "".join(w["text"] for w in words[i:]).strip().lower()
         text = text[:len(question)]
-
-        if levenshtein_distance(question, text) < 10:
-            return i
+        
+        dist = levenshtein_distance(question, text)
+        if dist < min_dist:
+            min_dist = dist
+            best_index = i
+            
+    if min_dist < 10:
+        return best_index
 
 
 def segment(input_file, output_file, text_file):
