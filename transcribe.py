@@ -74,6 +74,7 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
     current_position_ms = start_position_ms
     all_words = []
 
+    # precompute an array of all the current_position_ms values, then for current_position_ms in current_position_ms_array: ai!
     while current_position_ms < total_duration_ms:
         print()
         dump(current_position_ms)
@@ -113,12 +114,7 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
         chunk_text["start"] += current_position_ms / 1000
         chunk_text["end"] += current_position_ms / 1000
 
-        # Find a good cutting point for next chunk
-        if len(chunk_words) > OVERLAP_WORDS:
-            # Keep OVERLAP_WORDS at the end for next chunk alignment
-            current_position_ms = int(chunk_words[-OVERLAP_WORDS]["start"] * 1000)
-        else:
-            current_position_ms += chunk_duration_ms - 10*1000
+        current_position_ms += chunk_duration_ms - 10*1000
 
         # Write this chunk's words and text to the output file with immediate flush
         output_file = Path(audio_path).stem + "_transcription.jsonl"
