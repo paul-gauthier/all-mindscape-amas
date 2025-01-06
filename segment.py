@@ -134,7 +134,7 @@ def segment(input_file, output_file, text_file):
     with jsonlines.open(input_file) as reader:
         words = [obj for obj in reader]
 
-    question_dicts = []
+    merged_questions = {}
     chunk_size = 5000
     start_index = 0
     while start_index < len(words):
