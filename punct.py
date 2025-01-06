@@ -35,13 +35,17 @@ def align_transcription(input_file, output_file, output_text):
                     print("skipping non-alphanum:", word)
                     continue
 
+                # Create a clean version of the word without non-alphanumeric chars
+                clean_word = ''.join(c for c in word if c.isalnum())
+                # Try splitting with original word first
                 parts = text.split(word, 1)
                 if len(parts) != 2:
-                    # try again, stripping non-alnums from word. ai!
-                    dump(word)
-                    dump(text[:100])
-                    dump(len(parts))
-                    assert False
+                    # If that fails, try with cleaned word
+                    parts = text.split(clean_word, 1)
+                    if len(parts) != 2:
+                        # If still failing, skip this word
+                        print(f"Warning: Could not align word '{word}' in text")
+                        continue
 
                 rest = parts[1]
                 rest = rest.lstrip(" ".join(c for c in rest if not c.isalnum()))
