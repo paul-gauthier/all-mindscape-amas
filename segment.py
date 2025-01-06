@@ -111,7 +111,7 @@ def find_questions(words, start, end):
     return questions
 
 
-def segment(input_file, output_file):
+def segment(input_file, output_file, text_file):
     dump(input_file)
 
     with jsonlines.open(input_file) as reader:
@@ -161,7 +161,7 @@ def segment(input_file, output_file):
     final_questions = sorted(final_questions)
 
     # Write final questions to output file
-    with jsonlines.open(output_file, mode='w') as writer:
+    with jsonlines.open(output_file, mode='w') as writer, open(text_file, 'w') as txt_writer:
         for i,q_index in enumerate(final_questions):
             # Find the end of this question (start of next question or end of transcript)
             q_index_end = len(words)-1
@@ -170,12 +170,19 @@ def segment(input_file, output_file):
                 q_index_end = final_questions[i+1]-1
                 end_time = words[q_index_end+1]["start"]
 
+            segment_text = ''.join(w['text'] for w in words[q_index:q_index_end+1])
+            
             writer.write({
                 'start': words[q_index]['start'],
                 'end': end_time,
-                'text': ''.join(w['text'] for w in words[q_index:q_index_end+1]),
+                'text': segment_text,
                 'question_index': q_index
             })
+            
+            # Write word-wrapped text to output file
+            import textwrap
+            wrapped_text = "\n".join(textwrap.wrap(segment_text, width=80))
+            txt_writer.write(f"Segment {i+1}:\n{wrapped_text}\n\n")
 
 
 def pretty(merged):
@@ -201,13 +208,14 @@ def main():
         base_path = Path(input_file).with_suffix("")
         input_path = base_path.with_suffix('.punct.jsonl')
         output_path = base_path.with_suffix(".segements.jsonl")
-        text_path = #... .segments.txt; pass into segment() and output a textwrapped version of each segment. ai!
+        text_path = base_path.with_suffix(".segments.txt")
         if output_path.exists():
             print(f"Skipping {input_path} - output already exists at {output_path}")
             continue
 
-        segment(input_path, output_path)
+        segment(input_path, output_path, text_path)
         print(f"Saved to {output_path}")
+        print(f"Text segments saved to {text_path}")
 
 if __name__ == "__main__":
     main()
