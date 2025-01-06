@@ -143,13 +143,9 @@ def segment(input_file, output_file, text_file):
         start_index += chunk_size
 
     for chunk_dict in find_questions.gather(tqdm=True):
-        question_dicts.append(chunk_dict)
+        merged_questions.update(chunk_dict)
 
-    # Merge all question dicts into one
-    merged_questions = {}
-    for q_dict in question_dicts:
-        merged_questions.update(q_dict)
-
+    # ai: keep using the dict...
     final_questions = []
     questions = sorted(merged_questions.keys())
     questions.reverse()
@@ -185,7 +181,7 @@ def segment(input_file, output_file, text_file):
 
     final_questions = sorted(final_questions)
 
-    # Write final questions to output file
+    # ai: ... so we can add a "question" key to each output record
     with jsonlines.open(output_file, mode='w') as writer, open(text_file, 'w') as txt_writer:
         for i,q_index in enumerate(final_questions):
             # Find the end of this question (start of next question or end of transcript)
@@ -215,6 +211,9 @@ def segment(input_file, output_file, text_file):
             # Write word-wrapped text to output file
             import textwrap
             wrapped_text = "\n".join(textwrap.wrap(segment_text, width=80))
+
+            # ai: also include the question dict value in the header here. ai!
+
             txt_writer.write(f"=====\n{wrapped_text}\n\n")
 
 
