@@ -27,19 +27,15 @@ def align_transcription(input_file, output_file, output_text):
                 continue
 
             text = obj["text"]
-            dump(text)
+
             for wobj in words:
                 word = wobj["word"]
-                print()
-                dump(repr(word))
-                dump(repr(text[:100]))
 
                 if not [c for c in word if c.isalnum()]:
                     print("skipping non-alphanum:", word)
                     continue
 
                 parts = text.split(word, 1)
-                dump(parts)
                 if len(parts) != 2:
                     dump(word)
                     dump(text[:100])
@@ -50,8 +46,6 @@ def align_transcription(input_file, output_file, output_text):
 
                 this = text[:len(text) - len(rest)]
                 wobj["text"] = this
-                dump(repr(this))
-                dump(repr(rest[:100]))
 
                 aligned.append(wobj)
 
@@ -87,7 +81,7 @@ def align_transcription(input_file, output_file, output_text):
         import textwrap
         wrapped_text = "\n".join(textwrap.wrap(full_text, width=80))
         txt_writer.write(wrapped_text)
-        print(wrapped_text)
+        #print(wrapped_text)
 
 def main():
     if len(sys.argv) < 2:
@@ -102,10 +96,10 @@ def main():
         # Create output file with same path prefix but new suffix
         input_path = Path(input_file).with_suffix(".transcription.jsonl")
         output_file = input_path.with_suffix(".punct.jsonl")
-        # pass output_text into align and write textwrap output to it. ai!
         output_text = input_path.with_suffix(".punct.txt")
         align_transcription(input_path, output_file, output_text)
         print(f"Aligned transcription saved to {output_file}")
+        # print text filename. ai!
 
 if __name__ == "__main__":
     main()
