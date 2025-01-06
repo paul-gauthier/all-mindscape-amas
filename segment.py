@@ -156,7 +156,7 @@ def align_transcription(input_file, output_file):
 
         questions = new_questions
 
-    # sorted(final_questions once here. ai!
+    final_questions = sorted(final_questions)
 
     # Write final questions to output file
     with jsonlines.open(output_file, mode='w') as writer:
