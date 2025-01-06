@@ -174,10 +174,11 @@ def segment(input_file, output_file, text_file):
                     assert False, output_file
             elif len(verified_dict) > 1:
                 # Multiple questions found - add them all back to be processed
-                # we need to make new_questions a dict too ai!
-                new_questions.extend(verified_dict.keys())
+                new_questions.extend(verified_dict.items())
 
-        questions = new_questions
+        # Convert list of (index, question) tuples back to dict
+        merged_questions.update(new_questions)
+        questions = [q[0] for q in new_questions]
 
     final_questions = dict(sorted(final_questions.items()))
 
