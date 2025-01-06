@@ -157,9 +157,11 @@ def generate_html(input_file, metadata_file):
                 segmentList.appendChild(segment);
             });
             
-            // Play a random segment
-            const randomIndex = Math.floor(Math.random() * segmentsArray.length);
-            segmentsArray[randomIndex].click();
+            // Update segments reference to the new order
+            segments = document.querySelectorAll('.segment-item');
+            
+            // Play the new first segment
+            segments[0].click();
         });
 
         let currentListener = null;
