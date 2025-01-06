@@ -89,6 +89,7 @@ def align_transcription(input_file, output_file, output_text):
         txt_writer.write(wrapped_text)
         #print(wrapped_text)
 
+# add --force ai!
 def main():
     if len(sys.argv) < 2:
         print("Usage: python punct.py <transcription_file1.jsonl> [file2.jsonl ...]")
