@@ -10,9 +10,8 @@ def generate_html(input_file, metadata_file):
         metadata = json.load(f)
     base_url = metadata['url']
 
-    if 'audio_url' not in metadata:
-        print(f"Error: Metadata file {metadata_file} is missing required 'audio_url' field")
-        sys.exit(1)
+    # Use 'url' field as fallback if 'audio_url' isn't present
+    audio_url = metadata.get('audio_url', metadata['url'])
 
     html = """<!DOCTYPE html>
 <html>
@@ -82,7 +81,7 @@ def generate_html(input_file, metadata_file):
     <script>
         const player = document.getElementById('audio-player');
         const segments = document.querySelectorAll('.segment-item');
-        const audioSrc = '""" + metadata['audio_url'] + """';
+        const audioSrc = '""" + audio_url + """';
         let currentSegment = 0;
 
         player.src = audioSrc;
