@@ -116,8 +116,19 @@ def generate_html(input_file, metadata_file):
 
         player.src = audioSrc;
 
+        let firstPlay = true;
+        
         playButton.addEventListener('click', () => {
-            player.play();
+            if (firstPlay) {
+                // Highlight and play the first segment
+                segments[0].classList.add('playing');
+                const start = parseFloat(segments[0].dataset.start);
+                const end = parseFloat(segments[0].dataset.end);
+                playSegment(start, end);
+                firstPlay = false;
+            } else {
+                player.play();
+            }
         });
 
         pauseButton.addEventListener('click', () => {
