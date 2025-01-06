@@ -16,7 +16,7 @@ def generate_html(input_file):
     <h1>Audio Segments</h1>
     <ul>
 """
-    
+
     with jsonlines.open(input_file) as reader:
         for segment in reader:
             start = int(segment['start'])
@@ -24,13 +24,13 @@ def generate_html(input_file):
             duration = end - start
             url = f"{BASE_URL}#t={start},{end}"
             text = segment['text'].replace("\n", " ")[:100] + "..."
-            
+
             html += f'        <li><a href="{url}" target="_blank">[{duration}s] {text}</a></li>\n'
-    
+
     html += """    </ul>
 </body>
 </html>"""
-    
+
     return html
 
 def main():
@@ -43,12 +43,13 @@ def main():
             print(f"Error: File {input_file} not found")
             continue
 
+        # update the filename logic to work like the other scripts. ai!
         output_file = Path(input_file).stem + "_links.html"
         html = generate_html(input_file)
-        
+
         with open(output_file, 'w') as f:
             f.write(html)
-        
+
         print(f"Saved to {output_file}")
 
 if __name__ == "__main__":
