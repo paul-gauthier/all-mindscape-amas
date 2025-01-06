@@ -43,6 +43,7 @@ def align_transcription(input_file, output_file, output_text):
                     assert False
 
                 rest = parts[1]
+                rest = rest.lstrip(" ".join(c for c in rest if not c.isalnum()))
 
                 this = text[:len(text) - len(rest)]
                 wobj["text"] = this
@@ -94,18 +95,17 @@ def main():
             continue
 
         # Create output file with same path prefix but new suffix
-        input_path = Path(input_file)
-        # Strip all suffixes and add new ones
-        base_path = input_path.with_suffix('')
-        output_file = base_path.with_suffix(".punct.jsonl")
+        base_path = Path(input_file).with_suffix("")
+        input_path = base_path.with_suffix('.transcription.jsonl')
+        output_path = base_path.with_suffix(".punct.jsonl")
         output_text = base_path.with_suffix(".punct.txt")
 
-        if output_file.exists():
-            print(f"Skipping {input_file} - output already exists at {output_file}")
+        if output_path.exists():
+            print(f"Skipping {input_path} - output already exists at {output_path}")
             continue
 
-        align_transcription(input_path, output_file, output_text)
-        print(f"Aligned transcription saved to {output_file}")
+        align_transcription(input_path, output_path, output_text)
+        print(f"Aligned transcription saved to {output_path}")
         print(f"Word-wrapped text saved to {output_text}")
 
 if __name__ == "__main__":

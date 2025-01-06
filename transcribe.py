@@ -78,8 +78,6 @@ def transcribe_large_audio(audio_path, output_file):
         chunk_positions.append(current_position_ms)
         current_position_ms += chunk_duration_ms - 10*1000
 
-    all_words = []
-
     # Create temporary directory for chunk files
     import tempfile
     with tempfile.TemporaryDirectory() as temp_dir:
@@ -133,9 +131,6 @@ def transcribe_large_audio(audio_path, output_file):
 
             print(f"Processed up to {current_position_ms/1000:.2f} seconds")
 
-    # Return the output file path
-    # Temp files are automatically cleaned up when temp_dir context exits
-    return output_file
 
 def print_words(words_and_text):
     """Print words and text segments with their timestamps"""
@@ -162,8 +157,8 @@ def main():
             continue
 
         # Check if transcription files already exist
-        output_file = str(Path(audio_path).with_suffix("")) + "_transcription.jsonl"
-        output_text = str(Path(audio_path).with_suffix("")) + "_transcription.txt"
+        output_file = Path(audio_path).with_suffix(".transcription.jsonl")
+        output_text = Path(audio_path).with_suffix(".transcription.txt")
         dump(output_file)
         dump(output_text)
 

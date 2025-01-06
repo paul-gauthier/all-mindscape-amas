@@ -11,12 +11,12 @@ def get_ama_episodes(xml_file):
     """Get AMA episodes with their titles and URLs"""
     tree = ET.parse(xml_file)
     root = tree.getroot()
-    
+
     namespaces = {
         'itunes': 'http://www.itunes.com/dtds/podcast-1.0.dtd',
         'content': 'http://purl.org/rss/1.0/modules/content/'
     }
-    
+
     episodes = []
     for item in root.findall('.//item'):
         title = item.find('title').text
@@ -38,7 +38,7 @@ def download_episode(url, filename):
     if os.path.exists(filename):
         print(f"File {filename} already exists - skipping")
         return False
-        
+
     temp_filename = f"{filename}.download"
     response = requests.get(url, stream=True)
     if response.status_code == 200:
@@ -69,18 +69,18 @@ def format_filename(date_str, title):
 def main():
     # Create data directory if it doesn't exist
     os.makedirs('data', exist_ok=True)
-    
+
     xml_file = 'sean-carrolls-mindscape.xml'
     episodes = get_ama_episodes(xml_file)
-    
+
     for episode in episodes:
         filename = format_filename(episode['date'], episode['title'])
         if filename:
             if os.path.exists(filename):
                 print(f"Skipping {episode['title']} - already exists at {filename}")
                 continue
-                
-            print(f"Downloading {episode['title']} to {filename}...")
+
+            print(f"Downloading {episode['title']} to {filename}")
             if download_episode(episode['url'], filename):
                 print(f"Successfully saved {filename}")
             else:

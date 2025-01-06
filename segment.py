@@ -171,18 +171,18 @@ def segment(input_file, output_file, text_file):
                 end_time = words[q_index_end+1]["start"]
 
             segment_text = ''.join(w['text'] for w in words[q_index:q_index_end+1])
-            
+
             writer.write({
                 'start': words[q_index]['start'],
                 'end': end_time,
                 'text': segment_text,
                 'question_index': q_index
             })
-            
+
             # Write word-wrapped text to output file
             import textwrap
             wrapped_text = "\n".join(textwrap.wrap(segment_text, width=80))
-            txt_writer.write(f"Segment {i+1}:\n{wrapped_text}\n\n")
+            txt_writer.write(f"=====\n{wrapped_text}\n\n")
 
 
 def pretty(merged):
