@@ -160,21 +160,18 @@ def align_transcription(input_file, output_file):
 
     # Write final questions to output file
     with jsonlines.open(output_file, mode='w') as writer:
-        for q_index in sorted(final_questions):
+        for i,q_index in enumerate(final_questions):
             # Find the end of this question (start of next question or end of transcript)
-            next_q_index = len(words)
-            for next_q in sorted(final_questions):
-                if next_q > q_index:
-                    next_q_index = next_q
-                    break
-
-            # Get the last word before next question
-            last_word = words[next_q_index - 1]
+            q_index_end = len(words)-1
+            end_time = words[q_index_end]["end"]
+            if i < len(final_questions)-1:
+                q_index_end = final_questions[i+1]-1
+                end_time = words[q_index_end+1]["start"]
 
             writer.write({
                 'start': words[q_index]['start'],
-                'end': last_word['end'],
-                'text': ''.join(w['text'] for w in words[q_index:next_q_index]),
+                'end': end_time,
+                'text': ''.join(w['text'] for w in words[q_index:q_index_end+1]),
                 'question_index': q_index
             })
 
