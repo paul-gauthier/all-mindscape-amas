@@ -139,7 +139,10 @@ def segment(input_file, output_file, text_file):
     with jsonlines.open(input_file) as reader:
         words = [obj for obj in reader]
 
-    # confirm that words are indeed sorted by start time. ai!
+    # Verify words are sorted by start time
+    for i in range(1, len(words)):
+        if words[i-1]['start'] > words[i]['start']:
+            raise ValueError(f"Words are not sorted by start time at index {i}")
 
     ###
     # words = words[:5000]
