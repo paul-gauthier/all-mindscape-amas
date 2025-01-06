@@ -9,10 +9,12 @@ from openai import OpenAI
 from dotenv import load_dotenv
 from dump import dump
 from pydub import AudioSegment
+import lox
 
 # Load environment variables from .env file
 load_dotenv()
 
+lox.thread(10)
 def transcribe_audio(audio_path):
     """
     Transcribe audio file using OpenAI Whisper API with word-level timestamps
@@ -80,6 +82,7 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
 
     all_words = []
 
+    # make a tempdir and place a bunch of temp_path_{cur-pos-ms}.mp3 files in it instead. ai!
     for current_position_ms in chunk_positions:
         print()
         dump(current_position_ms)
@@ -101,11 +104,13 @@ def transcribe_large_audio(audio_path, start_position_ms=0):
 
         # Transcribe chunk
         print("Sending chunk to OpenAI API for transcription...")
-        chunk_words, chunk_text = transcribe_audio(temp_path)
-        print_words((chunk_words, chunk_text))
+        transcribe_audio.scatter(temp_path)
 
-        # Clean up temporary file
-        os.remove(temp_path)
+    results = transcribe_audio.gather(tqdm=True)
+
+    for current_position_ms,(chunk_words, chunk_text) in zip(chunk_positions, results):
+        dump(current_position_ms)
+        print_words((chunk_words, chunk_text))
 
         if not chunk_words:
             break
