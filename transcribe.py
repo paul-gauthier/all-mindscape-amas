@@ -135,7 +135,7 @@ def transcribe_large_audio(audio_path, output_file):
 
     # Return the output file path
     # Temp files are automatically cleaned up when temp_dir context exits
-    return output_text
+    return output_file
 
 def print_words(words_and_text):
     """Print words and text segments with their timestamps"""
