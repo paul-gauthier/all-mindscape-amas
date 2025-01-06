@@ -163,7 +163,7 @@ def align_transcription(input_file, output_file):
             writer.write({
                 'start': word_obj['start'],
                 'end': word_obj['end'],
-                'text': ' '.join(w['text'] for w in words[q_index:q_index+20]),
+                'text': ''.join(w['text'] for w in words[q_index:q_index+20]),
                 'question_index': q_index
             })
 
