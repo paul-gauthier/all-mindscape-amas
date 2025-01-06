@@ -44,9 +44,11 @@ the early universe, and what challenges does it present for reconciling quantum 
 
 @lox.thread(10)
 def find_questions(words, start, end):
-    dump(start, end)
 
     words = words[start:end]
+
+    duration = words[-1]['end'] - words[0]['start']
+    dump(start, end, duration)
 
     text = pretty(words)
 
@@ -134,6 +136,9 @@ def segment(input_file, output_file, text_file):
     with jsonlines.open(input_file) as reader:
         words = [obj for obj in reader]
 
+    ###
+    words = words[:5000]
+
     merged_questions = {}
     chunk_size = 5000
     start_index = 0
@@ -188,7 +193,9 @@ def segment(input_file, output_file, text_file):
             q_index_end = len(words)-1
             end_time = words[q_index_end]["end"]
             if i < len(final_questions)-1:
-                q_index_end = final_questions[i+1]-1
+                # find the key of the next entry in sorted(final_questions) ai!
+                next_key =
+                q_index_end = final_questions[next_key]-1
                 end_time = words[q_index_end+1]["start"]
 
             segment_text = ''.join(w['text'] for w in words[q_index:q_index_end+1])
