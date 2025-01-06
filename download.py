@@ -2,6 +2,7 @@
 
 import os
 import requests
+import json
 from datetime import datetime
 from ama_extractor import extract_ama_episodes
 from xml.etree import ElementTree as ET
@@ -72,21 +73,37 @@ def main():
 
     xml_file = 'sean-carrolls-mindscape.xml'
     episodes = get_ama_episodes(xml_file)
+    
+    # Create list to store metadata
+    metadata = []
 
     for episode in episodes:
         filename = format_filename(episode['date'], episode['title'])
         if filename:
             if os.path.exists(filename):
                 print(f"Skipping {episode['title']} - already exists at {filename}")
-                continue
-
-            print(f"Downloading {episode['title']} to {filename}")
-            if download_episode(episode['url'], filename):
-                print(f"Successfully saved {filename}")
             else:
-                print(f"Failed to download {filename}")
+                print(f"Downloading {episode['title']} to {filename}")
+                if download_episode(episode['url'], filename):
+                    print(f"Successfully saved {filename}")
+                else:
+                    print(f"Failed to download {filename}")
+            
+            # Add metadata for this episode
+            metadata.append({
+                'filename': filename,
+                'url': episode['url'],
+                'title': episode['title'],
+                'date': episode['date']
+            })
         else:
             print(f"Could not parse date for {episode['title']}")
+    
+    # Save metadata to JSON file
+    metadata_file = 'data/2024-12-AMA.json'
+    with open(metadata_file, 'w') as f:
+        json.dump(metadata, f, indent=2)
+    print(f"Saved episode metadata to {metadata_file}")
 
 if __name__ == "__main__":
     main()
