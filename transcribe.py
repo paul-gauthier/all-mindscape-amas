@@ -10,6 +10,7 @@ from dotenv import load_dotenv
 from dump import dump
 from pydub import AudioSegment
 import lox
+import litellm
 
 # Load environment variables from .env file
 load_dotenv()
@@ -25,13 +26,11 @@ def transcribe_audio(audio_path):
     if not api_key:
         raise ValueError("OPENAI_API_KEY environment variable not set")
 
-    client = OpenAI(api_key=api_key)
-
     # Open audio file
     with open(audio_path, "rb") as audio_file:
-        # Call OpenAI API
-        response = client.audio.transcriptions.create(
-            model="whisper-1",
+        response = litellm.transcription(
+            model="fireworks_ai/whisper-v3",
+            #model="groq/whisper-large-v3-turbo",
             file=audio_file,
             response_format="verbose_json",
             timestamp_granularities=["word"]
@@ -41,16 +40,16 @@ def transcribe_audio(audio_path):
     words = []
     for word in response.words:
         words.append({
-            "word": word.word,
-            "start": round(word.start, 6),
-            "end": round(word.end, 6)
+            "word": word['word'],
+            "start": round(word['start'], 6),
+            "end": round(word['end'], 6)
         })
 
     # Add the full text with timestamps
     text_segment = {
         "text": response.text,
-        "start": round(response.words[0].start, 6) if response.words else 0,
-        "end": round(response.words[-1].end, 6) if response.words else response.duration
+        "start": round(response.words[0]['start'], 6) if response.words else 0,
+        "end": round(response.words[-1]['end'], 6) if response.words else response.duration
     }
 
     return words, text_segment
@@ -77,6 +76,9 @@ def transcribe_large_audio(audio_path, output_file):
     while current_position_ms < total_duration_ms:
         chunk_positions.append(current_position_ms)
         current_position_ms += chunk_duration_ms - 10*1000
+
+    ###
+    #chunk_positions = chunk_positions[:1]
 
     # Create temporary directory for chunk files
     import tempfile
@@ -162,7 +164,7 @@ def main():
         dump(output_file)
         dump(output_text)
 
-        if Path(output_file).exists() or Path(output_text).exists():
+        if Path(output_file).exists():
             print(f"Skipping {audio_path} - transcription files already exist")
             continue
 
