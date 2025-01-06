@@ -102,13 +102,18 @@ def generate_html(input_file, metadata_file):
     <ul class="segment-list">
 """
 
-    with jsonlines.open(input_file) as reader:
+    with jsonlines.open(input_file, encoding='utf-8') as reader:
         for segment in reader:
             start = int(segment['start'])
             end = int(segment['end'])
             duration = end - start
             url = f"{base_url}#t={start},{end}"
-            text = segment['text'].replace("\n", " ")[:100] + "..."
+            # Safely truncate text while preserving Unicode characters
+            full_text = segment['text'].replace("\n", " ")
+            if len(full_text) > 100:
+                text = full_text[:97] + "..."  # Keep space for ellipsis
+            else:
+                text = full_text
 
             html += f'        <li class="segment-item" data-start="{start}" data-end="{end}">\n'
             html += f'            <span class="segment-text">{text}</span>\n'
