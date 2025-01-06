@@ -30,7 +30,7 @@ def generate_html(input_file):
             start = int(segment['start'])
             end = int(segment['end'])
             duration = end - start
-            url = f"{BASE_URL}#t={start},{end}"
+            url = f"{base_url}#t={start},{end}"
             text = segment['text'].replace("\n", " ")[:100] + "..."
 
             html += f'        <li><a href="{url}" target="_blank">[{duration}s] {text}</a></li>\n'
