@@ -123,17 +123,6 @@ def generate_html(input_file, metadata_file):
                 // Add playing class to current segment
                 segment.classList.add('playing');
 
-                // Only scroll if segment is not in view
-                const rect = segment.getBoundingClientRect();
-                const isVisible = (
-                    rect.top >= 0 &&
-                    rect.bottom <= (window.innerHeight || document.documentElement.clientHeight)
-                );
-                
-                if (!isVisible) {
-                    segment.scrollIntoView({behavior: 'smooth', block: 'center'});
-                }
-
                 // Play the segment
                 currentSegment = index;
                 const start = parseFloat(segment.dataset.start);
