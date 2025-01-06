@@ -65,6 +65,7 @@ def generate_html(input_file, metadata_file):
         .player-controls {
             display: inline-flex;
             gap: 10px;
+            margin-bottom: 10px;
         }
         .player-controls button {
             padding: 8px 16px;
@@ -87,6 +88,7 @@ def generate_html(input_file, metadata_file):
         <div class="player-controls">
             <button id="play-button">Play</button>
             <button id="pause-button">Pause</button>
+            <button id="shuffle-button">Shuffle</button>
         </div>
     </div>
     <ul class="segment-list">
@@ -110,6 +112,8 @@ def generate_html(input_file, metadata_file):
         const player = document.getElementById('audio-player');
         const playButton = document.getElementById('play-button');
         const pauseButton = document.getElementById('pause-button');
+        const shuffleButton = document.getElementById('shuffle-button');
+        const segmentList = document.querySelector('.segment-list');
         const segments = document.querySelectorAll('.segment-item');
         const audioSrc = '""" + base_url + """';
         let currentSegment = 0;
@@ -133,6 +137,29 @@ def generate_html(input_file, metadata_file):
 
         pauseButton.addEventListener('click', () => {
             player.pause();
+        });
+
+        shuffleButton.addEventListener('click', () => {
+            // Convert NodeList to array for shuffling
+            const segmentsArray = Array.from(segments);
+            
+            // Shuffle the array using Fisher-Yates algorithm
+            for (let i = segmentsArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [segmentsArray[i], segmentsArray[j]] = [segmentsArray[j], segmentsArray[i]];
+            }
+            
+            // Clear the current list
+            segmentList.innerHTML = '';
+            
+            // Append shuffled segments
+            segmentsArray.forEach(segment => {
+                segmentList.appendChild(segment);
+            });
+            
+            // Play a random segment
+            const randomIndex = Math.floor(Math.random() * segmentsArray.length);
+            segmentsArray[randomIndex].click();
         });
 
         let currentListener = null;
