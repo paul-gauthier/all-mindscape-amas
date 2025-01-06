@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import xml.etree.ElementTree as ET
 from urllib.parse import urlparse, urlunparse
 
