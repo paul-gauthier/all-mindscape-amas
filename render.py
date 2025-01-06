@@ -102,7 +102,7 @@ def generate_html(input_file, metadata_file):
     <ul class="segment-list">
 """
 
-    with jsonlines.open(input_file, encoding='utf-8') as reader:
+    with jsonlines.open(input_file) as reader:
         for segment in reader:
             start = int(segment['start'])
             end = int(segment['end'])
