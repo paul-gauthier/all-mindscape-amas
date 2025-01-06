@@ -146,7 +146,7 @@ def segment(input_file, output_file, text_file):
         merged_questions.update(chunk_dict)
 
     # ai: keep using the dict...
-    final_questions = []
+    final_questions = {}
     questions = sorted(merged_questions.keys())
     questions.reverse()
 
@@ -169,7 +169,7 @@ def segment(input_file, output_file, text_file):
                 verified_index = list(verified_dict.keys())[0]
                 diff = abs(verified_index - q_index)
                 if diff < 15:
-                    final_questions.append(q_index)
+                    final_questions[q_index] = merged_questions[q_index]
                 else:
                     dump(diff)
                     assert False, output_file
@@ -179,11 +179,11 @@ def segment(input_file, output_file, text_file):
 
         questions = new_questions
 
-    final_questions = sorted(final_questions)
+    final_questions = dict(sorted(final_questions.items()))
 
     # ai: ... so we can add a "question" key to each output record
     with jsonlines.open(output_file, mode='w') as writer, open(text_file, 'w') as txt_writer:
-        for i,q_index in enumerate(final_questions):
+        for i,q_index in enumerate(final_questions.keys()):
             # Find the end of this question (start of next question or end of transcript)
             q_index_end = len(words)-1
             end_time = words[q_index_end]["end"]
@@ -205,7 +205,8 @@ def segment(input_file, output_file, text_file):
                 'start': start_time,
                 'end': end_time,
                 'text': segment_text,
-                'question_index': q_index
+                'question_index': q_index,
+                'question': final_questions[q_index]
             })
 
             # Write word-wrapped text to output file
@@ -214,7 +215,7 @@ def segment(input_file, output_file, text_file):
 
             # ai: also include the question dict value in the header here. ai!
 
-            txt_writer.write(f"=====\n{wrapped_text}\n\n")
+            txt_writer.write(f"=====\nQuestion: {final_questions[q_index]}\n\n{wrapped_text}\n\n")
 
 
 def pretty(merged):
