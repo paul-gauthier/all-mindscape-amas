@@ -149,11 +149,14 @@ def print_words(words_and_text):
         print(text['text'])
 
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: python transcribe.py <audio_file1.mp3> [file2.mp3 ...]")
-        sys.exit(1)
+    import argparse
 
-    for audio_path in sys.argv[1:]:
+    parser = argparse.ArgumentParser(description='Transcribe audio files using Whisper')
+    parser.add_argument('files', nargs='+', help='Audio files to transcribe')
+    parser.add_argument('--force', action='store_true', help='Overwrite existing transcription files')
+    args = parser.parse_args()
+
+    for audio_path in args.files:
         if not Path(audio_path).exists():
             print(f"Error: File {audio_path} not found")
             continue
@@ -164,8 +167,9 @@ def main():
         output_file = base_path.with_suffix('.transcription.jsonl')
         output_text = base_path.with_suffix(".transcription.txt")
 
-        if output_file.exists():
+        if output_file.exists() and not args.force:
             print(f"Skipping {audio_path} - transcription files already exist")
+            print("Use --force to overwrite existing files")
             continue
 
         # Create output file paths once
