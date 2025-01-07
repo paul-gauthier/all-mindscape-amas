@@ -46,7 +46,7 @@ def generate_html(input_files):
                     'end': end,
                     'duration_str': duration_str,
                     'text': text,
-                    'url': metadata['url'],
+                    'url': metadata.get('final_url', metadata['url']),  # Use final_url if available, fallback to original url
                     'title': metadata['title'],
                     'date': formatted_date
                 })
