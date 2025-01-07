@@ -110,7 +110,7 @@ def generate_html(input_file, metadata_file):
             duration = end - start
             url = f"{base_url}#t={start},{end}"
             # Safely truncate text while preserving Unicode characters and word boundaries
-            TRUNC = 300
+            TRUNC = 200
             full_text = segment['text'].replace("\n", " ")
             if len(full_text) > TRUNC:
                 # Find the last space within the first TRUNC characters to avoid breaking words
@@ -143,7 +143,7 @@ def generate_html(input_file, metadata_file):
         player.src = audioSrc;
 
         let firstPlay = true;
-        
+
         playButton.addEventListener('click', () => {
             if (firstPlay) {
                 // Highlight and play the first segment
@@ -185,33 +185,33 @@ def generate_html(input_file, metadata_file):
         shuffleButton.addEventListener('click', () => {
             // Convert NodeList to array for shuffling
             const segmentsArray = Array.from(segments);
-            
+
             // Shuffle the array using Fisher-Yates algorithm
             for (let i = segmentsArray.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [segmentsArray[i], segmentsArray[j]] = [segmentsArray[j], segmentsArray[i]];
             }
-            
+
             // Clear the current list
             segmentList.innerHTML = '';
-            
+
             // Append shuffled segments
             segmentsArray.forEach(segment => {
                 segmentList.appendChild(segment);
             });
-            
+
             // Update segments reference to the new order
             segments = document.querySelectorAll('.segment-item');
-            
+
             // Reset current segment
             currentSegment = 0;
-            
+
             // Remove playing class from all segments
             segments.forEach(s => s.classList.remove('playing'));
-            
+
             // Add playing class to new first segment
             segments[0].classList.add('playing');
-            
+
             // Play the new first segment
             const start = parseFloat(segments[0].dataset.start);
             const end = parseFloat(segments[0].dataset.end);
@@ -246,7 +246,7 @@ def generate_html(input_file, metadata_file):
                     }
                 }
             };
-            
+
             currentListener = checkTime;
             player.addEventListener('timeupdate', checkTime);
         }
