@@ -22,7 +22,6 @@ def generate_html(input_files):
         with open(metadata_path) as f:
             metadata = json.load(f)
         
-        segments = []
         with jsonlines.open(input_path) as reader:
             for segment in reader:
                 start = int(segment['start'])
@@ -42,7 +41,7 @@ def generate_html(input_files):
                 date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
                 formatted_date = date_obj.strftime("%b %Y")
                 
-                segments.append({
+                all_segments.append({
                     'start': start,
                     'end': end,
                     'duration_str': duration_str,
@@ -51,14 +50,8 @@ def generate_html(input_files):
                     'title': metadata['title'],
                     'date': formatted_date
                 })
-        
-        all_segments.append({
-            'title': metadata['title'],
-            'date': metadata['date'],
-            'segments': segments
-        })
 
-    return template.render(episodes=all_segments)
+    return template.render(segments=all_segments)
 
 def main():
     if len(sys.argv) < 2:
