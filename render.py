@@ -6,6 +6,37 @@ import json
 import sys
 from pathlib import Path
 from datetime import datetime
+import numpy as np
+from scipy.io import wavfile
+from pydub import AudioSegment
+
+def generate_fingerprint(audio_url, start_sec, end_sec):
+    """Generate a simple audio fingerprint for a segment."""
+    try:
+        # Download just the segment
+        audio = AudioSegment.from_mp3(audio_url)
+        segment = audio[start_sec*1000:end_sec*1000]
+        
+        # Convert to mono wav for analysis
+        segment = segment.set_channels(1)
+        samples = np.array(segment.get_array_of_samples())
+        
+        # Simple FFT-based fingerprint
+        window_size = 2048
+        hop_size = 1024
+        num_peaks = 20
+        
+        fingerprint = []
+        for i in range(0, len(samples) - window_size, hop_size):
+            window = samples[i:i + window_size]
+            spectrum = np.abs(np.fft.rfft(window))
+            peaks = np.argpartition(spectrum, -num_peaks)[-num_peaks:]
+            fingerprint.extend(peaks.tolist())
+        
+        return fingerprint
+    except Exception as e:
+        print(f"Warning: Could not generate fingerprint: {e}")
+        return []
 
 def generate_html(input_files):
     # Set up Jinja2 environment
@@ -41,6 +72,8 @@ def generate_html(input_files):
                 date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
                 formatted_date = date_obj.strftime("%b<br>%Y")
                 
+                fingerprint = generate_fingerprint(metadata['url'], start, end)
+                
                 all_segments.append({
                     'start': start,
                     'end': end,
@@ -48,7 +81,8 @@ def generate_html(input_files):
                     'text': text,
                     'url': metadata['url'],
                     'title': metadata['title'],
-                    'date': formatted_date
+                    'date': formatted_date,
+                    'fingerprint': fingerprint
                 })
 
     return template.render(segments=all_segments)

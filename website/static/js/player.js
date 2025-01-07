@@ -7,9 +7,10 @@ const shuffleButton = document.getElementById('shuffle-button');
 const segmentList = document.querySelector('.segment-list');
 let segments = document.querySelectorAll('.segment-item');
 let currentSegment = 0;
-let shuffledIndices = Array.from(segments.keys()); // Array of original indices
+let shuffledIndices = Array.from(segments.keys());
 
 let firstPlay = true;
+const fingerprinter = new AudioFingerprinter();
 
 function updatePlayerSource() {
     const segment = segments[shuffledIndices[currentSegment]];
@@ -95,16 +96,31 @@ shuffleButton.addEventListener('click', () => {
 
 let currentListener = null;
 
-function playSegment(start, end) {
+async function playSegment(start, end) {
     if (currentListener) {
         player.removeEventListener('timeupdate', currentListener);
         currentListener = null;
     }
 
-    player.currentTime = start;
-    player.play();
+    // Initialize audio context and analyzer on first play
+    if (firstPlay) {
+        try {
+            fingerprinter.setupSource(player);
+            firstPlay = false;
+        } catch (error) {
+            console.error('Error setting up audio analyzer:', error);
+        }
+    }
 
-    const stopAt = end;
+    const segment = segments[shuffledIndices[currentSegment]];
+    const fingerprint = JSON.parse(segment.dataset.fingerprint || '[]');
+    
+    // Find actual start position using fingerprint
+    const actualStart = await fingerprinter.findSegment(fingerprint, player, start);
+    console.log(`Segment found at ${actualStart} (expected ${start})`);
+    
+    const duration = end - start;
+    const stopAt = actualStart + duration;
     const checkTime = () => {
         if (player.currentTime >= stopAt) {
             player.pause();
