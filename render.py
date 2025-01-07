@@ -50,10 +50,12 @@ def generate_html(input_file, metadata_file):
         }
         .segment-duration {
             background: #e0e0e0;
-            padding: 2px 6px;
+            padding: 4px 10px;
             border-radius: 12px;
             font-size: 0.9em;
             color: #666;
+            margin-left: 10px;
+            margin-right: 5px;
         }
         .player-container {
             background: white;
