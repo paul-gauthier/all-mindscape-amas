@@ -7,11 +7,12 @@ const shuffleButton = document.getElementById('shuffle-button');
 const segmentList = document.querySelector('.segment-list');
 let segments = document.querySelectorAll('.segment-item');
 let currentSegment = 0;
+let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 
 let firstPlay = true;
 
 function updatePlayerSource() {
-    player.src = segments[currentSegment].dataset.url;
+    player.src = segments[shuffledIndices[currentSegment]].dataset.url;
 }
 
 playButton.addEventListener('click', () => {
@@ -34,38 +35,43 @@ pauseButton.addEventListener('click', () => {
 nextButton.addEventListener('click', () => {
     if (currentSegment < segments.length - 1) {
         currentSegment++;
-        const nextSegment = segments[currentSegment];
+        const nextSegment = segments[shuffledIndices[currentSegment]];
         nextSegment.click();
     }
 });
 
 prevButton.addEventListener('click', () => {
-    const currentStart = parseFloat(segments[currentSegment].dataset.start);
+    const currentStart = parseFloat(segments[shuffledIndices[currentSegment]].dataset.start);
     if (player.currentTime - currentStart > 2) {
-        segments[currentSegment].click();
+        segments[shuffledIndices[currentSegment]].click();
     } else if (currentSegment > 0) {
         currentSegment--;
-        const prevSegment = segments[currentSegment];
+        const prevSegment = segments[shuffledIndices[currentSegment]];
         prevSegment.click();
     }
 });
 
 shuffleButton.addEventListener('click', () => {
-    const segmentsArray = Array.from(segments);
-    for (let i = segmentsArray.length - 1; i > 0; i--) {
+    // Shuffle the indices array
+    for (let i = shuffledIndices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [segmentsArray[i], segmentsArray[j]] = [segmentsArray[j], segmentsArray[i]];
+        [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
     }
-    segmentList.innerHTML = '';
-    segmentsArray.forEach(segment => {
-        segmentList.appendChild(segment);
+    
+    // Reorder the DOM elements based on shuffled indices
+    const fragment = document.createDocumentFragment();
+    shuffledIndices.forEach(index => {
+        fragment.appendChild(segments[index]);
     });
-    segments = document.querySelectorAll('.segment-item');
+    segmentList.innerHTML = '';
+    segmentList.appendChild(fragment);
+    
+    // Reset playback state
     currentSegment = 0;
     segments.forEach(s => s.classList.remove('playing'));
-    segments[0].classList.add('playing');
-    const start = parseFloat(segments[0].dataset.start);
-    const end = parseFloat(segments[0].dataset.end);
+    segments[shuffledIndices[0]].classList.add('playing');
+    const start = parseFloat(segments[shuffledIndices[0]].dataset.start);
+    const end = parseFloat(segments[shuffledIndices[0]].dataset.end);
     playSegment(start, end);
 });
 
@@ -103,7 +109,7 @@ segments.forEach((segment, index) => {
     segment.addEventListener('click', () => {
         segments.forEach(s => s.classList.remove('playing'));
         segment.classList.add('playing');
-        currentSegment = index;
+        currentSegment = shuffledIndices.indexOf(index);
         updatePlayerSource();
         const start = parseFloat(segment.dataset.start);
         const end = parseFloat(segment.dataset.end);
