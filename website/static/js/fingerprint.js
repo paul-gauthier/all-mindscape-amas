@@ -3,6 +3,7 @@ class AudioFingerprinter {
         this.context = new AudioContext();
         this.analyzer = this.context.createAnalyser();
         this.analyzer.fftSize = 2048;
+        this.analyzer.smoothingTimeConstant = 0; // Disable smoothing
         this.bufferLength = this.analyzer.frequencyBinCount;
         this.dataArray = new Float32Array(this.bufferLength);
     }
@@ -14,15 +15,17 @@ class AudioFingerprinter {
     }
 
     generateFingerprint() {
+        // Get current frequency data
         this.analyzer.getFloatFrequencyData(this.dataArray);
-        // Create fingerprint from strongest frequency components
+        
+        // Only use first half of FFT bins to match rfft behavior
         const peaks = [];
-        for (let i = 0; i < this.bufferLength; i++) {
-            if (this.dataArray[i] > -60) { // Threshold for significant frequencies
+        for (let i = 0; i < this.bufferLength/2; i++) {
+            if (this.dataArray[i] > -60) {
                 peaks.push({freq: i, magnitude: this.dataArray[i]});
             }
         }
-        // Sort by magnitude and take top N peaks
+        
         peaks.sort((a, b) => b.magnitude - a.magnitude);
         return peaks.slice(0, 20).map(p => p.freq);
     }
