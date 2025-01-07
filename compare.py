@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 def compare_file_endings(file1_path, file2_path, num_bytes=100):
     """
     Compare the last num_bytes of two files.
