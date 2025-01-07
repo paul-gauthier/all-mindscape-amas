@@ -36,6 +36,8 @@ def get_ama_episodes(xml_file):
 
 def download_episode(url, filename):
     """Download an episode and save it to filename"""
+    print(f"Downloading from URL: {url}")  # Add this line
+    
     if os.path.exists(filename):
         print(f"File {filename} already exists - skipping")
         return False
