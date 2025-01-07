@@ -9,30 +9,32 @@ from datetime import datetime
 import numpy as np
 from scipy.io import wavfile
 from pydub import AudioSegment
+from dump import dump
 
 def generate_fingerprint(metadata, start_sec, end_sec):
     """Generate a simple audio fingerprint for a segment."""
+    dump(start_sec)
     try:
         local_path = metadata['filename']
         audio = AudioSegment.from_mp3(local_path)
         segment = audio[start_sec*1000:end_sec*1000]
-        
+
         # Convert to mono wav for analysis
         segment = segment.set_channels(1)
         samples = np.array(segment.get_array_of_samples())
-        
+
         # Simple FFT-based fingerprint
         window_size = 2048
         hop_size = 1024
         num_peaks = 20
-        
+
         fingerprint = []
         for i in range(0, len(samples) - window_size, hop_size):
             window = samples[i:i + window_size]
             spectrum = np.abs(np.fft.rfft(window))
             peaks = np.argpartition(spectrum, -num_peaks)[-num_peaks:]
             fingerprint.extend(peaks.tolist())
-        
+
         return fingerprint
     except Exception as e:
         print(f"Warning: Could not generate fingerprint: {e}")
@@ -44,15 +46,15 @@ def generate_html(input_files):
     template = env.get_template('index.html')
 
     all_segments = []
-    
+
     for input_file in input_files:
         base_path = Path(input_file).with_suffix("")
         input_path = base_path.with_suffix('.segments.jsonl')
         metadata_path = base_path.with_suffix('.json')
-        
+
         with open(metadata_path) as f:
             metadata = json.load(f)
-        
+
         with jsonlines.open(input_path) as reader:
             for segment in reader:
                 start = int(segment['start'])
@@ -71,9 +73,9 @@ def generate_html(input_files):
                 # Parse and format the date
                 date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
                 formatted_date = date_obj.strftime("%b<br>%Y")
-                
+
                 fingerprint = generate_fingerprint(metadata, start, end)
-                
+
                 all_segments.append({
                     'start': start,
                     'end': end,
@@ -94,7 +96,7 @@ def main():
 
     input_files = sys.argv[1:]
     html = generate_html(input_files)
-    
+
     output_file = Path("website") / "index.html"
     with open(output_file, 'w') as f:
         f.write(html)
