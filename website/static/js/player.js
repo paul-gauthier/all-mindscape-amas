@@ -124,7 +124,12 @@ function playSegment(start, end) {
 }
 
 segments.forEach((segment, index) => {
-    segment.addEventListener('click', () => {
+    segment.addEventListener('click', (event) => {
+        // Check if the click was on a debug link
+        if (event.target.closest('.debug-link')) {
+            return;
+        }
+        
         segments.forEach(s => s.classList.remove('playing'));
         segment.classList.add('playing');
         currentSegment = shuffledIndices.indexOf(index);
