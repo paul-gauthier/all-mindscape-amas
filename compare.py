@@ -100,14 +100,13 @@ def main():
         duration1 = audio1.info.length
         duration2 = audio2.info.length
         
-        # Calculate proportional durations of different sections
-        diff_duration1 = (file1_different / size1) * duration1 if size1 > 0 else 0
-        diff_duration2 = (file2_different / size2) * duration2 if size2 > 0 else 0
-        
         # File 1 stats
         file1_different = size1 - matching
         file1_diff_percent = (file1_different * 100) // size1 if size1 > 0 else 0
         file1_match_percent = (matching * 100) // size1 if size1 > 0 else 0
+        
+        # Calculate proportional durations of different sections
+        diff_duration1 = (file1_different / size1) * duration1 if size1 > 0 else 0
         print("\nFile 1:")
         print(f"Starts with {file1_different} different bytes ({file1_diff_percent}% of file 1)")
         print(f"  Duration: {format_duration(diff_duration1)} minutes")
@@ -117,6 +116,14 @@ def main():
         file2_different = size2 - matching
         file2_diff_percent = (file2_different * 100) // size2 if size2 > 0 else 0
         file2_match_percent = (matching * 100) // size2 if size2 > 0 else 0
+        # File 2 stats
+        file2_different = size2 - matching
+        file2_diff_percent = (file2_different * 100) // size2 if size2 > 0 else 0
+        file2_match_percent = (matching * 100) // size2 if size2 > 0 else 0
+        
+        # Calculate duration for file 2
+        diff_duration2 = (file2_different / size2) * duration2 if size2 > 0 else 0
+        
         print("\nFile 2:")
         print(f"Starts with {file2_different} different bytes ({file2_diff_percent}% of file 2)")
         print(f"  Duration: {format_duration(diff_duration2)} minutes")
