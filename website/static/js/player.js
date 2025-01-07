@@ -17,7 +17,7 @@ function updatePlayerSource() {
     console.log('Segment URL:', segment.dataset.url);
     
     const headers = {
-        'User-Agent': 'python-requests/2.32.3'
+      'User-Agent': 'python-requests/2.32.3'
     };
     
     fetch(segment.dataset.url, { headers: headers })
