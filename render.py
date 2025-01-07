@@ -44,8 +44,11 @@ def generate_html(input_files):
                 date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
                 formatted_date = date_obj.strftime("%b<br>%Y")
                 
-                # Debug print URL selection
-                chosen_url = metadata.get('final_url', metadata['url'])
+                # Use final_url if it exists in metadata, otherwise use url
+                chosen_url = metadata['url']  # Always use url as default
+                if 'final_url' in metadata and metadata['final_url'] is not None:
+                    chosen_url = metadata['final_url']
+                
                 print(f"Using URL for {metadata['title']}: {chosen_url}")
                 
                 all_segments.append({
