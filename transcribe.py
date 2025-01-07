@@ -19,15 +19,16 @@ import litellm
 load_dotenv()
 
 @lox.thread(10)
-def transcribe_audio(audio_path):
+def transcribe_audio(chunk, audio_path):
     """
     Transcribe audio file using OpenAI Whisper API with word-level timestamps
     Returns list of words with timestamps
     """
-    # Get API key from environment variable
-    api_key = os.getenv('OPENAI_API_KEY')
-    if not api_key:
-        raise ValueError("OPENAI_API_KEY environment variable not set")
+
+    print(f"Exporting chunk to {audio_path}...")
+    chunk.export(audio_path, format="mp3")
+    chunk_size_mb = os.path.getsize(audio_path) / (1024 * 1024)
+    print(f"Chunk size: {chunk_size_mb:.1f}MB")
 
     # Open audio file
     with open(audio_path, "rb") as audio_file:
@@ -102,14 +103,10 @@ def transcribe_large_audio(audio_path, output_file):
             # Save chunk to unique temp file
             temp_path = os.path.join(temp_dir, f"chunk_{current_position_ms}.mp3")
             dump(temp_path)
-            print(f"Exporting chunk to {temp_path}...")
-            chunk.export(temp_path, format="mp3")
-            chunk_size_mb = os.path.getsize(temp_path) / (1024 * 1024)
-            print(f"Chunk size: {chunk_size_mb:.1f}MB")
 
             # Transcribe chunk
             print("Sending chunk to OpenAI API for transcription...")
-            transcribe_audio.scatter(temp_path)
+            transcribe_audio.scatter(chunk, temp_path)
 
         results = transcribe_audio.gather(tqdm=True)
 

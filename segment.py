@@ -19,12 +19,12 @@ The user will share the transcript of a podcast episode.
 It's an "Ask Me Anything" episode from Sean Carroll's Mindscape podcast.
 He reads a series of questions from listeners and then answers them.
 
-Sometimes Sean will group similar questions together, and read a few of them before giving a combined answer that addresses all the questions in the group.
+Sometimes Sean will group similar or related questions together, and read a few of them before giving a combined answer that addresses all the questions in the group.
 Treat such grouped questions as a single "grouped set of questions".
 
 The questions often start like these examples:
 
-Raul says why is the sky blue? ... AbacusPowerUser asks why do apples fall from trees? ... Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity? ... I'm going to group 2 questions together. Anonymous asks why is water wet, and SuperStar10k wants to know why 2 hydrogen and 1 oxygen form water.
+... Raul says why is the sky blue? ... AbacusPowerUser asks why do apples fall from trees? ... Jane's question is given the current understanding of dark energy and its apparent acceleration of the universe's expansion, how might this affect the long-term fate of the universe, and what are the implications for the various proposed scenarios such as the Big Freeze, Big Rip, or Big Crunch? Additionally, how does this relate to the concept of cosmic inflation in the early universe, and what challenges does it present for reconciling quantum mechanics with general relativity in a unified theory of quantum gravity? ... I'm going to group 2 questions together. Anonymous asks why is water wet, and SuperStar10k wants to know why 2 hydrogen and 1 oxygen form water. ...
 
 Find all the sentences in the transcript which denote the start of a new question or grouped set of questions.
 Return *every* such sentence.
@@ -45,8 +45,8 @@ Do not skip, re-order or summarize.
 """.strip()
 
 
-@lox.thread(1)
-def find_questions(words, start, end):
+@lox.thread(10)
+def find_questions(words, start, end, rough=False):
 
     words = words[start:end]
     duration = words[-1]['end'] - words[0]['start']
@@ -79,6 +79,18 @@ def find_questions(words, start, end):
             if word_index is None:
                 unfound_questions.append(question)
                 continue
+
+            if rough:
+                # During the rough 5k chunking, don't call out questions
+                # near the rough chunk boundaries. They may get picked up twice,
+                # in both rough chunks they straddle.
+                EDGE=50
+                if len(words) - word_index < EDGE:
+                    print("Skipping:", question[:50])
+                    continue
+                if word_index < EDGE:
+                    print("Skipping:", question[:50])
+                    continue
 
             print("Question:", question[:50])
             #print("start word_index:", word_index)
@@ -154,14 +166,14 @@ def segment(input_file, output_file, text_file):
             raise ValueError(f"Words are not sorted by start time at index {i}")
 
     ###
-    # words = words[8_000:10_000]
+    # words = words[10_000:20_000]
 
     merged_questions = {}
     chunk_size = 5000
     start_index = 0
     while start_index < len(words):
         end_index = min(start_index+chunk_size, len(words))
-        find_questions.scatter(words, start_index, end_index)
+        find_questions.scatter(words, start_index, end_index, rough=True)
         start_index += chunk_size
 
     for chunk_dict in find_questions.gather(tqdm=True):

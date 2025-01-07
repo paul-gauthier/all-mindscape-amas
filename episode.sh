@@ -15,6 +15,11 @@ for input_file in "$@"; do
         exit 1
     fi
 
+    echo
+    echo
+    echo $input_file
+    echo
+    
     ./transcribe.py "$input_file"
     ./punct.py "$input_file"
     ./segment.py "$input_file"
