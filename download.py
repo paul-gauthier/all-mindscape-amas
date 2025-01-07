@@ -35,12 +35,12 @@ def get_ama_episodes(xml_file):
     return episodes
 
 def download_episode(url, filename):
-    """Download an episode and save it to filename"""
-    print(f"Downloading from URL: {url}")  # Add this line
+    """Download an episode and save it to filename. Returns final URL if successful."""
+    print(f"Downloading from URL: {url}")
     
     if os.path.exists(filename):
         print(f"File {filename} already exists - skipping")
-        return False
+        return False, None
 
     temp_filename = f"{filename}.download"
     response = requests.get(url, stream=True)
@@ -51,14 +51,14 @@ def download_episode(url, filename):
                     f.write(chunk)
             # Atomic rename on success
             os.rename(temp_filename, filename)
-            return True
+            return True, response.url  # Return success and final URL
         except Exception as e:
             # Clean up temp file on error
             if os.path.exists(temp_filename):
                 os.remove(temp_filename)
             print(f"Error downloading {filename}: {str(e)}")
-            return False
-    return False
+            return False, None
+    return False, None
 
 def format_filename(date_str, title):
     """Format filename as YYYY-MM-AMA.mp3"""
@@ -82,11 +82,13 @@ def main():
     for episode in episodes:
         filename = format_filename(episode['date'], episode['title'])
         if filename:
+            final_url = None
             if os.path.exists(filename):
                 print(f"Skipping {episode['title']} - already exists at {filename}")
             else:
                 print(f"Downloading {episode['title']} to {filename}")
-                if download_episode(episode['url'], filename):
+                success, final_url = download_episode(episode['url'], filename)
+                if success:
                     print(f"Successfully saved {filename}")
                 else:
                     print(f"Failed to download {filename}")
@@ -95,6 +97,7 @@ def main():
             metadata.append({
                 'filename': filename,
                 'url': episode['url'],
+                'final_url': final_url,  # Add the final URL to metadata
                 'title': episode['title'],
                 'date': episode['date']
             })
