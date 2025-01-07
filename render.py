@@ -110,9 +110,12 @@ def generate_html(input_file, metadata_file):
             start = int(segment['start'])
             end = int(segment['end'])
             duration = end - start
-            minutes = duration // 60
-            seconds = duration % 60
-            duration_str = f"{minutes}m{seconds:02d}s"
+            if duration < 60:
+                duration_str = f"{duration}s"
+            else:
+                minutes = duration // 60
+                seconds = duration % 60
+                duration_str = f"{minutes}m{seconds:02d}s"
             url = f"{base_url}#t={start},{end}"
             # Safely truncate text while preserving Unicode characters and word boundaries
             TRUNC = 200
