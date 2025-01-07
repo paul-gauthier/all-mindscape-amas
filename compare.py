@@ -10,33 +10,33 @@ def count_matching_end_bytes(file1_path, file2_path, print_progress=True):
             # Seek to end of each file
             f1.seek(0, 2)
             f2.seek(0, 2)
-            
+
             # Get file sizes
             size1 = f1.tell()
             size2 = f2.tell()
-            
+
             # Use smaller file size as limit
             bytes_to_check = min(size1, size2)
-            
+
             matching_bytes = 0
             last_percent = 0
-            chunk_size = 1024  # Read in 1KB chunks for efficiency
-            
+            chunk_size = 1024*10
+
             remaining = bytes_to_check
             while remaining > 0:
                 # Calculate size of next chunk
                 current_chunk = min(chunk_size, remaining)
-                
+
                 # Seek backwards by chunk size
                 f1.seek(-current_chunk, 1)
                 f2.seek(-current_chunk, 1)
-                
+
                 # Read chunks
                 chunk1 = f1.read(current_chunk)
                 f1.seek(-current_chunk, 1)  # Go back to start of chunk
                 chunk2 = f2.read(current_chunk)
                 f2.seek(-current_chunk, 1)
-                
+
                 # Compare bytes from end to start
                 for b1, b2 in zip(reversed(chunk1), reversed(chunk2)):
                     if b1 != b2:
@@ -47,14 +47,14 @@ def count_matching_end_bytes(file1_path, file2_path, print_progress=True):
                         if percent > last_percent:
                             print(f"\rChecked: {matching_bytes}/{bytes_to_check} bytes ({percent}%)", end='', flush=True)
                             last_percent = percent
-                
+
                 remaining -= current_chunk
-            
+
             if print_progress:
                 print()  # New line after progress
-            
+
             return matching_bytes
-            
+
 
     except IOError as e:
         print(f"Error reading files: {e}")
