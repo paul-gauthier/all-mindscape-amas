@@ -110,6 +110,9 @@ def generate_html(input_file, metadata_file):
             start = int(segment['start'])
             end = int(segment['end'])
             duration = end - start
+            minutes = duration // 60
+            seconds = duration % 60
+            duration_str = f"{minutes}m{seconds:02d}s"
             url = f"{base_url}#t={start},{end}"
             # Safely truncate text while preserving Unicode characters and word boundaries
             TRUNC = 200
@@ -126,7 +129,7 @@ def generate_html(input_file, metadata_file):
 
             html += f'        <li class="segment-item" data-start="{start}" data-end="{end}">\n'
             html += f'            <span class="segment-text">{text}</span>\n'
-            html += f'            <span class="segment-duration">{duration}s</span>\n'
+            html += f'            <span class="segment-duration">{duration_str}</span>\n'
             html += f'        </li>\n'
 
     html += """    </ul>
