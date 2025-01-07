@@ -36,6 +36,7 @@ class AudioFingerprinter {
         return new Promise((resolve) => {
             let searchStart = Math.max(0, expectedStart - 10);
             let searchEnd = expectedStart + maxSearch;
+            const threshold = 0.7;
             
             console.log(`Starting search from ${searchStart}s to ${searchEnd}s (expected: ${expectedStart}s)`);
             console.log(`Target fingerprint:`, targetFingerprint);
