@@ -16,7 +16,22 @@ function updatePlayerSource() {
     const segment = segments[shuffledIndices[currentSegment]];
     console.log('Updating player source for segment:', segment);
     console.log('Segment URL:', segment.dataset.url);
-    player.src = segment.dataset.url;
+    
+    // Instead of directly setting player.src, fetch the audio first with specific headers
+    fetch(segment.dataset.url, {
+        headers: {
+            'User-Agent': 'python-requests/2.32.3',
+            'Accept-Encoding': 'gzip, deflate',
+            'Accept': '*/*',
+            'Connection': 'keep-alive'
+        }
+    })
+    .then(response => response.blob())
+    .then(blob => {
+        const url = URL.createObjectURL(blob);
+        player.src = url;
+    })
+    .catch(error => console.error('Error fetching audio:', error));
 }
 
 playButton.addEventListener('click', () => {
