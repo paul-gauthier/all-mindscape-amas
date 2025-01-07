@@ -88,9 +88,6 @@ def main():
 
     xml_file = 'sean-carrolls-mindscape.xml'
     episodes = get_ama_episodes(xml_file)
-    
-    # Create list to store metadata
-    metadata = []
 
     for episode in episodes:
         filename = format_filename(episode['date'], episode['title'])
@@ -114,24 +111,20 @@ def main():
                 else:
                     print(f"Failed to download {filename}")
             
-            # Add metadata for this episode
-            metadata.append({
+            # Save metadata for this episode immediately
+            episode_meta = {
                 'filename': filename,
                 'url': episode['url'],
                 'final_url': final_url,
                 'title': episode['title'],
                 'date': episode['date']
-            })
+            }
+            
+            with open(json_filename, 'w') as f:
+                json.dump(episode_meta, f, indent=2)
+            print(f"Saved episode metadata to {json_filename}")
         else:
             print(f"Could not parse date for {episode['title']}")
-    
-    # Save metadata for each episode
-    for episode_meta in metadata:
-        # Create JSON filename based on MP3 filename
-        json_filename = os.path.splitext(episode_meta['filename'])[0] + '.json'
-        with open(json_filename, 'w') as f:
-            json.dump(episode_meta, f, indent=2)
-        print(f"Saved episode metadata to {json_filename}")
 
 if __name__ == "__main__":
     main()
