@@ -84,14 +84,22 @@ def main():
     
     # Report results
     print(f"File sizes: {size1} vs {size2} bytes (diff: {abs(size1 - size2)} bytes)")
-    print(f"Last {matching} bytes match ({match_percent}%)")
-    print(f"First {different} bytes differ ({diff_percent}%)")
     
-    # Show per-file differences
-    if size1 > size2:
-        print(f"File 1 has {size1 - size2} extra bytes at start")
-    elif size2 > size1:
-        print(f"File 2 has {size2 - size1} extra bytes at start")
+    # File 1 stats
+    file1_different = size1 - matching
+    file1_diff_percent = (file1_different * 100) // size1 if size1 > 0 else 0
+    file1_match_percent = (matching * 100) // size1 if size1 > 0 else 0
+    print("\nFile 1:")
+    print(f"Starts with {file1_different} different bytes ({file1_diff_percent}% of file 1)")
+    print(f"Ends with {matching} shared bytes ({file1_match_percent}% of file 1)")
+    
+    # File 2 stats
+    file2_different = size2 - matching
+    file2_diff_percent = (file2_different * 100) // size2 if size2 > 0 else 0
+    file2_match_percent = (matching * 100) // size2 if size2 > 0 else 0
+    print("\nFile 2:")
+    print(f"Starts with {file2_different} different bytes ({file2_diff_percent}% of file 2)")
+    print(f"Ends with {matching} shared bytes ({file2_match_percent}% of file 2)")
     sys.exit(0)
 
 if __name__ == "__main__":
