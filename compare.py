@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 
-def compare_file_endings(file1_path, file2_path, num_bytes=100):
+N = 100
+
+def compare_file_endings(file1_path, file2_path, num_bytes=N):
     """
     Compare the last num_bytes of two files.
     Returns True if they match, False otherwise.
@@ -37,10 +39,10 @@ def main():
         
     file1, file2 = sys.argv[1], sys.argv[2]
     if compare_file_endings(file1, file2):
-        print("Last 100 bytes match")
+        print(f"Last {N} bytes match")
         sys.exit(0)
     else:
-        print("Last 100 bytes differ")
+        print(f"Last {N} bytes differ")
         sys.exit(1)
 
 if __name__ == "__main__":
