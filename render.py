@@ -293,7 +293,7 @@ def main():
         base_path = Path(input_file).with_suffix("")
         input_path = base_path.with_suffix('.segments.jsonl')
         metadata_path = base_path.with_suffix('.json')
-        output_file = base_path.with_suffix(".links.html")
+        output_file = Path("website") / (base_path.stem + ".html")
         html = generate_html(input_path, metadata_path)
 
         with open(output_file, 'w') as f:
