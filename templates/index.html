@@ -22,6 +22,12 @@
             <span class="segment-date">{{ segment.date }}</span>
             <span class="segment-text">{{ segment.text }}</span>
             <span class="segment-duration">{{ segment.duration_str }}</span>
+            <a href="{{ segment.url }}#t={{ segment.start }},{{ segment.end }}" 
+               class="debug-link" 
+               target="_blank"
+               title="Debug link to this segment">
+                <i class="fas fa-bug"></i>
+            </a>
         </li>
         {% endfor %}
     </ul>
