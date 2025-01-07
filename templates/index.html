@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block content %}
+    <h1>Audio Segments</h1>
+    
+    {% for episode in episodes %}
+    <div class="episode-container">
+        <h2>{{ episode.title }}</h2>
+        <p class="episode-date">{{ episode.date }}</p>
+        
+        <ul class="segment-list">
+            {% for segment in episode.segments %}
+            <li class="segment-item" 
+                data-start="{{ segment.start }}" 
+                data-end="{{ segment.end }}"
+                data-url="{{ segment.url }}">
+                <span class="segment-text">{{ segment.text }}</span>
+                <span class="segment-duration">{{ segment.duration_str }}</span>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endfor %}
+
+    <div class="player-container">
+        <audio id="audio-player"></audio>
+        <div class="player-controls">
+            <button id="play-button"><i class="fas fa-play"></i></button>
+            <button id="pause-button"><i class="fas fa-pause"></i></button>
+            <button id="prev-button"><i class="fas fa-backward"></i></button>
+            <button id="next-button"><i class="fas fa-forward"></i></button>
+            <button id="shuffle-button"><i class="fas fa-random"></i></button>
+        </div>
+    </div>
+    
+    <script>
+        const segments = document.querySelectorAll('.segment-item');
+        let currentSegment = 0;
+        
+        function getAudioSrc() {
+            return segments[currentSegment].dataset.url;
+        }
+    </script>

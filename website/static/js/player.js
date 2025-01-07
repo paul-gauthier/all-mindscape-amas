@@ -8,13 +8,16 @@ const segmentList = document.querySelector('.segment-list');
 let segments = document.querySelectorAll('.segment-item');
 let currentSegment = 0;
 
-player.src = audioSrc;
-
 let firstPlay = true;
+
+function updatePlayerSource() {
+    player.src = segments[currentSegment].dataset.url;
+}
 
 playButton.addEventListener('click', () => {
     if (firstPlay) {
         segments[0].classList.add('playing');
+        updatePlayerSource();
         const start = parseFloat(segments[0].dataset.start);
         const end = parseFloat(segments[0].dataset.end);
         playSegment(start, end);
@@ -101,6 +104,7 @@ segments.forEach((segment, index) => {
         segments.forEach(s => s.classList.remove('playing'));
         segment.classList.add('playing');
         currentSegment = index;
+        updatePlayerSource();
         const start = parseFloat(segment.dataset.start);
         const end = parseFloat(segment.dataset.end);
         playSegment(start, end);
