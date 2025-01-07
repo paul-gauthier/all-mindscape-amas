@@ -21,6 +21,9 @@ def generate_html(input_files):
         
         with open(metadata_path) as f:
             metadata = json.load(f)
+            # Debug print full metadata
+            print(f"\nMetadata for {metadata_path}:")
+            print(json.dumps(metadata, indent=2))
         
         with jsonlines.open(input_path) as reader:
             for segment in reader:
