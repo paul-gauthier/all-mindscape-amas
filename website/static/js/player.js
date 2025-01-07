@@ -11,28 +11,26 @@ let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 
 let firstPlay = true;
 
-function setPlayerSourceWithHeaders(url) {
+function updatePlayerSource() {
+    const segment = segments[shuffledIndices[currentSegment]];
+    console.log('Updating player source for segment:', segment);
+    console.log('Segment URL:', segment.dataset.url);
+    
     const headers = {
-        'User-Agent': 'python-requests/2.32.3',
-        'Accept-Encoding': 'gzip, deflate',
-        'Accept': '*/*',
-        'Connection': 'keep-alive'
+        'User-Agent': 'python-requests/2.32.3'
     };
     
-    fetch(url, { headers: headers })
+    fetch(segment.dataset.url, { headers: headers })
         .then(response => response.blob())
         .then(blob => {
             const objectUrl = URL.createObjectURL(blob);
             player.src = objectUrl;
         })
-        .catch(error => console.error('Error loading audio:', error));
-}
-
-function updatePlayerSource() {
-    const segment = segments[shuffledIndices[currentSegment]];
-    console.log('Updating player source for segment:', segment);
-    console.log('Segment URL:', segment.dataset.url);
-    setPlayerSourceWithHeaders(segment.dataset.url);
+        .catch(error => {
+            console.error('Error loading audio:', error);
+            // Fallback to direct assignment if fetch fails
+            player.src = segment.dataset.url;
+        });
 }
 
 playButton.addEventListener('click', () => {
