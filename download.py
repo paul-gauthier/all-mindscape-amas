@@ -3,6 +3,7 @@
 import os
 import requests
 import json
+from tqdm import tqdm
 from datetime import datetime
 from ama_extractor import extract_ama_episodes
 from xml.etree import ElementTree as ET
@@ -46,12 +47,24 @@ def download_episode(url, filename):
     response = requests.get(url, stream=True)
     if response.status_code == 200:
         try:
+            # Get total file size from headers
+            total_size = int(response.headers.get('content-length', 0))
+            
             with open(temp_filename, 'wb') as f:
-                for chunk in response.iter_content(chunk_size=8192):
-                    f.write(chunk)
+                with tqdm(
+                    total=total_size,
+                    unit='iB',
+                    unit_scale=True,
+                    unit_divisor=1024,
+                    desc=f"Downloading {os.path.basename(filename)}"
+                ) as pbar:
+                    for chunk in response.iter_content(chunk_size=8192):
+                        size = f.write(chunk)
+                        pbar.update(size)
+            
             # Atomic rename on success
             os.rename(temp_filename, filename)
-            return True, response.url  # Return success and final URL
+            return True, response.url
         except Exception as e:
             # Clean up temp file on error
             if os.path.exists(temp_filename):
