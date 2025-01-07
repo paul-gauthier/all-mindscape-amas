@@ -93,20 +93,24 @@ def main():
     # Report results
     print(f"File sizes: {size1} vs {size2} bytes (diff: {abs(size1 - size2)} bytes)")
     
-    # Get audio durations
+    # Get stats and extract unique prefixes
     try:
-        audio1 = MP3(file1)
-        audio2 = MP3(file2)
-        duration1 = audio1.info.length
-        duration2 = audio2.info.length
-        
         # File 1 stats
         file1_different = size1 - matching
         file1_diff_percent = (file1_different * 100) // size1 if size1 > 0 else 0
         file1_match_percent = (matching * 100) // size1 if size1 > 0 else 0
         
-        # Calculate proportional durations of different sections
-        diff_duration1 = (file1_different / size1) * duration1 if size1 > 0 else 0
+        # Extract and check unique prefix from file 1
+        with open(file1, 'rb') as f1, open('prefix1.mp3', 'wb') as p1:
+            prefix_bytes = f1.read(file1_different)
+            p1.write(prefix_bytes)
+        
+        try:
+            prefix1_audio = MP3('prefix1.mp3')
+            diff_duration1 = prefix1_audio.info.length
+        except Exception as e:
+            print(f"\nWarning: Could not read duration from file 1 prefix: {e}")
+            diff_duration1 = 0
         print("\nFile 1:")
         print(f"Starts with {file1_different} different bytes ({file1_diff_percent}% of file 1)")
         print(f"  Duration: {format_duration(diff_duration1)} minutes")
@@ -116,13 +120,18 @@ def main():
         file2_different = size2 - matching
         file2_diff_percent = (file2_different * 100) // size2 if size2 > 0 else 0
         file2_match_percent = (matching * 100) // size2 if size2 > 0 else 0
-        # File 2 stats
-        file2_different = size2 - matching
-        file2_diff_percent = (file2_different * 100) // size2 if size2 > 0 else 0
-        file2_match_percent = (matching * 100) // size2 if size2 > 0 else 0
         
-        # Calculate duration for file 2
-        diff_duration2 = (file2_different / size2) * duration2 if size2 > 0 else 0
+        # Extract and check unique prefix from file 2
+        with open(file2, 'rb') as f2, open('prefix2.mp3', 'wb') as p2:
+            prefix_bytes = f2.read(file2_different)
+            p2.write(prefix_bytes)
+            
+        try:
+            prefix2_audio = MP3('prefix2.mp3')
+            diff_duration2 = prefix2_audio.info.length
+        except Exception as e:
+            print(f"\nWarning: Could not read duration from file 2 prefix: {e}")
+            diff_duration2 = 0
         
         print("\nFile 2:")
         print(f"Starts with {file2_different} different bytes ({file2_diff_percent}% of file 2)")
