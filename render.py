@@ -5,6 +5,7 @@ import jsonlines
 import json
 import sys
 from pathlib import Path
+from datetime import datetime
 
 def generate_html(input_files):
     # Set up Jinja2 environment
@@ -37,6 +38,10 @@ def generate_html(input_files):
                 else:
                     text = full_text
 
+                # Parse and format the date
+                date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
+                formatted_date = date_obj.strftime("%b %Y")
+                
                 segments.append({
                     'start': start,
                     'end': end,
@@ -44,7 +49,7 @@ def generate_html(input_files):
                     'text': text,
                     'url': metadata['url'],
                     'title': metadata['title'],
-                    'date': metadata['date']
+                    'date': formatted_date
                 })
         
         all_segments.append({
