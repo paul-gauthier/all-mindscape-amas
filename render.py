@@ -39,7 +39,7 @@ def generate_html(input_files):
 
                 # Parse and format the date
                 date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
-                formatted_date = date_obj.strftime("%b %Y")
+                formatted_date = date_obj.strftime("%b<br>%Y")
                 
                 all_segments.append({
                     'start': start,
