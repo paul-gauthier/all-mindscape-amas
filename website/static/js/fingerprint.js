@@ -29,7 +29,7 @@ class AudioFingerprinter {
 
     compareFingerprints(fp1, fp2, threshold = 0.7) {
         const matches = fp1.filter(f => fp2.includes(f));
-        return matches.length / Math.min(fp1.length, fp2.length) >= threshold;
+        return matches.length / Math.min(fp1.length, fp2.length);
     }
 
     async findSegment(targetFingerprint, audioElement, expectedStart, maxSearch = 30) {
@@ -48,7 +48,7 @@ class AudioFingerprinter {
                     similarity: similarity.toFixed(2)
                 });
                 
-                if (similarity >= 0.7) {
+                if (similarity >= threshold) {
                     console.log(`Match found at ${audioElement.currentTime.toFixed(2)}s!`);
                     clearInterval(checkInterval);
                     resolve(audioElement.currentTime);
