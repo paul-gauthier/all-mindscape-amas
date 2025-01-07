@@ -110,14 +110,15 @@ def generate_html(input_file, metadata_file):
             duration = end - start
             url = f"{base_url}#t={start},{end}"
             # Safely truncate text while preserving Unicode characters and word boundaries
+            TRUNC = 300
             full_text = segment['text'].replace("\n", " ")
-            if len(full_text) > 300:
-                # Find the last space within the first 300 characters to avoid breaking words
-                trunc_at = full_text[:300].rfind(' ')
-                if trunc_at > 250:  # Ensure we don't cut too much
+            if len(full_text) > TRUNC:
+                # Find the last space within the first TRUNC characters to avoid breaking words
+                trunc_at = full_text[:TRUNC].rfind(' ')
+                if trunc_at > TRUNC - 50:  # Ensure we don't cut too much
                     text = full_text[:trunc_at] + "..."
                 else:
-                    text = full_text[:297] + "..."
+                    text = full_text[:TRUNC - 3] + "..."
             else:
                 text = full_text
 
