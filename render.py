@@ -41,12 +41,16 @@ def generate_html(input_files):
                 date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
                 formatted_date = date_obj.strftime("%b<br>%Y")
                 
+                # Debug print URL selection
+                chosen_url = metadata.get('final_url', metadata['url'])
+                print(f"Using URL for {metadata['title']}: {chosen_url}")
+                
                 all_segments.append({
                     'start': start,
                     'end': end,
                     'duration_str': duration_str,
                     'text': text,
-                    'url': metadata.get('final_url', metadata['url']),  # Use final_url if available, fallback to original url
+                    'url': chosen_url,
                     'title': metadata['title'],
                     'date': formatted_date
                 })
