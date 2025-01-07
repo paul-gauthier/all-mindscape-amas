@@ -12,7 +12,10 @@ let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 let firstPlay = true;
 
 function updatePlayerSource() {
-    player.src = segments[shuffledIndices[currentSegment]].dataset.url;
+    const segment = segments[shuffledIndices[currentSegment]];
+    console.log('Updating player source for segment:', segment);
+    console.log('Segment URL:', segment.dataset.url);
+    player.src = segment.dataset.url;
 }
 
 playButton.addEventListener('click', () => {
@@ -52,11 +55,14 @@ prevButton.addEventListener('click', () => {
 });
 
 shuffleButton.addEventListener('click', () => {
+    console.log('Shuffle button clicked');
+    
     // Shuffle the indices array
     for (let i = shuffledIndices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
     }
+    console.log('Shuffled indices:', shuffledIndices);
     
     // Reorder the DOM elements based on shuffled indices
     const fragment = document.createDocumentFragment();
@@ -69,10 +75,22 @@ shuffleButton.addEventListener('click', () => {
     // Reset playback state
     currentSegment = 0;
     segments.forEach(s => s.classList.remove('playing'));
-    segments[shuffledIndices[0]].classList.add('playing');
-    const start = parseFloat(segments[shuffledIndices[0]].dataset.start);
-    const end = parseFloat(segments[shuffledIndices[0]].dataset.end);
-    playSegment(start, end);
+    const firstSegment = segments[shuffledIndices[0]];
+    console.log('First segment after shuffle:', firstSegment);
+    
+    firstSegment.classList.add('playing');
+    const start = parseFloat(firstSegment.dataset.start);
+    const end = parseFloat(firstSegment.dataset.end);
+    console.log('Playing segment from', start, 'to', end);
+    
+    try {
+        updatePlayerSource();
+        console.log('Player source updated');
+        playSegment(start, end);
+        console.log('Play segment called');
+    } catch (error) {
+        console.error('Error during shuffle playback:', error);
+    }
 });
 
 let currentListener = null;
