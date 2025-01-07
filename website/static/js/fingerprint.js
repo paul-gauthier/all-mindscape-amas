@@ -35,11 +35,11 @@ class AudioFingerprinter {
         return matches.length / Math.min(fp1.length, fp2.length);
     }
 
-    async findSegment(targetFingerprint, audioElement, expectedStart, maxSearch = 30) {
+    async findSegment(targetFingerprint, audioElement, expectedStart, maxSearch = 120) {
         return new Promise((resolve) => {
-            // Start with tight window around expected start
-            let searchStart = Math.max(0, expectedStart - 5);
-            let searchEnd = expectedStart + 5;
+            // Wider initial search window
+            let searchStart = Math.max(0, expectedStart - 15);
+            let searchEnd = expectedStart + 15;
             let phase = 1;
             let bestMatch = null;
             const threshold = 0.7;
@@ -64,9 +64,9 @@ class AudioFingerprinter {
 
                 if (audioElement.currentTime >= searchEnd) {
                     if (phase === 1 && !bestMatch) {
-                        // Expand search window
+                        // Much wider secondary search
                         phase = 2;
-                        searchStart = Math.max(0, expectedStart - 10);
+                        searchStart = Math.max(0, expectedStart - 60);
                         searchEnd = expectedStart + maxSearch;
                         console.log(`Starting phase ${phase} search from ${searchStart}s to ${searchEnd}s`);
                         audioElement.currentTime = searchStart;
@@ -75,7 +75,7 @@ class AudioFingerprinter {
                         resolve(bestMatch ? bestMatch.time : expectedStart);
                     }
                 } else {
-                    audioElement.currentTime += 0.5; // Half second jumps
+                    audioElement.currentTime += 2.0; // Increased from 0.5s to 2s jumps
                 }
             }, 250);
 
