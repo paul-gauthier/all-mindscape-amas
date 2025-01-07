@@ -11,12 +11,20 @@ from scipy.io import wavfile
 from pydub import AudioSegment
 from dump import dump
 
+# Cache for loaded audio files
+_audio_cache = {}
+
 def generate_fingerprint(metadata, start_sec, end_sec):
     """Generate a simple audio fingerprint for a segment."""
     dump(start_sec)
     try:
         local_path = metadata['filename']
-        audio = AudioSegment.from_mp3(local_path)
+        
+        # Use cached audio if available
+        if local_path not in _audio_cache:
+            _audio_cache[local_path] = AudioSegment.from_mp3(local_path)
+        
+        audio = _audio_cache[local_path]
         segment = audio[start_sec*1000:end_sec*1000]
 
         # Convert to mono wav for analysis
