@@ -10,7 +10,7 @@ def generate_html(input_file, metadata_file):
     # Set up Jinja2 environment
     env = Environment(loader=FileSystemLoader('templates'))
     template = env.get_template('segments.html')
-    
+
     with open(metadata_file) as f:
         metadata = json.load(f)
     base_url = metadata['url']
@@ -22,7 +22,7 @@ def generate_html(input_file, metadata_file):
             end = int(segment['end'])
             duration = end - start
             duration_str = f"{duration // 60}m{duration % 60:02d}s" if duration >= 60 else f"{duration}s"
-            
+
             full_text = segment['text'].replace("\n", " ")
             TRUNC = 200
             if len(full_text) > TRUNC:
@@ -45,10 +45,6 @@ def main():
         print("Usage: python render.py file1_segments.jsonl [file2_segments.jsonl ...]")
         sys.exit(1)
 
-    # Ensure static directories exist
-    (Path("website") / "static" / "css").mkdir(parents=True, exist_ok=True)
-    (Path("website") / "static" / "js").mkdir(parents=True, exist_ok=True)
-
     for input_file in sys.argv[1:]:
         if not Path(input_file).exists():
             print(f"Error: File {input_file} not found")
@@ -58,7 +54,7 @@ def main():
         input_path = base_path.with_suffix('.segments.jsonl')
         metadata_path = base_path.with_suffix('.json')
         output_file = Path("website") / (base_path.stem + ".html")
-        
+
         html = generate_html(input_path, metadata_path)
 
         with open(output_file, 'w') as f:
