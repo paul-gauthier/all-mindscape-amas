@@ -82,9 +82,17 @@ def main():
     for episode in episodes:
         filename = format_filename(episode['date'], episode['title'])
         if filename:
+            # Create JSON filename based on MP3 filename
+            json_filename = os.path.splitext(filename)[0] + '.json'
+            
+            # Get existing final_url if file exists
             final_url = None
             if os.path.exists(filename):
                 print(f"Skipping {episode['title']} - already exists at {filename}")
+                if os.path.exists(json_filename):
+                    with open(json_filename) as f:
+                        existing_metadata = json.load(f)
+                        final_url = existing_metadata.get('final_url')
             else:
                 print(f"Downloading {episode['title']} to {filename}")
                 success, final_url = download_episode(episode['url'], filename)
@@ -97,7 +105,7 @@ def main():
             metadata.append({
                 'filename': filename,
                 'url': episode['url'],
-                'final_url': final_url,  # Add the final URL to metadata
+                'final_url': final_url,
                 'title': episode['title'],
                 'date': episode['date']
             })
