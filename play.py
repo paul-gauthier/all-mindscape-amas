@@ -22,6 +22,15 @@ def stream_and_play(url):
         print("Request headers sent:")
         for header, value in response.request.headers.items():
             print(f"{header}: {value}")
+            
+        # Print redirect information
+        if response.history:
+            print("\nRedirects occurred:")
+            for r in response.history:
+                print(f"  {r.status_code}: {r.url}")
+            print(f"\nFinal URL: {response.url}")
+        else:
+            print("\nNo redirects occurred")
         
         # Download enough data to start playing
         chunk_size = 32768  # Larger chunk size
