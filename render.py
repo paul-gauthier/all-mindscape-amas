@@ -10,15 +10,10 @@ import numpy as np
 from scipy.io import wavfile
 from pydub import AudioSegment
 
-def get_local_audio_path(url, date):
-    """Convert URL to local file path based on date."""
-    date_obj = datetime.strptime(date, "%a, %d %b %Y %H:%M:%S %z")
-    return f"data/{date_obj.strftime('%Y-%m')}-AMA.mp3"
-
-def generate_fingerprint(url, date, start_sec, end_sec):
+def generate_fingerprint(metadata, start_sec, end_sec):
     """Generate a simple audio fingerprint for a segment."""
     try:
-        local_path = get_local_audio_path(url, date)
+        local_path = metadata['filename']
         audio = AudioSegment.from_mp3(local_path)
         segment = audio[start_sec*1000:end_sec*1000]
         
@@ -77,7 +72,7 @@ def generate_html(input_files):
                 date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
                 formatted_date = date_obj.strftime("%b<br>%Y")
                 
-                fingerprint = generate_fingerprint(metadata['url'], metadata['date'], start, end)
+                fingerprint = generate_fingerprint(metadata, start, end)
                 
                 all_segments.append({
                     'start': start,
