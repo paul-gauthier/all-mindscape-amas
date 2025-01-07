@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 
-N = 1000
-
-def count_matching_end_bytes(file1_path, file2_path, max_bytes=N):
+def count_matching_end_bytes(file1_path, file2_path):
     """
     Count how many bytes match from the end of both files.
     Returns the count of matching bytes.
@@ -17,8 +15,8 @@ def count_matching_end_bytes(file1_path, file2_path, max_bytes=N):
             size1 = f1.tell()
             size2 = f2.tell()
             
-            # Calculate how many bytes to check
-            bytes_to_check = min(max_bytes, size1, size2)
+            # Use smaller file size as limit
+            bytes_to_check = min(size1, size2)
             
             matching_bytes = 0
             chunk_size = 1024  # Read in 1KB chunks for efficiency
@@ -62,7 +60,7 @@ def main():
     file1, file2 = sys.argv[1], sys.argv[2]
     matching = count_matching_end_bytes(file1, file2)
     print(f"Last {matching} bytes match")
-    sys.exit(0 if matching == N else 1)
+    sys.exit(0)
 
 if __name__ == "__main__":
     main()
