@@ -11,11 +11,28 @@ let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 
 let firstPlay = true;
 
+function setPlayerSourceWithHeaders(url) {
+    const headers = {
+        'User-Agent': 'python-requests/2.32.3',
+        'Accept-Encoding': 'gzip, deflate',
+        'Accept': '*/*',
+        'Connection': 'keep-alive'
+    };
+    
+    fetch(url, { headers: headers })
+        .then(response => response.blob())
+        .then(blob => {
+            const objectUrl = URL.createObjectURL(blob);
+            player.src = objectUrl;
+        })
+        .catch(error => console.error('Error loading audio:', error));
+}
+
 function updatePlayerSource() {
     const segment = segments[shuffledIndices[currentSegment]];
     console.log('Updating player source for segment:', segment);
     console.log('Segment URL:', segment.dataset.url);
-    player.src = segment.dataset.url;
+    setPlayerSourceWithHeaders(segment.dataset.url);
 }
 
 playButton.addEventListener('click', () => {
