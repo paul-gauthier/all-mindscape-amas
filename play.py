@@ -2,38 +2,47 @@
 
 import requests
 import pygame
-import io
 import sys
 import time
+import tempfile
+import os
 
 def stream_and_play(url):
     # Initialize pygame mixer
     pygame.mixer.init()
     
-    # Stream the content in chunks
-    response = requests.get(url, stream=True)
+    # Create a temporary file
+    temp_fd, temp_path = tempfile.mkstemp(suffix='.mp3')
     
-    # Create a byte buffer to hold the audio data
-    buffer = io.BytesIO()
-    
-    # Download enough data to start playing
-    chunk_size = 8192
-    for i, chunk in enumerate(response.iter_content(chunk_size=chunk_size)):
-        buffer.write(chunk)
+    try:
+        # Stream the content in chunks
+        response = requests.get(url, stream=True)
         
-        # After getting enough initial data, start playing
-        if i == 10:  # Adjust this number based on needed buffer size
-            buffer.seek(0)
-            pygame.mixer.music.load(buffer)
-            pygame.mixer.music.play()
+        # Download enough data to start playing
+        chunk_size = 32768  # Larger chunk size
+        with os.fdopen(temp_fd, 'wb') as temp_file:
+            for i, chunk in enumerate(response.iter_content(chunk_size=chunk_size)):
+                temp_file.write(chunk)
+                temp_file.flush()
+                
+                # After getting enough initial data, start playing
+                if i == 10:
+                    pygame.mixer.music.load(temp_path)
+                    pygame.mixer.music.play()
+                
+                # Keep downloading while playing
+                if i > 10:
+                    time.sleep(0.1)
         
-        # Keep downloading while playing
-        if i > 10:
-            time.sleep(0.1)  # Prevent downloading too fast
-    
-    # Wait for playback to finish
-    while pygame.mixer.music.get_busy():
-        time.sleep(1)
+        # Wait for playback to finish
+        while pygame.mixer.music.get_busy():
+            time.sleep(1)
+            
+    finally:
+        # Clean up temp file
+        pygame.mixer.music.stop()
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 def main():
     if len(sys.argv) != 2:
