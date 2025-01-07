@@ -3,24 +3,21 @@
 {% block content %}
     <h1>Audio Segments</h1>
     
-    {% for episode in episodes %}
-    <div class="episode-container">
-        <h2>{{ episode.title }}</h2>
-        <p class="episode-date">{{ episode.date }}</p>
-        
-        <ul class="segment-list">
+    <h1>Audio Segments</h1>
+    <ul class="segment-list">
+        {% for episode in episodes %}
             {% for segment in episode.segments %}
             <li class="segment-item" 
                 data-start="{{ segment.start }}" 
                 data-end="{{ segment.end }}"
                 data-url="{{ segment.url }}">
+                <span class="segment-date">{{ episode.date[:8] }}</span>
                 <span class="segment-text">{{ segment.text }}</span>
                 <span class="segment-duration">{{ segment.duration_str }}</span>
             </li>
             {% endfor %}
-        </ul>
-    </div>
-    {% endfor %}
+        {% endfor %}
+    </ul>
 
     <div class="player-container">
         <audio id="audio-player"></audio>
