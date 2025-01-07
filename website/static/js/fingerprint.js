@@ -34,35 +34,47 @@ class AudioFingerprinter {
 
     async findSegment(targetFingerprint, audioElement, expectedStart, maxSearch = 30) {
         return new Promise((resolve) => {
-            let searchStart = Math.max(0, expectedStart - 10);
-            let searchEnd = expectedStart + maxSearch;
+            // Start with tight window around expected start
+            let searchStart = Math.max(0, expectedStart - 5);
+            let searchEnd = expectedStart + 5;
+            let phase = 1;
+            let bestMatch = null;
             const threshold = 0.7;
             
-            console.log(`Starting search from ${searchStart}s to ${searchEnd}s (expected: ${expectedStart}s)`);
-            console.log(`Target fingerprint:`, targetFingerprint);
+            console.log(`Starting phase ${phase} search from ${searchStart}s to ${searchEnd}s`);
             
             const checkInterval = setInterval(() => {
                 const currentFingerprint = this.generateFingerprint();
                 const similarity = this.compareFingerprints(currentFingerprint, targetFingerprint);
-                console.log(`At ${audioElement.currentTime.toFixed(2)}s:`, {
-                    currentFingerprint: currentFingerprint.slice(0, 5) + '...',
-                    similarity: similarity.toFixed(2)
-                });
                 
                 if (similarity >= threshold) {
-                    console.log(`Match found at ${audioElement.currentTime.toFixed(2)}s!`);
-                    clearInterval(checkInterval);
-                    resolve(audioElement.currentTime);
-                    return;
+                    if (similarity > 0.9) {
+                        console.log(`Strong match found at ${audioElement.currentTime.toFixed(2)}s!`);
+                        clearInterval(checkInterval);
+                        resolve(audioElement.currentTime);
+                        return;
+                    }
+                    if (!bestMatch || similarity > bestMatch.similarity) {
+                        bestMatch = {time: audioElement.currentTime, similarity};
+                    }
                 }
 
                 if (audioElement.currentTime >= searchEnd) {
-                    console.log(`Search timeout at ${audioElement.currentTime.toFixed(2)}s, falling back to expected start`);
-                    clearInterval(checkInterval);
-                    resolve(expectedStart);
-                    return;
+                    if (phase === 1 && !bestMatch) {
+                        // Expand search window
+                        phase = 2;
+                        searchStart = Math.max(0, expectedStart - 10);
+                        searchEnd = expectedStart + maxSearch;
+                        console.log(`Starting phase ${phase} search from ${searchStart}s to ${searchEnd}s`);
+                        audioElement.currentTime = searchStart;
+                    } else {
+                        clearInterval(checkInterval);
+                        resolve(bestMatch ? bestMatch.time : expectedStart);
+                    }
+                } else {
+                    audioElement.currentTime += 0.5; // Half second jumps
                 }
-            }, 100);
+            }, 250);
 
             audioElement.currentTime = searchStart;
             audioElement.play();
