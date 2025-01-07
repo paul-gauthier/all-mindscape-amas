@@ -37,18 +37,28 @@ class AudioFingerprinter {
             let searchStart = Math.max(0, expectedStart - 10);
             let searchEnd = expectedStart + maxSearch;
             
+            console.log(`Starting search from ${searchStart}s to ${searchEnd}s (expected: ${expectedStart}s)`);
+            console.log(`Target fingerprint:`, targetFingerprint);
+            
             const checkInterval = setInterval(() => {
                 const currentFingerprint = this.generateFingerprint();
+                const similarity = this.compareFingerprints(currentFingerprint, targetFingerprint);
+                console.log(`At ${audioElement.currentTime.toFixed(2)}s:`, {
+                    currentFingerprint: currentFingerprint.slice(0, 5) + '...',
+                    similarity: similarity.toFixed(2)
+                });
                 
-                if (this.compareFingerprints(currentFingerprint, targetFingerprint)) {
+                if (similarity >= 0.7) {
+                    console.log(`Match found at ${audioElement.currentTime.toFixed(2)}s!`);
                     clearInterval(checkInterval);
                     resolve(audioElement.currentTime);
                     return;
                 }
 
                 if (audioElement.currentTime >= searchEnd) {
+                    console.log(`Search timeout at ${audioElement.currentTime.toFixed(2)}s, falling back to expected start`);
                     clearInterval(checkInterval);
-                    resolve(expectedStart); // Fallback to expected start if not found
+                    resolve(expectedStart);
                     return;
                 }
             }, 100);
