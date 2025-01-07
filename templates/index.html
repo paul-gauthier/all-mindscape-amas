@@ -2,6 +2,17 @@
 
 {% block content %}
     <h1>Audio Segments</h1>
+    <div class="player-container">
+        <audio id="audio-player"></audio>
+        <div class="player-controls">
+            <button id="play-button"><i class="fas fa-play"></i></button>
+            <button id="pause-button"><i class="fas fa-pause"></i></button>
+            <button id="prev-button"><i class="fas fa-backward"></i></button>
+            <button id="next-button"><i class="fas fa-forward"></i></button>
+            <button id="shuffle-button"><i class="fas fa-random"></i></button>
+        </div>
+    </div>
+    
     <ul class="segment-list">
         {% for episode in episodes %}
             {% for segment in episode.segments %}
@@ -16,17 +27,6 @@
             {% endfor %}
         {% endfor %}
     </ul>
-
-    <div class="player-container">
-        <audio id="audio-player"></audio>
-        <div class="player-controls">
-            <button id="play-button"><i class="fas fa-play"></i></button>
-            <button id="pause-button"><i class="fas fa-pause"></i></button>
-            <button id="prev-button"><i class="fas fa-backward"></i></button>
-            <button id="next-button"><i class="fas fa-forward"></i></button>
-            <button id="shuffle-button"><i class="fas fa-random"></i></button>
-        </div>
-    </div>
     
     <script>
         function getAudioSrc() {
