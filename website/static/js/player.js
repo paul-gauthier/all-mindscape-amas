@@ -7,31 +7,15 @@ const shuffleButton = document.getElementById('shuffle-button');
 const segmentList = document.querySelector('.segment-list');
 let segments = document.querySelectorAll('.segment-item');
 let currentSegment = 0;
-let shuffledIndices = Array.from(segments.keys());
+let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 
 let firstPlay = true;
-const fingerprinter = new AudioFingerprinter();
 
 function updatePlayerSource() {
     const segment = segments[shuffledIndices[currentSegment]];
     console.log('Updating player source for segment:', segment);
     console.log('Segment URL:', segment.dataset.url);
-    
-    // Instead of directly setting player.src, fetch the audio first with specific headers
-    fetch(segment.dataset.url, {
-        headers: {
-            'User-Agent': 'python-requests/2.32.3',
-            'Accept-Encoding': 'gzip, deflate',
-            'Accept': '*/*',
-            'Connection': 'keep-alive'
-        }
-    })
-    .then(response => response.blob())
-    .then(blob => {
-        const url = URL.createObjectURL(blob);
-        player.src = url;
-    })
-    .catch(error => console.error('Error fetching audio:', error));
+    player.src = segment.dataset.url;
 }
 
 playButton.addEventListener('click', () => {
@@ -111,31 +95,16 @@ shuffleButton.addEventListener('click', () => {
 
 let currentListener = null;
 
-async function playSegment(start, end) {
+function playSegment(start, end) {
     if (currentListener) {
         player.removeEventListener('timeupdate', currentListener);
         currentListener = null;
     }
 
-    // Initialize audio context and analyzer on first play
-    if (firstPlay) {
-        try {
-            fingerprinter.setupSource(player);
-            firstPlay = false;
-        } catch (error) {
-            console.error('Error setting up audio analyzer:', error);
-        }
-    }
+    player.currentTime = start;
+    player.play();
 
-    const segment = segments[shuffledIndices[currentSegment]];
-    const fingerprint = JSON.parse(segment.dataset.fingerprint || '[]');
-    
-    // Find actual start position using fingerprint
-    const actualStart = await fingerprinter.findSegment(fingerprint, player, start);
-    console.log(`Segment found at ${actualStart} (expected ${start})`);
-    
-    const duration = end - start;
-    const stopAt = actualStart + duration;
+    const stopAt = end;
     const checkTime = () => {
         if (player.currentTime >= stopAt) {
             player.pause();
