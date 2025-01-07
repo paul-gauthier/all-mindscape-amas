@@ -68,7 +68,19 @@ def main():
 
     file1, file2 = sys.argv[1], sys.argv[2]
     matching = count_matching_end_bytes(file1, file2)
-    print(f"Last {matching} bytes match")
+    
+    # Get total bytes that could have matched
+    with open(file1, 'rb') as f1, open(file2, 'rb') as f2:
+        f1.seek(0, 2)
+        f2.seek(0, 2)
+        total = min(f1.tell(), f2.tell())
+    
+    different = total - matching
+    match_percent = (matching * 100) // total
+    diff_percent = 100 - match_percent
+    
+    print(f"Last {matching} bytes match ({match_percent}%)")
+    print(f"First {different} bytes differ ({diff_percent}%)")
     sys.exit(0)
 
 if __name__ == "__main__":
