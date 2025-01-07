@@ -18,6 +18,11 @@ def stream_and_play(url):
         # Stream the content in chunks
         response = requests.get(url, stream=True)
         
+        # Print request headers
+        print("Request headers sent:")
+        for header, value in response.request.headers.items():
+            print(f"{header}: {value}")
+        
         # Download enough data to start playing
         chunk_size = 32768  # Larger chunk size
         with os.fdopen(temp_fd, 'wb') as temp_file:
