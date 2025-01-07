@@ -86,6 +86,12 @@ def main():
     print(f"File sizes: {size1} vs {size2} bytes (diff: {abs(size1 - size2)} bytes)")
     print(f"Last {matching} bytes match ({match_percent}%)")
     print(f"First {different} bytes differ ({diff_percent}%)")
+    
+    # Show per-file differences
+    if size1 > size2:
+        print(f"File 1 has {size1 - size2} extra bytes at start")
+    elif size2 > size1:
+        print(f"File 2 has {size2 - size1} extra bytes at start")
     sys.exit(0)
 
 if __name__ == "__main__":
