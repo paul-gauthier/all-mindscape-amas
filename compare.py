@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-def count_matching_end_bytes(file1_path, file2_path):
+def count_matching_end_bytes(file1_path, file2_path, print_progress=True):
     """
     Count how many bytes match from the end of both files.
     Returns the count of matching bytes.
@@ -19,6 +19,7 @@ def count_matching_end_bytes(file1_path, file2_path):
             bytes_to_check = min(size1, size2)
             
             matching_bytes = 0
+            last_percent = 0
             chunk_size = 1024  # Read in 1KB chunks for efficiency
             
             remaining = bytes_to_check
@@ -41,8 +42,16 @@ def count_matching_end_bytes(file1_path, file2_path):
                     if b1 != b2:
                         return matching_bytes
                     matching_bytes += 1
+                    if print_progress:
+                        percent = (matching_bytes * 100) // bytes_to_check
+                        if percent > last_percent:
+                            print(f"\rChecked: {matching_bytes}/{bytes_to_check} bytes ({percent}%)", end='', flush=True)
+                            last_percent = percent
                 
                 remaining -= current_chunk
+            
+            if print_progress:
+                print()  # New line after progress
             
             return matching_bytes
             
