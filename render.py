@@ -31,19 +31,25 @@ def generate_fingerprint(metadata, start_sec, end_sec):
         segment = segment.set_channels(1)
         samples = np.array(segment.get_array_of_samples())
 
-        # Simple FFT-based fingerprint
+        # Take FFT of middle portion of segment
         window_size = 2048
-        hop_size = 1024
-        num_peaks = 20
-
-        fingerprint = []
-        for i in range(0, len(samples) - window_size, hop_size):
-            window = samples[i:i + window_size]
-            spectrum = np.abs(np.fft.rfft(window))
-            peaks = np.argpartition(spectrum, -num_peaks)[-num_peaks:]
-            fingerprint.extend(peaks.tolist())
-
-        return fingerprint
+        start_idx = len(samples)//2 - window_size//2
+        window = samples[start_idx:start_idx + window_size]
+        
+        # Calculate spectrum in dB
+        spectrum = np.abs(np.fft.rfft(window))
+        spectrum_db = 20 * np.log10(spectrum + 1e-10)  # Avoid log(0)
+        
+        # Find peaks above -60dB threshold
+        threshold_mask = spectrum_db > -60
+        peaks = np.where(threshold_mask)[0]
+        
+        # Sort by magnitude and take top 20 peaks
+        peak_magnitudes = spectrum_db[peaks]
+        sorted_indices = np.argsort(-peak_magnitudes)  # Sort descending
+        top_peaks = peaks[sorted_indices[:20]]
+        
+        return top_peaks.tolist()
     except Exception as e:
         print(f"Warning: Could not generate fingerprint: {e}")
         return []
