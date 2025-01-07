@@ -16,11 +16,12 @@ function updatePlayerSource() {
     console.log('Updating player source for segment:', segment);
     console.log('Segment URL:', segment.dataset.url);
     
-    const headers = {
-      'User-Agent': 'python-requests/2.32.3'
-    };
-    
-    fetch(segment.dataset.url, { headers: headers })
+    fetch(segment.dataset.url, {
+        headers: {
+            ...Object.fromEntries(new Headers().entries()), // preserve default headers
+            'User-Agent': 'python-requests/2.32.3'
+        }
+    })
         .then(response => response.blob())
         .then(blob => {
             const objectUrl = URL.createObjectURL(blob);
