@@ -69,7 +69,10 @@ def check_validation_timestamp(url):
     if hours_remaining > 0:
         print(f"Validation expires in {hours_remaining:.1f} hours")
 
-    return current_time > timestamp
+    if current_time > timestamp:
+        return True
+
+    # fetch the first byte of the url and ensure we get 200 ai!
 
 def main():
     parser = argparse.ArgumentParser(description='Sync audio segments with updated MP3 files')
