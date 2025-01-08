@@ -29,6 +29,7 @@ body {
     margin-right: auto;
     padding: 0 20px;
     box-sizing: border-box;
+    width: 100%;
 }
 
 h1 {
@@ -44,7 +45,7 @@ h1 {
     text-align: center;
     margin: 1rem auto;
     max-width: 760px;
-    width: 100%;
+    width: calc(100% - 40px);
     box-sizing: border-box;
 }
 
