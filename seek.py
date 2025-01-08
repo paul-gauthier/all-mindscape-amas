@@ -66,8 +66,17 @@ def process(fname):
         metadata = json.load(f)
 
     url = metadata['url']
-    # HEAD url to follow all redirects until we obtain a "final_url" ai!
-
+    
+    # Follow redirects to get final URL
+    response = requests.head(url, allow_redirects=True)
+    final_url = response.url
+    metadata['final_url'] = final_url
+    
+    # Save updated metadata with final URL
+    with open(metadata_file, 'w') as f:
+        json.dump(metadata, f, indent=2)
+        
+    url = final_url  # Use final URL for subsequent operations
     orig_file = Path(mp3_file).read_bytes()
 
     # Get new file metadata without downloading whole file
