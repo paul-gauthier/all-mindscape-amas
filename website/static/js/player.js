@@ -195,8 +195,8 @@ function playSegment(start, end) {
 
 segments.forEach((segment, index) => {
     segment.addEventListener('click', (event) => {
-        // Check if the click was on a debug link
-        if (event.target.closest('.debug-link')) {
+        // Check if the click was on a debug link or duration link
+        if (event.target.closest('.debug-link') || event.target.closest('.segment-duration')) {
             return;
         }
         
