@@ -23,6 +23,8 @@ def generate_html(input_files):
         with open(metadata_path) as f:
             metadata = json.load(f)
 
+        print()
+        dump(input_file)
         # Use final_url if it exists in metadata, otherwise use url
         chosen_url = metadata['url']  # Always use url as default
         if 'final_url' in metadata and metadata['final_url'] is not None:
@@ -48,7 +50,7 @@ def generate_html(input_files):
 
                 # Parse and format the date
                 date_obj = datetime.strptime(metadata['date'], "%a, %d %b %Y %H:%M:%S %z")
-                formatted_date = date_obj.strftime("%b<br>%Y")
+                formatted_date = date_obj.strftime("%b %Y")
 
                 all_segments.append({
                     'start': start,
