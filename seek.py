@@ -35,17 +35,19 @@ def get_byte_range(url, start, length):
 
 def get_duration(url):
     # Download first 1MB which should contain enough header info
+    mb = 3 # download 3mb ai!
+
     headers = {'Range': 'bytes=0-1048576'}
     response = requests.get(url, headers=headers)
     data = response.content
 
     # Use mutagen to parse the MP3 data
     audio = MP3(BytesIO(data))
-    
+
     # Calculate duration using bitrate and total file size
     total_size = get_file_size(url)
     duration = (total_size * 8) / audio.info.bitrate
-    
+
     return duration
 
 
@@ -58,6 +60,8 @@ def format_time(seconds):
 def main():
     orig_file = Path(sys.argv[1]).read_bytes()
     url = sys.argv[2]
+
+    url = 'https://content.production.cdn.art19.com/validation=1736442817,d98cb5a2-af8c-5b5f-8dd4-1f70cebe794a,3OPRxyMQrKiS0bi2AfMbkj6J2VI/episodes/fc3cf13a-51ac-472a-b070-de55023ed70a/065f259cdfa75cbb2c0577d7975592fd2f40c49c4d22555236c887ca778a86709cfe1f38790f247f57f999bde1bc92e9038c6a81a85a06513f3955e73632b1df/AMA-Dec-20.mp3'
 
     # Get new file metadata without downloading whole file
     new_len = get_file_size(url)
