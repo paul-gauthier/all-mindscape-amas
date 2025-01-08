@@ -33,11 +33,18 @@ def get_byte_range(url, start, length):
 
 
 def get_duration(url):
-    # Get first few KB to parse MP3 headers
-    headers = {'Range': 'bytes=0-8192'}  # Usually enough for MP3 headers
+    # Get a larger chunk from the start of the file to ensure we can read headers
+    headers = {'Range': 'bytes=0-65536'}  # Increased to 64KB
     response = requests.get(url, headers=headers)
-    audio = MP3(BytesIO(response.content))
-    return audio.info.length
+    try:
+        audio = MP3(BytesIO(response.content))
+        return audio.info.length
+    except Exception as e:
+        # If parsing fails with first chunk, try downloading more
+        headers = {'Range': 'bytes=0-262144'}  # Try with 256KB if first attempt fails
+        response = requests.get(url, headers=headers)
+        audio = MP3(BytesIO(response.content))
+        return audio.info.length
 
 
 def format_time(seconds):
