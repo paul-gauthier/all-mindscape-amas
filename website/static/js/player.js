@@ -10,6 +10,21 @@ let currentSegment = 0;
 let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 
 let firstPlay = true;
+const searchInput = document.getElementById('search-input');
+const allSegments = Array.from(segments);
+
+searchInput.addEventListener('input', (e) => {
+    const searchTerm = e.target.value.toLowerCase();
+    
+    allSegments.forEach(segment => {
+        const text = segment.querySelector('.segment-text').textContent.toLowerCase();
+        if (text.includes(searchTerm)) {
+            segment.style.display = '';
+        } else {
+            segment.style.display = 'none';
+        }
+    });
+});
 
 function updatePlayerSource() {
     const segment = segments[shuffledIndices[currentSegment]];
