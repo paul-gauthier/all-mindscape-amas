@@ -17,12 +17,15 @@ def main():
     print(f"Original length: {orig_len:,}")
     print(f"New length: {new_len:,}")
     print(f"Difference: {diff_len:,}")
+    print()
 
     orig_audio = MP3(sys.argv[1])
     new_audio = MP3(sys.argv[2])
+    # print these as MM:SS.ss. ai!
     print(f"Original duration: {orig_audio.info.length:.3f} seconds")
     print(f"New duration: {new_audio.info.length:.3f} seconds")
     print(f"Duration difference: {(new_audio.info.length - orig_audio.info.length):.3f} seconds")
+    print()
 
     orig_bytes_per_sec = orig_len / orig_audio.info.length
     new_bytes_per_sec = new_len / new_audio.info.length
