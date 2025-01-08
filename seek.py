@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import sys
+from dump import dump
 
 
 def main():
