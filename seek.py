@@ -50,6 +50,7 @@ def main():
 
     # Read and process each segment
     last_match_pos = 0
+    prev_duration = 0  # Track duration of previous segment
     with open(segments_file) as f:
         for line in f:
             segment = json.loads(line)
@@ -60,13 +61,11 @@ def main():
             target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
 
             # Search for these bytes in new file starting after previous match
-            # Calculate search start position based on segment duration
+            # Calculate search start position based on previous segment duration
             search_start = last_match_pos
-            if 'end' in segment:
+            if prev_duration > 0:
                 # Start searching a bit before where we expect the segment to be
-                # we need to use the duration of the PREVIOUS segment that we just found. ai!
-                duration = segment['end'] - segment['start']
-                expected_pos = last_match_pos + int((duration - 20) * new_bytes_per_sec)
+                expected_pos = last_match_pos + int((prev_duration - 20) * new_bytes_per_sec)
                 search_start = max(last_match_pos, expected_pos)
 
             pos = search_start
@@ -81,6 +80,7 @@ def main():
                 print(f"  Found at {format_time(found_sec)} (offset {pos:,}, delta {format_time(abs(time_delta))})")
                 found = True
                 last_match_pos = pos + 1
+                prev_duration = segment['end'] - segment['start']  # Update for next iteration
 
             if not found:
                 print("  No matches found")
