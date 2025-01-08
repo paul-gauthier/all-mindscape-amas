@@ -13,17 +13,26 @@ let firstPlay = true;
 const searchInput = document.getElementById('search-input');
 const allSegments = Array.from(segments);
 
+const visibleCount = document.getElementById('visible-count');
+
+// Initialize counter
+visibleCount.textContent = allSegments.length;
+
 searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
+    let count = 0;
     
     allSegments.forEach(segment => {
         const text = segment.querySelector('.segment-text').textContent.toLowerCase();
         if (text.includes(searchTerm)) {
             segment.style.display = '';
+            count++;
         } else {
             segment.style.display = 'none';
         }
     });
+    
+    visibleCount.textContent = count;
 });
 
 function updatePlayerSource() {

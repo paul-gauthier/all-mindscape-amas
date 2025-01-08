@@ -64,6 +64,12 @@ h1 {
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
 }
 
+.segment-counter {
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #718096;
+}
+
 .podcast-info {
     text-align: center;
     color: #4a5568;
