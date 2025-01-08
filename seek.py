@@ -2,6 +2,7 @@
 
 from pathlib import Path
 import sys
+import json
 from mutagen.mp3 import MP3
 from dump import dump
 
@@ -40,26 +41,39 @@ def main():
 
     print()
 
-    # take the segmentation.jsonl file as a 3rd cmd line param,
-    # it has `start` times in the orig file.
-    # map them all to the new file. ai!
-    start_sec = 334.505
+    if len(sys.argv) != 4:
+        print("Usage: seek.py ORIG_FILE NEW_FILE SEGMENTS_FILE")
+        sys.exit(1)
+
     num_bytes = 128
+    segments_file = sys.argv[3]
 
-    # Calculate byte offset in original file
-    orig_offset = int(start_sec * orig_bytes_per_sec)
-    target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
+    # Read and process each segment
+    with open(segments_file) as f:
+        for line in f:
+            segment = json.loads(line)
+            start_sec = segment['start']
+            
+            # Calculate byte offset in original file
+            orig_offset = int(start_sec * orig_bytes_per_sec)
+            target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
 
-    # Search for these bytes in new file
-    pos = 0
-    while True:
-        pos = new_file.find(target_bytes, pos)
-        if pos == -1:
-            break
-        # Convert position back to seconds
-        found_sec = pos / new_bytes_per_sec
-        print(f"Found at {format_time(found_sec)} (offset {pos:,})")
-        pos += 1
+            # Search for these bytes in new file
+            pos = 0
+            print(f"\nMapping segment at {format_time(start_sec)}:")
+            found = False
+            while True:
+                pos = new_file.find(target_bytes, pos)
+                if pos == -1:
+                    break
+                # Convert position back to seconds
+                found_sec = pos / new_bytes_per_sec
+                print(f"  Found at {format_time(found_sec)} (offset {pos:,})")
+                found = True
+                pos += 1
+            
+            if not found:
+                print("  No matches found")
 
 if __name__ == '__main__':
     main()
