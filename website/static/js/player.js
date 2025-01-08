@@ -56,6 +56,7 @@ prevButton.addEventListener('click', () => {
 
 shuffleButton.addEventListener('click', () => {
     console.log('Shuffle button clicked');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
     
     // Shuffle the indices array
     for (let i = shuffledIndices.length - 1; i > 0; i--) {
