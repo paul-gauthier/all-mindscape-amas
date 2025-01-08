@@ -38,13 +38,18 @@ def main():
     print(f"New bytes/sec: {new_bytes_per_sec:.2f}")
     print(f"Bytes/sec difference: {(new_bytes_per_sec - orig_bytes_per_sec):.2f}")
 
+    print()
+
+    # take the segmentation.jsonl file as a 3rd cmd line param,
+    # it has `start` times in the orig file.
+    # map them all to the new file. ai!
     start_sec = 334.505
     num_bytes = 128
-    
+
     # Calculate byte offset in original file
     orig_offset = int(start_sec * orig_bytes_per_sec)
     target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
-    
+
     # Search for these bytes in new file
     pos = 0
     while True:
