@@ -24,6 +24,9 @@ def main():
     print(f"New duration: {new_audio.info.length:.3f} seconds")
     print(f"Duration difference: {(new_audio.info.length - orig_audio.info.length):.3f} seconds")
 
+    # compute bytes/sec for both. ai!
+
+
     # start = 334.505
 
 if __name__ == '__main__':
