@@ -13,8 +13,9 @@ def main():
     new_len = len(new_file)
     diff_len = new_len - orig_len
 
-    # print the lens with ,000 format. ai!
-
+    print(f"Original length: {orig_len:,}")
+    print(f"New length: {new_len:,}")
+    print(f"Difference: {diff_len:,}")
 
 if __name__ == '__main__':
     main()
