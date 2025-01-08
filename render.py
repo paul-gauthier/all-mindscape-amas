@@ -70,10 +70,18 @@ def generate_html(input_files):
                         "url": chosen_url,
                         "title": metadata["title"],
                         "date": formatted_date,
+                        "date_obj": date_obj,  # Store the datetime object for sorting
                     }
                 )
 
-    return template.render(segments=all_segments)
+    # Sort segments by date in descending order (newest first)
+    sorted_segments = sorted(all_segments, key=lambda x: x["date_obj"], reverse=True)
+    
+    # Remove date_obj before rendering as it's not needed in the template
+    for segment in sorted_segments:
+        del segment["date_obj"]
+        
+    return template.render(segments=sorted_segments)
 
 
 def main():
