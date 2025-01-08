@@ -45,13 +45,12 @@
             data-url="{{ segment.url }}">
             <span class="segment-date">{{ segment.date }}</span>
             <span class="segment-text">{{ segment.text }}</span>
-            <span class="segment-duration">{{ segment.duration_str }}</span>
-            <a href="{{ segment.url }}#t={{ segment.start }},{{ segment.end }}" 
-               class="debug-link" 
+            <a href="{{ segment.url }}#t={{ segment.start }},{{ segment.end }}"
+               class="segment-duration"
                target="_blank"
                rel="noopener noreferrer"
-               title="Direct link to this segment in the episode.">
-                <i class="fas fa-link"></i>
+               title="Direct link to this segment in the episode">
+               {{ segment.duration_str }}
             </a>
         </li>
         {% endfor %}
