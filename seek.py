@@ -17,5 +17,9 @@ def main():
     print(f"New length: {new_len:,}")
     print(f"Difference: {diff_len:,}")
 
+    # they are mp3 files, find their duration in seconds. ai!
+
+    # start = 334.505
+
 if __name__ == '__main__':
     main()
