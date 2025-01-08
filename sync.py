@@ -72,7 +72,17 @@ def check_validation_timestamp(url):
     if current_time > timestamp:
         return True
 
-    # fetch the first byte of the url and ensure we get 200 ai!
+    # Verify URL is accessible with a small range request
+    try:
+        response = requests.get(url, headers={"Range": "bytes=0-0"})
+        if response.status_code != 206 and response.status_code != 200:
+            print(f"URL validation failed with status code: {response.status_code}")
+            return False
+    except requests.RequestException as e:
+        print(f"URL validation failed: {e}")
+        return False
+
+    return True
 
 def main():
     parser = argparse.ArgumentParser(description='Sync audio segments with updated MP3 files')
