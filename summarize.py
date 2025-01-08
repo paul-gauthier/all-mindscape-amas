@@ -21,16 +21,18 @@ He reads a series of questions from listeners and then answers them.
 
 Reply 2 concise sentences: a summary of the question and a summary of Sean's answer.
 
-Start the first sentence with "<NAME> asks".
+Start the first sentence with "<NAME> ...".
 
-Or start it with "<NAME1>, <NAME2> and <NAME3> ask" if the user gives you a set of questions from multiple users (Sean sometimes groups related questions together). Only provide a single concise sentence that summarizes the question topic that has been grouped.
+Or start it with "<NAME1>, <NAME2> and <NAME3> ..." if the user gives you a set of questions from multiple users (Sean sometimes groups related questions together). Only provide a single concise sentence that summarizes the question topic that has been grouped.
+
+Start the second sentence with "Sean ..."
 
 ONLY REPLY WITH THE 2 SENTENCES THAT SUMMARIZE THE QUESTION AND SEAN'S ANSWER.
 BE VERY CONCISE! JUST BASIC SUMMARIES!
 """.strip()
 
 
-@lox.thread(10)
+@lox.thread(25)
 def summarize_one(text):
     model = "deepseek/deepseek-chat"
 
@@ -39,13 +41,15 @@ def summarize_one(text):
         dict(role="user", content=text),
     ]
 
-    print()
-    print()
-    dump(text)
+    #print()
+    #print()
+    #dump(text)
+
     comp = litellm.completion(model=model, messages=messages, temperature=0)
     reply = comp.choices[0].message.content
-    print()
-    dump(reply)
+
+    #print()
+    #dump(reply)
 
     return reply
 
@@ -55,12 +59,14 @@ def summarize(input_file, output_file, text_file):
     with jsonlines.open(input_file) as reader:
         segments = list(reader)
 
-    # Process segments in parallel
-    texts = [segment['text'] for segment in segments]
-    summaries = lox.scatter(summarize_one, texts)
-    
-    # Update segments with summaries
-    for segment, summary in zip(segments, summaries):
+    # print 'summarizing N segments' AI!
+
+    # Process each segment
+    for segment in segments:
+        summary = summarize_one.scatter(segment['text'])
+
+    summaries = summarize_one.gather(tqdm=True)
+    for segment,summary in zip(segments,summaries):
         segment['text'] = summary
 
     # Save summarized JSONL
