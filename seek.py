@@ -60,8 +60,15 @@ def main():
             target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
 
             # Search for these bytes in new file starting after previous match
-            # We can use the `end` record in the json to jump farther ahead. Start searching at last_match_pos + (end-start-10)*bytes/sec. ai!
-            pos = last_match_pos
+            # Calculate search start position based on segment duration
+            search_start = last_match_pos
+            if 'end' in segment:
+                # Start searching a bit before where we expect the segment to be
+                # Subtract 10 seconds buffer to account for timing differences
+                duration = segment['end'] - segment['start']
+                expected_pos = last_match_pos + int((duration - 10) * new_bytes_per_sec)
+                search_start = max(last_match_pos, expected_pos)
+            pos = search_start
             print(f"\nMapping segment at {format_time(start_sec)}:")
 
             found = False
