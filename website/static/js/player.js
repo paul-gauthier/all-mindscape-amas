@@ -146,6 +146,8 @@ playPauseButton.addEventListener('click', () => {
 
 nextButton.addEventListener('click', () => {
     if (currentSegment < segments.length - 1) {
+        // Reset duration of current segment before moving to next
+        resetDurationDisplay(segments[shuffledIndices[currentSegment]]);
         currentSegment++;
         const nextSegment = segments[shuffledIndices[currentSegment]];
         nextSegment.click();
@@ -157,6 +159,8 @@ prevButton.addEventListener('click', () => {
     if (player.currentTime - currentStart > 2) {
         segments[shuffledIndices[currentSegment]].click();
     } else if (currentSegment > 0) {
+        // Reset duration of current segment before moving to previous
+        resetDurationDisplay(segments[shuffledIndices[currentSegment]]);
         currentSegment--;
         const prevSegment = segments[shuffledIndices[currentSegment]];
         prevSegment.click();
@@ -183,6 +187,7 @@ shuffleButton.addEventListener('click', () => {
     segmentList.appendChild(fragment);
     
     // Reset playback state
+    resetDurationDisplay(segments[shuffledIndices[currentSegment]]);
     currentSegment = 0;
     segments.forEach(s => s.classList.remove('playing'));
     const firstSegment = segments[shuffledIndices[0]];
@@ -209,6 +214,13 @@ function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
+function resetDurationDisplay(segment) {
+    const durationElement = segment.querySelector('.segment-duration');
+    const start = parseFloat(segment.dataset.start);
+    const end = parseFloat(segment.dataset.end);
+    durationElement.innerHTML = `${formatTime(end - start)} <i class="fas fa-external-link-alt"></i>`;
 }
 
 function isElementVisible(element) {
@@ -271,6 +283,11 @@ segments.forEach((segment, index) => {
         // Check if the click was on a debug link or duration link
         if (event.target.closest('.debug-link') || event.target.closest('.segment-duration')) {
             return;
+        }
+        
+        // Reset duration of current segment before changing
+        if (currentSegment !== shuffledIndices.indexOf(index)) {
+            resetDurationDisplay(segments[shuffledIndices[currentSegment]]);
         }
         
         segments.forEach(s => s.classList.remove('playing'));
