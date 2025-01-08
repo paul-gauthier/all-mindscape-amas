@@ -64,8 +64,10 @@ def check_validation_timestamp(url):
     dump(url)
     dump(timestamp)
     dump(current_time)
-
-    # print how many hours remain ai!
+    
+    hours_remaining = (timestamp - current_time) / 3600
+    if hours_remaining > 0:
+        print(f"Validation expires in {hours_remaining:.1f} hours")
 
     return current_time > timestamp
 
