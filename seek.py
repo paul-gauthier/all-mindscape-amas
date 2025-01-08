@@ -60,22 +60,25 @@ def process(fname):
     mp3_file = base_path.with_suffix('.mp3')
     metadata_file = base_path.with_suffix('.json')
     segments_file = base_path.with_suffix('.segments.jsonl')
+    synced_file = base_path.with_suffix('.synced.jsonl')
 
     # Read metadata file to get URL
     with open(metadata_file) as f:
         metadata = json.load(f)
 
     url = metadata['url']
-    
+
     # Follow redirects to get final URL
     response = requests.head(url, allow_redirects=True)
     final_url = response.url
     metadata['final_url'] = final_url
-    
+
+    dump(final_url)
+
     # Save updated metadata with final URL
     with open(metadata_file, 'w') as f:
         json.dump(metadata, f, indent=2)
-        
+
     url = final_url  # Use final URL for subsequent operations
     orig_file = Path(mp3_file).read_bytes()
 
@@ -106,6 +109,8 @@ def process(fname):
     # Read and process each segment
     last_match_pos = 0
     prev_duration = 0  # Track duration of previous segment
+
+    # write the synced file, which has the same data as segments but updated start,end fields. ai!
     with open(segments_file) as f:
         for line in f:
             segment = json.loads(line)
@@ -150,6 +155,7 @@ def process(fname):
 
             if not found:
                 print(f"Segment at {format_time(start_sec)} not found.")
+
 
 if __name__ == '__main__':
     main()
