@@ -63,20 +63,15 @@ def main():
             pos = last_match_pos
             print(f"\nMapping segment at {format_time(start_sec)}:")
 
-            # don't find *all*, just the *next* one. ai!
             found = False
-            while True:
-                pos = new_file.find(target_bytes, pos)
-                if pos == -1:
-                    break
+            pos = new_file.find(target_bytes, pos)
+            if pos != -1:
                 # Convert position back to seconds
                 found_sec = pos / new_bytes_per_sec
-
                 time_delta = found_sec - start_sec
                 print(f"  Found at {format_time(found_sec)} (offset {pos:,}, delta {format_time(abs(time_delta))})")
                 found = True
                 last_match_pos = pos + 1
-                pos = last_match_pos
 
             if not found:
                 print("  No matches found")
