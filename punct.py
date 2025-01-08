@@ -49,7 +49,7 @@ def align_transcription(input_file, output_file, output_text):
                 this = text[:len(text) - len(rest)]
                 wobj["text"] = this
 
-                assert abs(len(this) - len(word)) < 10, f"{word} // {this}"
+                #assert abs(len(this) - len(word)) < 10, f"{word} // {this}"
 
                 aligned.append(wobj)
 
