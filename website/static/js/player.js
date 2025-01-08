@@ -67,8 +67,6 @@ searchInput.addEventListener('input', (e) => {
 
 function handlePlayerError(error) {
     console.error('Audio playback error:', error);
-    // Reset the play button to play state
-    playPauseButton.querySelector('i').classList.replace('fa-pause', 'fa-play');
     
     const segment = segments[shuffledIndices[currentSegment]];
     

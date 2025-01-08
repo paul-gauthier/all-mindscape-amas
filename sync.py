@@ -52,26 +52,7 @@ def format_time(seconds):
     return f"{minutes:02d}:{remaining_seconds:05.2f}"
 
 
-def check_validation_timestamp(url):
-    """Extract and check the validation timestamp from URL"""
-    match = re.search(r'validation=(\d+)', url)
-    if not match:
-        return True  # No timestamp found, proceed
-
-    timestamp = int(match.group(1))
-    current_time = int(time.time())
-
-    dump(url)
-    dump(timestamp)
-    dump(current_time)
-
-    hours_remaining = (timestamp - current_time) / 3600.
-    if hours_remaining > 0:
-        print(f"Validation expires in {hours_remaining:.1f} hours")
-
-    if current_time > timestamp:
-        return True
-
+def check_valid(url):
     # Verify URL is accessible with a small range request
     try:
         response = requests.get(url, headers={"Range": "bytes=0-0"})
@@ -106,20 +87,23 @@ def process(fname, force=False):
     with open(metadata_file) as f:
         metadata = json.load(f)
 
+
+    existing_final_url = metadata["final_url"]
+
+    dump(existing_final_url)
+
+    # Check validation timestamp unless forced
+    if not force and check_valid(existing_final_url):
+        print("Final URL is valid, skipping processing.")
+        print("Use --force to process anyway.")
+        return
+
     url = metadata["url"]
 
     # Follow redirects to get final URL using a small range request
     response = requests.get(url, headers={"Range": "bytes=0-1"}, allow_redirects=True)
     final_url = response.url
     metadata["final_url"] = final_url
-
-    dump(final_url)
-
-    # Check validation timestamp unless forced
-    if not force and not check_validation_timestamp(final_url):
-        print("Validation timestamp is in the future. Skipping processing.")
-        print("Use --force to process anyway.")
-        return
 
     # Save updated metadata with final URL
     with open(metadata_file, "w") as f:
