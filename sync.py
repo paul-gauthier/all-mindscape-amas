@@ -57,10 +57,16 @@ def check_validation_timestamp(url):
     match = re.search(r'validation=(\d+)', url)
     if not match:
         return True  # No timestamp found, proceed
-        
+
     timestamp = int(match.group(1))
     current_time = int(time.time())
-    
+
+    dump(url)
+    dump(timestamp)
+    dump(current_time)
+
+    # print how many hours remain ai!
+
     return current_time > timestamp
 
 def main():
@@ -93,7 +99,7 @@ def process(fname, force=False):
     metadata["final_url"] = final_url
 
     dump(final_url)
-    
+
     # Check validation timestamp unless forced
     if not force and not check_validation_timestamp(final_url):
         print("Validation timestamp is in the future. Skipping processing.")
