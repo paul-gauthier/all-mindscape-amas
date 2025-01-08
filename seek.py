@@ -40,7 +40,21 @@ def main():
 
     start_sec = 334.505
     num_bytes = 128
-    # find the bytes at start_sec offset into orig file, then search new_file to find the seconds offset of every time they occur there. ai!
+    
+    # Calculate byte offset in original file
+    orig_offset = int(start_sec * orig_bytes_per_sec)
+    target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
+    
+    # Search for these bytes in new file
+    pos = 0
+    while True:
+        pos = new_file.find(target_bytes, pos)
+        if pos == -1:
+            break
+        # Convert position back to seconds
+        found_sec = pos / new_bytes_per_sec
+        print(f"Found at {format_time(found_sec)} (offset {pos:,})")
+        pos += 1
 
 if __name__ == '__main__':
     main()
