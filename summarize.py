@@ -28,7 +28,8 @@ Or start it with "<NAME1>, <NAME2> and <NAME3> ..." if the user gives you a set 
 Start the second sentence with "Sean ..."
 
 ONLY REPLY WITH THE 2 SENTENCES THAT SUMMARIZE THE QUESTION AND SEAN'S ANSWER.
-BE VERY CONCISE! JUST BASIC SUMMARIES!
+BE VERY CONCISE!
+TWO **SHORT** SENTENCES!
 """.strip()
 
 
@@ -47,6 +48,14 @@ def summarize_one(text):
 
     comp = litellm.completion(model=model, messages=messages, temperature=0)
     reply = comp.choices[0].message.content
+
+    num_words = #ai!
+    max_words = 100
+    while max_words
+        messages += [
+            dict(role="assistant", content=reply),
+            dict(role="user", content="That is too long! Make it less than {max_words} words!"),
+        ]
 
     #print()
     #dump(reply)
