@@ -135,7 +135,7 @@ def process(fname, force=False):
     print(f"Difference: {diff_len:,}")
     print()
 
-    orig_audio = MP3(sys.argv[1])
+    orig_audio = MP3(mp3_file)
     orig_bytes_per_sec = orig_len / orig_audio.info.length
     print(f"Original bytes/sec: {orig_bytes_per_sec:.2f}")
 
