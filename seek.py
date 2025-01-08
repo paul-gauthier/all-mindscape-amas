@@ -33,20 +33,10 @@ def get_byte_range(url, start, length):
     return response.content
 
 
-def get_duration(url):
-    # Download first few MB which should contain enough header info
-    mb = 1
-    headers = {'Range': f'bytes=0-{mb * 1024 * 1024}'}
-    response = requests.get(url, headers=headers)
-    data = response.content
-
-    # Use mutagen to parse the MP3 data
-    audio = MP3(BytesIO(data))
-
-    # Calculate duration using bitrate and total file size
+def get_duration(url, bytes_per_sec):
+    # Calculate duration using bytes per second from original file
     total_size = get_file_size(url)
-    duration = (total_size * 8) / audio.info.bitrate
-
+    duration = total_size / bytes_per_sec
     return duration
 
 
@@ -76,7 +66,6 @@ def main():
 
     orig_audio = MP3(sys.argv[1])
 
-    # update to use orig_bytes_per_sec to compute new duration. ai!
     new_duration = get_duration(url, orig_bytes_per_sec)
     print(f"Original duration: {format_time(orig_audio.info.length)}")
     print(f"New duration: {format_time(new_duration)}")
