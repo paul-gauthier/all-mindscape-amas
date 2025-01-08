@@ -38,7 +38,9 @@ def main():
     print(f"New bytes/sec: {new_bytes_per_sec:.2f}")
     print(f"Bytes/sec difference: {(new_bytes_per_sec - orig_bytes_per_sec):.2f}")
 
-    # start = 334.505
+    start_sec = 334.505
+    num_bytes = 128
+    # find the bytes at start_sec offset into orig file, then search new_file to find the seconds offset of every time they occur there. ai!
 
 if __name__ == '__main__':
     main()
