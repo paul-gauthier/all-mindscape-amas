@@ -18,6 +18,11 @@ player.addEventListener('play', () => {
 player.addEventListener('pause', () => {
     playPauseButton.querySelector('i').classList.replace('fa-pause', 'fa-play');
 });
+
+// Add error event listener to player
+player.addEventListener('error', (e) => {
+    handlePlayerError(e);
+});
 const searchInput = document.getElementById('search-input');
 const searchContainer = document.getElementById('search-container');
 const searchToggleButton = document.getElementById('search-toggle-button');
@@ -60,11 +65,57 @@ searchInput.addEventListener('input', (e) => {
     visibleCount.textContent = count;
 });
 
+function handlePlayerError(error) {
+    console.error('Audio playback error:', error);
+    // Reset the play button to play state
+    playPauseButton.querySelector('i').classList.replace('fa-pause', 'fa-play');
+    
+    const segment = segments[shuffledIndices[currentSegment]];
+    
+    // Remove any existing error messages
+    const existingError = segment.querySelector('.error-message');
+    if (existingError) {
+        existingError.remove();
+    }
+    
+    // Create and insert error message
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    
+    let message = 'Sorry, this audio segment is no longer available.';
+    if (error.name === 'MediaError') {
+        switch (error.code) {
+            case MediaError.MEDIA_ERR_NETWORK:
+                message = 'A network error occurred while loading the audio.';
+                break;
+            case MediaError.MEDIA_ERR_SRC_NOT_SUPPORTED:
+                message = 'This audio segment is no longer available.';
+                break;
+        }
+    }
+    
+    errorDiv.textContent = message;
+    segment.appendChild(errorDiv);
+    
+    // Automatically advance to next segment after a delay
+    setTimeout(() => {
+        if (currentSegment < segments.length - 1) {
+            currentSegment++;
+            const nextSegment = segments[shuffledIndices[currentSegment]];
+            nextSegment.click();
+        }
+    }, 3000);
+}
+
 function updatePlayerSource() {
     const segment = segments[shuffledIndices[currentSegment]];
     console.log('Updating player source for segment:', segment);
     console.log('Segment URL:', segment.dataset.url);
-    player.src = segment.dataset.url;
+    try {
+        player.src = segment.dataset.url;
+    } catch (error) {
+        handlePlayerError(error);
+    }
 }
 
 playPauseButton.addEventListener('click', () => {
