@@ -10,8 +10,20 @@ from io import BytesIO
 
 
 def get_file_size(url):
+    # Try HEAD request first
     response = requests.head(url)
-    return int(response.headers['Content-Length'])
+    if 'Content-Length' in response.headers:
+        return int(response.headers['Content-Length'])
+    
+    # If no Content-Length, try GET with range header
+    response = requests.get(url, headers={'Range': 'bytes=0-0'})
+    if 'Content-Range' in response.headers:
+        content_range = response.headers['Content-Range']
+        return int(content_range.split('/')[-1])
+    
+    # If all else fails, we'll have to download the whole file
+    response = requests.get(url)
+    return len(response.content)
 
 
 def get_byte_range(url, start, length):
