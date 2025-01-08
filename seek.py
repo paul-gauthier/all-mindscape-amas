@@ -64,10 +64,11 @@ def main():
             search_start = last_match_pos
             if 'end' in segment:
                 # Start searching a bit before where we expect the segment to be
-                # Subtract 10 seconds buffer to account for timing differences
+                # we need to use the duration of the PREVIOUS segment that we just found. ai!
                 duration = segment['end'] - segment['start']
-                expected_pos = last_match_pos + int((duration - 10) * new_bytes_per_sec)
+                expected_pos = last_match_pos + int((duration - 20) * new_bytes_per_sec)
                 search_start = max(last_match_pos, expected_pos)
+
             pos = search_start
             print(f"\nMapping segment at {format_time(start_sec)}:")
 
