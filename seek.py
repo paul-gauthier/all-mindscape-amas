@@ -47,7 +47,13 @@ def format_time(seconds):
 
 
 def main():
-    # call process with each file on cmd line. ai!
+    if len(sys.argv) < 2:
+        print("Usage: seek.py FILE [FILE...]")
+        sys.exit(1)
+        
+    for fname in sys.argv[1:]:
+        print(f"\nProcessing {fname}...")
+        process(fname)
 
 def process(fname):
     base_path = Path(fname).with_suffix("")
