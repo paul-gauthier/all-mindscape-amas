@@ -9,7 +9,6 @@ body {
     top: 0;
     background: white;
     z-index: 100;
-    padding: 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
 }
 
@@ -33,7 +32,6 @@ h1 {
 .segment-list {
     list-style: none;
     padding: 0;
-    margin-top: 75px;
 }
 
 .segment-date {
