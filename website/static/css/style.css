@@ -27,6 +27,7 @@ body {
 h1 {
     color: #333;
     text-align: center;
+    margin: 10px 0;
 }
 
 .segment-list {
@@ -87,8 +88,8 @@ h1 {
 
 .player-container {
     background: white;
-    padding: 20px 0;
-    margin-bottom: 20px;
+    padding: 10px 0;
+    margin-bottom: 10px;
     text-align: center;
 }
 
