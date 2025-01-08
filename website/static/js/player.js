@@ -60,7 +60,7 @@ function filterSegments() {
         const date = segment.querySelector('.segment-date').textContent.trim();
         
         const matchesSearch = text.includes(searchTerm);
-        const matchesEpisode = !selectedEpisode || date.includes(selectedEpisode);
+        const matchesEpisode = !selectedEpisode || segment.querySelector('.segment-date').getAttribute('data-full-date').startsWith(selectedEpisode.split(' ')[0]);
         
         if (matchesSearch && matchesEpisode) {
             segment.style.display = '';

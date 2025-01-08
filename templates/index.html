@@ -20,7 +20,7 @@
             <select id="episode-filter" aria-label="Filter by episode">
                 <option value="">All Episodes</option>
                 {% for episode in episodes %}
-                <option value="{{ episode }}">{{ episode }}</option>
+                <option value="{{ episode.split(' ')[0] }}">{{ episode }}</option>
                 {% endfor %}
             </select>
             <button id="clear-filters" class="clear-button" title="Clear all filters">
