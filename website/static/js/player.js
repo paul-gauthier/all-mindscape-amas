@@ -11,9 +11,19 @@ let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 
 let firstPlay = true;
 const searchInput = document.getElementById('search-input');
+const searchContainer = document.getElementById('search-container');
+const searchToggleButton = document.getElementById('search-toggle-button');
 const allSegments = Array.from(segments);
 
 const visibleCount = document.getElementById('visible-count');
+
+searchToggleButton.addEventListener('click', () => {
+    const isHidden = searchContainer.style.display === 'none';
+    searchContainer.style.display = isHidden ? 'block' : 'none';
+    if (isHidden) {
+        searchInput.focus();
+    }
+});
 
 // Initialize counter
 visibleCount.textContent = allSegments.length;

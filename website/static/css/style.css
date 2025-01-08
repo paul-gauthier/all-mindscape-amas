@@ -48,6 +48,8 @@ h1 {
     width: 100%;
     box-sizing: border-box;
     padding: 0 20px;
+    transition: all 0.3s ease;
+    overflow: hidden;
 }
 
 
