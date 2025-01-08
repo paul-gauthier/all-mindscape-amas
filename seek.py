@@ -50,7 +50,7 @@ def main():
     if len(sys.argv) < 2:
         print("Usage: seek.py FILE [FILE...]")
         sys.exit(1)
-        
+
     for fname in sys.argv[1:]:
         print(f"\nProcessing {fname}...")
         process(fname)
@@ -64,7 +64,9 @@ def process(fname):
     # Read metadata file to get URL
     with open(metadata_file) as f:
         metadata = json.load(f)
-        url = metadata['final_url']
+
+    url = metadata['url']
+    # follow redirects until we obtain a "final_url" ai!
 
     orig_file = Path(mp3_file).read_bytes()
 
