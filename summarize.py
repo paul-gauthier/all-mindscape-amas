@@ -59,7 +59,7 @@ def summarize(input_file, output_file, text_file):
     with jsonlines.open(input_file) as reader:
         segments = list(reader)
 
-    # print 'summarizing N segments' AI!
+    print(f"Summarizing {len(segments)} segments...")
 
     # Process each segment
     for segment in segments:
