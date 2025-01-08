@@ -61,6 +61,11 @@ def process(fname):
     metadata_file = base_path.with_suffix('.json')
     segments_file = base_path.with_suffix('.segments.jsonl')
 
+    # Read metadata file to get URL
+    with open(metadata_file) as f:
+        metadata = json.load(f)
+        url = metadata['final_url']
+
     orig_file = Path(mp3_file).read_bytes()
 
     # Get new file metadata without downloading whole file
@@ -85,12 +90,7 @@ def process(fname):
 
     print()
 
-    if len(sys.argv) != 4:
-        print("Usage: seek.py ORIG_FILE URL SEGMENTS_FILE")
-        sys.exit(1)
-
     num_bytes = 128
-    segments_file = sys.argv[3]
 
     # Read and process each segment
     last_match_pos = 0
