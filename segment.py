@@ -1,20 +1,23 @@
 #!/usr/bin/env python3
 
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning)
 
-import lox
-import litellm
-import jsonlines
 import re
 import sys
 from pathlib import Path
-from dump import dump
+
+import jsonlines
+import litellm
+import lox
 from dotenv import load_dotenv
+
+from dump import dump
 
 load_dotenv()
 
-SYSTEM="""
+SYSTEM = """
 The user will share the transcript of a podcast episode.
 It's an "Ask Me Anything" episode from Sean Carroll's Mindscape podcast.
 He reads a series of questions from listeners and then answers them.
@@ -47,16 +50,15 @@ Do not skip, re-order or summarize.
 
 @lox.thread(10)
 def find_questions(words, start, end, rough=False):
-
     words = words[start:end]
-    duration = words[-1]['end'] - words[0]['start']
+    duration = words[-1]["end"] - words[0]["start"]
     dump(start, end, duration)
 
     text = pretty(words)
 
     model = "deepseek/deepseek-chat"
 
-    messages=[
+    messages = [
         dict(role="system", content=SYSTEM),
         dict(role="user", content=text),
     ]
@@ -84,7 +86,7 @@ def find_questions(words, start, end, rough=False):
                 # During the rough 5k chunking, don't call out questions
                 # near the rough chunk boundaries. They may get picked up twice,
                 # in both rough chunks they straddle.
-                EDGE=50
+                EDGE = 50
                 if len(words) - word_index < EDGE:
                     print("Skipping:", question[:50])
                     continue
@@ -93,10 +95,10 @@ def find_questions(words, start, end, rough=False):
                     continue
 
             print("Question:", question[:50])
-            #print("start word_index:", word_index)
-            #print(pretty(words[word_index:word_index+10]))
-            #dump(words[word_index:word_index+3])
-            word_index+= start
+            # print("start word_index:", word_index)
+            # print(pretty(words[word_index:word_index+10]))
+            # dump(words[word_index:word_index+3])
+            word_index += start
             question_dict[word_index] = raw_question
 
     if unfound_questions:
@@ -106,14 +108,14 @@ def find_questions(words, start, end, rough=False):
 
     return question_dict
 
-def find_question_in_words(question, words):
 
+def find_question_in_words(question, words):
     question = question.strip().lower()
     num_words = len(words)
 
-    #dump(question)
-    #full_text = "".join(w["text"] for w in words).strip().lower()
-    #dump(full_text)
+    # dump(question)
+    # full_text = "".join(w["text"] for w in words).strip().lower()
+    # dump(full_text)
 
     for i in range(num_words):
         if not question.startswith(words[i]["text"].strip().lower()):
@@ -122,11 +124,11 @@ def find_question_in_words(question, words):
         if text.startswith(question):
             return i
 
-    N=10
+    N = 10
     question = question.split()
     if len(question) <= N:
         return
-    question = ' '.join(question[:N])
+    question = " ".join(question[:N])
 
     for i in range(num_words):
         if not question.startswith(words[i]["text"].strip().lower()):
@@ -138,12 +140,12 @@ def find_question_in_words(question, words):
     from Levenshtein import distance as levenshtein_distance
 
     # Find position with minimum Levenshtein distance
-    min_dist = float('inf')
+    min_dist = float("inf")
     best_index = None
 
     for i in range(num_words):
         text = "".join(w["text"] for w in words[i:]).strip().lower()
-        text = text[:len(question)]
+        text = text[: len(question)]
 
         dist = levenshtein_distance(question, text)
         if dist < min_dist:
@@ -162,7 +164,7 @@ def segment(input_file, output_file, text_file):
 
     # Verify words are sorted by start time
     for i in range(1, len(words)):
-        if words[i-1]['start'] > words[i]['start']:
+        if words[i - 1]["start"] > words[i]["start"]:
             raise ValueError(f"Words are not sorted by start time at index {i}")
 
     ###
@@ -172,7 +174,7 @@ def segment(input_file, output_file, text_file):
     chunk_size = 5000
     start_index = 0
     while start_index < len(words):
-        end_index = min(start_index+chunk_size, len(words))
+        end_index = min(start_index + chunk_size, len(words))
         find_questions.scatter(words, start_index, end_index, rough=True)
         start_index += chunk_size
 
@@ -183,10 +185,10 @@ def segment(input_file, output_file, text_file):
     questions = merged_questions
     while questions:
         question_indexes = sorted(questions.keys())
-        for i,q_index in enumerate(question_indexes):
+        for i, q_index in enumerate(question_indexes):
             start = q_index
-            if i < len(question_indexes)-1:
-                end = question_indexes[i+1]
+            if i < len(question_indexes) - 1:
+                end = question_indexes[i + 1]
             else:
                 end = len(words)
 
@@ -194,13 +196,13 @@ def segment(input_file, output_file, text_file):
 
         found_questions = find_questions.gather(tqdm=True)
         new_questions = dict()
-        for q_index,verified_dict in zip(questions, found_questions):
+        for q_index, verified_dict in zip(questions, found_questions):
             if len(verified_dict) == 1:
                 verified_index = list(verified_dict.keys())[0]
                 diff = abs(verified_index - q_index)
-                #if diff < 15:
+                # if diff < 15:
                 final_questions[verified_index] = questions[q_index]
-                #else:
+                # else:
                 #    dump(diff, questions[q_index])
                 #    assert False, output_file
             elif len(verified_dict) > 1:
@@ -209,40 +211,44 @@ def segment(input_file, output_file, text_file):
 
         questions = new_questions
 
-
     final_questions = dict(sorted(final_questions.items()))
 
-    with jsonlines.open(output_file, mode='w') as writer, open(text_file, 'w') as txt_writer:
-        for i,q_index in enumerate(final_questions.keys()):
+    with jsonlines.open(output_file, mode="w") as writer, open(
+        text_file, "w"
+    ) as txt_writer:
+        for i, q_index in enumerate(final_questions.keys()):
             # Find the end of this question (start of next question or end of transcript)
-            q_index_end = len(words)-1
+            q_index_end = len(words) - 1
             end_time = words[q_index_end]["end"]
-            if i < len(final_questions)-1:
+            if i < len(final_questions) - 1:
                 # Get next key from sorted keys list
-                next_key = sorted(final_questions.keys())[i+1]
-                q_index_end = next_key-1
-                end_time = words[q_index_end+1]["start"]
+                next_key = sorted(final_questions.keys())[i + 1]
+                q_index_end = next_key - 1
+                end_time = words[q_index_end + 1]["start"]
 
-            segment_text = ''.join(w['text'] for w in words[q_index:q_index_end+1])
+            segment_text = "".join(w["text"] for w in words[q_index : q_index_end + 1])
 
             if not segment_text.strip():
                 continue
 
-            start_time = words[q_index]['start']
+            start_time = words[q_index]["start"]
 
             if end_time - start_time < 1:
                 continue
 
-            writer.write({
-                'start': start_time,
-                'end': end_time,
-                'text': segment_text,
-                'question_index': q_index,
-                'llm_found_question': final_questions[q_index]
-            })
+            writer.write(
+                {
+                    "start": start_time,
+                    "end": end_time,
+                    "text": segment_text,
+                    "question_index": q_index,
+                    "llm_found_question": final_questions[q_index],
+                }
+            )
 
             # Write word-wrapped text to output file
             import textwrap
+
             wrapped_text = "\n".join(textwrap.wrap(segment_text, width=80))
 
             txt_writer.write(f"=====\n{final_questions[q_index]}\n\n{wrapped_text}\n\n")
@@ -256,19 +262,25 @@ def pretty(merged):
     return full_text
     # Print word-wrapped text
     import textwrap
+
     return "\n".join(textwrap.wrap(full_text, width=80))
+
 
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description='Segment podcast transcripts into questions')
-    parser.add_argument('files', nargs='+', help='Input JSONL files to process')
-    parser.add_argument('--force', action='store_true', help='Overwrite existing output files')
+    parser = argparse.ArgumentParser(
+        description="Segment podcast transcripts into questions"
+    )
+    parser.add_argument("files", nargs="+", help="Input JSONL files to process")
+    parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing output files"
+    )
     args = parser.parse_args()
 
     for input_file in args.files:
         base_path = Path(input_file).with_suffix("")
-        input_path = base_path.with_suffix('.punct.jsonl')
+        input_path = base_path.with_suffix(".punct.jsonl")
         output_path = base_path.with_suffix(".segments.jsonl")
         text_path = base_path.with_suffix(".segments.txt")
 
@@ -284,6 +296,7 @@ def main():
         segment(input_path, output_path, text_path)
         print(f"Saved to {output_path}")
         print(f"Text segments saved to {text_path}")
+
 
 if __name__ == "__main__":
     main()

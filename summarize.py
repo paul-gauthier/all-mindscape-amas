@@ -1,21 +1,24 @@
 #!/usr/bin/env python3
 
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning)
 
-import lox
-import litellm
-import jsonlines
 import re
 import sys
 from pathlib import Path
-from dump import dump
+
+import jsonlines
+import litellm
+import lox
 from dotenv import load_dotenv
+
+from dump import dump
 
 load_dotenv()
 
 
-SYSTEM="""
+SYSTEM = """
 The user will share a transcript from a podcast episode.
 It's from an "Ask Me Anything" episode from Sean Carroll's Mindscape podcast.
 He reads a series of questions from listeners and then answers them.
@@ -40,33 +43,37 @@ def summarize_one(text):
 
     max_words = 50
 
-    messages=[
+    messages = [
         dict(role="system", content=SYSTEM.format(max_words=max_words)),
         dict(role="user", content=text),
     ]
 
-    #print()
-    #print()
-    #dump(text)
+    # print()
+    # print()
+    # dump(text)
 
     comp = litellm.completion(model=model, messages=messages, temperature=0)
     reply = comp.choices[0].message.content
 
     num_words = len(reply.split())
     rounds = 0
-    while num_words > max_words*1.5 and rounds <= 3:
+    while num_words > max_words * 1.5 and rounds <= 3:
         messages += [
             dict(role="assistant", content=reply),
-            dict(role="user", content=f"That is too long! Make it less than {max_words} words!"),
+            dict(
+                role="user",
+                content=f"That is too long! Make it less than {max_words} words!",
+            ),
         ]
         comp = litellm.completion(model=model, messages=messages, temperature=0)
         reply = comp.choices[0].message.content
         rounds += 1
 
-    #print()
-    #dump(reply)
+    # print()
+    # dump(reply)
 
     return reply
+
 
 def summarize(input_file, output_file, text_file):
     # Read input segments
@@ -78,33 +85,35 @@ def summarize(input_file, output_file, text_file):
 
     # Process each segment
     for segment in segments:
-        summary = summarize_one.scatter(segment['text'])
+        summary = summarize_one.scatter(segment["text"])
 
     summaries = summarize_one.gather(tqdm=True)
-    for segment,summary in zip(segments,summaries):
-        segment['text'] = summary
+    for segment, summary in zip(segments, summaries):
+        segment["text"] = summary
 
     # Save summarized JSONL
-    with jsonlines.open(output_file, mode='w') as writer:
+    with jsonlines.open(output_file, mode="w") as writer:
         writer.write_all(segments)
 
     # Save text summaries
-    with open(text_file, 'w') as f:
+    with open(text_file, "w") as f:
         for summary in summaries:
-            f.write(summary + '\n\n')
+            f.write(summary + "\n\n")
 
 
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description='Summarize podcast questions')
-    parser.add_argument('files', nargs='+', help='Input JSONL files to process')
-    parser.add_argument('--force', action='store_true', help='Overwrite existing output files')
+    parser = argparse.ArgumentParser(description="Summarize podcast questions")
+    parser.add_argument("files", nargs="+", help="Input JSONL files to process")
+    parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing output files"
+    )
     args = parser.parse_args()
 
     for input_file in args.files:
         base_path = Path(input_file).with_suffix("")
-        input_path = base_path.with_suffix('.segments.jsonl')
+        input_path = base_path.with_suffix(".segments.jsonl")
         output_path = base_path.with_suffix(".summarized.jsonl")
         text_path = base_path.with_suffix(".summarized.txt")
 
@@ -120,6 +129,7 @@ def main():
         summarize(input_path, output_path, text_path)
         print(f"Saved to {output_path}")
         print(f"Text segments saved to {text_path}")
+
 
 if __name__ == "__main__":
     main()

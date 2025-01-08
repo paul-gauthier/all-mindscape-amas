@@ -1,22 +1,26 @@
 #!/usr/bin/env python3
 
 import warnings
+
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
+import json
 import os
 import sys
-import json
-import jsonlines
 from pathlib import Path
-from openai import OpenAI
-from dotenv import load_dotenv
-from dump import dump
-from pydub import AudioSegment
-import lox
+
+import jsonlines
 import litellm
+import lox
+from dotenv import load_dotenv
+from openai import OpenAI
+from pydub import AudioSegment
+
+from dump import dump
 
 # Load environment variables from .env file
 load_dotenv()
+
 
 @lox.thread(10)
 def transcribe_audio(chunk, audio_path):
@@ -34,29 +38,34 @@ def transcribe_audio(chunk, audio_path):
     with open(audio_path, "rb") as audio_file:
         response = litellm.transcription(
             model="fireworks_ai/whisper-v3",
-            #model="groq/whisper-large-v3-turbo",
+            # model="groq/whisper-large-v3-turbo",
             file=audio_file,
             response_format="verbose_json",
-            timestamp_granularities=["word"]
+            timestamp_granularities=["word"],
         )
 
     # Extract words and full text with timestamps
     words = []
     for word in response.words:
-        words.append({
-            "word": word['word'],
-            "start": round(word['start'], 6),
-            "end": round(word['end'], 6)
-        })
+        words.append(
+            {
+                "word": word["word"],
+                "start": round(word["start"], 6),
+                "end": round(word["end"], 6),
+            }
+        )
 
     # Add the full text with timestamps
     text_segment = {
         "text": response.text,
-        "start": round(response.words[0]['start'], 6) if response.words else 0,
-        "end": round(response.words[-1]['end'], 6) if response.words else response.duration
+        "start": round(response.words[0]["start"], 6) if response.words else 0,
+        "end": round(response.words[-1]["end"], 6)
+        if response.words
+        else response.duration,
     }
 
     return words, text_segment
+
 
 def transcribe_large_audio(audio_path, output_file):
     """
@@ -79,13 +88,14 @@ def transcribe_large_audio(audio_path, output_file):
     current_position_ms = 0
     while current_position_ms < total_duration_ms:
         chunk_positions.append(current_position_ms)
-        current_position_ms += chunk_duration_ms - 10*1000
+        current_position_ms += chunk_duration_ms - 10 * 1000
 
     ###
-    #chunk_positions = chunk_positions[:1]
+    # chunk_positions = chunk_positions[:1]
 
     # Create temporary directory for chunk files
     import tempfile
+
     with tempfile.TemporaryDirectory() as temp_dir:
         for current_position_ms in chunk_positions:
             print()
@@ -97,7 +107,9 @@ def transcribe_large_audio(audio_path, output_file):
             # Calculate and display progress
             percent_complete = (current_position_ms / total_duration_ms) * 100
             print(f"\nProgress: {percent_complete:.1f}% done chunking file")
-            print(f"Extracting chunk from {current_position_ms/1000:.2f}s to {chunk_end/1000:.2f}s")
+            print(
+                f"Extracting chunk from {current_position_ms/1000:.2f}s to {chunk_end/1000:.2f}s"
+            )
             chunk = audio[current_position_ms:chunk_end]
 
             # Save chunk to unique temp file
@@ -110,8 +122,10 @@ def transcribe_large_audio(audio_path, output_file):
 
         results = transcribe_audio.gather(tqdm=True)
 
-    with jsonlines.open(output_file, mode='w', flush=True) as writer:
-        for current_position_ms,(chunk_words, chunk_text) in zip(chunk_positions, results):
+    with jsonlines.open(output_file, mode="w", flush=True) as writer:
+        for current_position_ms, (chunk_words, chunk_text) in zip(
+            chunk_positions, results
+        ):
             dump(current_position_ms)
             print_words((chunk_words, chunk_text))
 
@@ -136,30 +150,35 @@ def transcribe_large_audio(audio_path, output_file):
 
 def print_words(words_and_text):
     """Print words and text segments with their timestamps"""
-    words, text = words_and_text if isinstance(words_and_text, tuple) else (words_and_text, None)
+    words, text = (
+        words_and_text if isinstance(words_and_text, tuple) else (words_and_text, None)
+    )
 
     # Print word-level timestamps
-    #for word in words:
+    # for word in words:
     #    print(f"[{word['start']:.2f} - {word['end']:.2f}] {word['text']}")
 
     # Print full text segment if available
     if text:
-        #print("\nFull text segment:")
+        # print("\nFull text segment:")
         print(f"[{text['start']:.2f} - {text['end']:.2f}]")
-        print(text['text'])
+        print(text["text"])
+
 
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description='Transcribe audio files using Whisper')
-    parser.add_argument('files', nargs='+', help='Audio files to transcribe')
-    parser.add_argument('--force', action='store_true', help='Overwrite existing transcription files')
+    parser = argparse.ArgumentParser(description="Transcribe audio files using Whisper")
+    parser.add_argument("files", nargs="+", help="Audio files to transcribe")
+    parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing transcription files"
+    )
     args = parser.parse_args()
 
     for audio_path in args.files:
         # Create output file with same path prefix but new suffix
         base_path = Path(audio_path).with_suffix("")
-        output_file = base_path.with_suffix('.transcription.jsonl')
+        output_file = base_path.with_suffix(".transcription.jsonl")
         output_text = base_path.with_suffix(".transcription.txt")
         audio_path = base_path.with_suffix(".mp3")
 
@@ -168,7 +187,6 @@ def main():
         if not Path(audio_path).exists():
             print(f"Error: File {audio_path} not found")
             continue
-
 
         if output_file.exists() and not args.force:
             print(f"Skipping {audio_path} - transcription files already exist")
@@ -180,12 +198,13 @@ def main():
         transcribe_large_audio(audio_path, output_file)
 
         # Create text file with wrapped text
-        with open(output_text, 'w') as txt_file:
+        with open(output_text, "w") as txt_file:
             with jsonlines.open(output_file) as reader:
                 for obj in reader:
                     if obj.get("text"):
                         # Wrap text at 80 columns
                         import textwrap
+
                         wrapped_text = textwrap.fill(obj["text"], width=80)
                         txt_file.write(wrapped_text + "\n\n")
 

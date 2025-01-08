@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 
-import jsonlines
 import re
 import sys
 from pathlib import Path
+
+import jsonlines
+
 from dump import dump
+
 
 def align_transcription(input_file, output_file, output_text):
     """
@@ -36,20 +39,22 @@ def align_transcription(input_file, output_file, output_text):
                     continue
 
                 # Strip non-alnums from ends only
-                clean_word = word.strip(''.join(c for c in word if not c.isalnum()))
+                clean_word = word.strip("".join(c for c in word if not c.isalnum()))
                 # Try splitting with original word first
                 parts = text.split(clean_word, 1)
                 if len(parts) != 2:
-                    print(f"Warning: Could not align word '{word}' in text: {text[:100]}")
+                    print(
+                        f"Warning: Could not align word '{word}' in text: {text[:100]}"
+                    )
                     continue
 
                 rest = parts[1]
                 rest = rest.lstrip(" ".join(c for c in rest if not c.isalnum()))
 
-                this = text[:len(text) - len(rest)]
+                this = text[: len(text) - len(rest)]
                 wobj["text"] = this
 
-                #assert abs(len(this) - len(word)) < 10, f"{word} // {this}"
+                # assert abs(len(this) - len(word)) < 10, f"{word} // {this}"
 
                 aligned.append(wobj)
 
@@ -65,7 +70,7 @@ def align_transcription(input_file, output_file, output_text):
 
         start = obj["start"]
         if start < last_time:
-            mid = (start + last_time)/2.0
+            mid = (start + last_time) / 2.0
             merged = [m for m in merged if m["start"] <= mid]
 
             while obj["start"] < mid and aligned:
@@ -75,7 +80,9 @@ def align_transcription(input_file, output_file, output_text):
 
         merged.append(obj)
 
-    with jsonlines.open(input_file) as reader, jsonlines.open(output_file, mode='w') as writer, open(output_text, 'w') as txt_writer:
+    with jsonlines.open(input_file) as reader, jsonlines.open(
+        output_file, mode="w"
+    ) as writer, open(output_text, "w") as txt_writer:
         full_text = ""
         for obj in merged:
             writer.write(obj)
@@ -83,16 +90,20 @@ def align_transcription(input_file, output_file, output_text):
 
         # Write word-wrapped text to output file
         import textwrap
+
         wrapped_text = "\n".join(textwrap.wrap(full_text, width=80))
         txt_writer.write(wrapped_text)
-        #print(wrapped_text)
+        # print(wrapped_text)
+
 
 def main():
     import argparse
 
-    parser = argparse.ArgumentParser(description='Align transcription chunks')
-    parser.add_argument('files', nargs='+', help='Input JSONL files to process')
-    parser.add_argument('--force', action='store_true', help='Overwrite existing output files')
+    parser = argparse.ArgumentParser(description="Align transcription chunks")
+    parser.add_argument("files", nargs="+", help="Input JSONL files to process")
+    parser.add_argument(
+        "--force", action="store_true", help="Overwrite existing output files"
+    )
     args = parser.parse_args()
 
     for input_file in args.files:
@@ -102,7 +113,7 @@ def main():
 
         # Create output file with same path prefix but new suffix
         base_path = Path(input_file).with_suffix("")
-        input_path = base_path.with_suffix('.transcription.jsonl')
+        input_path = base_path.with_suffix(".transcription.jsonl")
         output_path = base_path.with_suffix(".punct.jsonl")
         output_text = base_path.with_suffix(".punct.txt")
 
@@ -114,6 +125,7 @@ def main():
         align_transcription(input_path, output_path, output_text)
         print(f"Aligned transcription saved to {output_path}")
         print(f"Word-wrapped text saved to {output_text}")
+
 
 if __name__ == "__main__":
     main()
