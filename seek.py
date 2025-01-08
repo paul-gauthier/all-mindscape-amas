@@ -24,8 +24,11 @@ def main():
     print(f"New duration: {new_audio.info.length:.3f} seconds")
     print(f"Duration difference: {(new_audio.info.length - orig_audio.info.length):.3f} seconds")
 
-    # compute bytes/sec for both. ai!
-
+    orig_bytes_per_sec = orig_len / orig_audio.info.length
+    new_bytes_per_sec = new_len / new_audio.info.length
+    print(f"Original bytes/sec: {orig_bytes_per_sec:.2f}")
+    print(f"New bytes/sec: {new_bytes_per_sec:.2f}")
+    print(f"Bytes/sec difference: {(new_bytes_per_sec - orig_bytes_per_sec):.2f}")
 
     # start = 334.505
 
