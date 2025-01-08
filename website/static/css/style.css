@@ -78,14 +78,27 @@ h1 {
 }
 
 .filter-container select {
-    padding: 0.5rem;
+    padding: 0.75rem 2rem 0.75rem 1rem;
     border: 1px solid #e2e8f0;
     border-radius: 8px;
-    background: white;
-    font-size: 0.9rem;
+    background: white url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
+    background-position: right 0.5rem center;
+    background-repeat: no-repeat;
+    background-size: 1.5em 1.5em;
+    font-size: 0.95rem;
+    color: #4a5568;
     cursor: pointer;
     outline: none;
     transition: all 0.2s ease;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    min-width: 140px;
+}
+
+.filter-container select:hover {
+    border-color: #cbd5e0;
+    background-color: #f7fafc;
 }
 
 .filter-container select:focus {
