@@ -3,6 +3,24 @@ body {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
+    padding-top: 180px; /* Make room for fixed header */
+}
+
+.fixed-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    z-index: 100;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.fixed-header > * {
+    max-width: 760px;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 h1 {

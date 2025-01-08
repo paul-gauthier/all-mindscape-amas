@@ -1,8 +1,9 @@
 {% extends "base.html" %}
 
 {% block content %}
-  <h1>All Mindscape AMAs</h1>
-    <div class="player-container"> // can we make it so the controls and header don't scroll off the top when the user scrolls the browser down through the list? ai!
+  <div class="fixed-header">
+    <h1>All Mindscape AMAs</h1>
+    <div class="player-container">
         <audio id="audio-player"></audio>
         <div class="player-controls">
             <button id="play-button"><i class="fas fa-play"></i></button>
