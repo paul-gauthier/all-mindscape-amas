@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning)
+
+import lox
+import litellm
+import jsonlines
+import re
+import sys
+from pathlib import Path
+from dump import dump
+from dotenv import load_dotenv
+
+load_dotenv()
+
+SYSTEM="""
+The user will share a transcript from a podcast episode.
+It's from an "Ask Me Anything" episode from Sean Carroll's Mindscape podcast.
+He reads a series of questions from listeners and then answers them.
+
+Reply 2 concise sentences: a summary of the question and a summary of Sean's answer.
+
+Start the first sentence with "<NAME> asks".
+
+Or start it with "<NAME1>, <NAME2> and <NAME3> ask" if the user gives you a set of questions from multiple users (Sean sometimes groups related questions together). Only provide a single concise sentence that summarizes the question topic that has been grouped.
+
+ONLY REPLY WITH THE 2 SENTENCES THAT SUMMARIZE THE QUESTION AND SEAN'S ANSWER.
+""".strip()
+
+
+@lox.thread(10)
+def summarize_one():
+
+    model = "deepseek/deepseek-chat"
+
+    messages=[
+        dict(role="system", content=SYSTEM),
+        dict(role="user", content=text),
+    ]
+
+    comp = litellm.completion(model=model, messages=messages, temperature=0)
+    res = comp.choices[0].message.content
+
+def summarize(input_file, output_file, text_file):
+    # read the segments file, call summarize_one on each entry
+    # replace the "text" with the response
+    # save the new file to the output file
+    # ai!
+
+
+def main():
+    import argparse
+
+    parser = argparse.ArgumentParser(description='Summarize podcast questions')
+    parser.add_argument('files', nargs='+', help='Input JSONL files to process')
+    parser.add_argument('--force', action='store_true', help='Overwrite existing output files')
+    args = parser.parse_args()
+
+    for input_file in args.files:
+        base_path = Path(input_file).with_suffix("")
+        input_path = base_path.with_suffix('.segments.jsonl')
+        output_path = base_path.with_suffix(".summarized.jsonl")
+        text_path = base_path.with_suffix(".summarized.txt")
+
+        if not Path(input_path).exists():
+            print(f"Error: File {input_path} not found")
+            continue
+
+        if output_path.exists() and not args.force:
+            print(f"Skipping {input_path} - output already exists at {output_path}")
+            print("Use --force to overwrite existing files")
+            continue
+
+        summarize(input_path, output_path, text_path)
+        print(f"Saved to {output_path}")
+        print(f"Text segments saved to {text_path}")
+
+if __name__ == "__main__":
+    main()
