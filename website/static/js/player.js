@@ -1,6 +1,5 @@
 const player = document.getElementById('audio-player');
-const playButton = document.getElementById('play-button');
-const pauseButton = document.getElementById('pause-button');
+const playPauseButton = document.getElementById('play-pause-button');
 const prevButton = document.getElementById('prev-button');
 const nextButton = document.getElementById('next-button');
 const shuffleButton = document.getElementById('shuffle-button');
@@ -10,6 +9,15 @@ let currentSegment = 0;
 let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 
 let firstPlay = true;
+
+// Update play/pause button icon based on player state
+player.addEventListener('play', () => {
+    playPauseButton.querySelector('i').classList.replace('fa-play', 'fa-pause');
+});
+
+player.addEventListener('pause', () => {
+    playPauseButton.querySelector('i').classList.replace('fa-pause', 'fa-play');
+});
 const searchInput = document.getElementById('search-input');
 const searchContainer = document.getElementById('search-container');
 const searchToggleButton = document.getElementById('search-toggle-button');
@@ -59,21 +67,23 @@ function updatePlayerSource() {
     player.src = segment.dataset.url;
 }
 
-playButton.addEventListener('click', () => {
-    if (firstPlay) {
-        segments[0].classList.add('playing');
-        updatePlayerSource();
-        const start = parseFloat(segments[0].dataset.start);
-        const end = parseFloat(segments[0].dataset.end);
-        playSegment(start, end);
-        firstPlay = false;
+playPauseButton.addEventListener('click', () => {
+    if (player.paused) {
+        if (firstPlay) {
+            segments[0].classList.add('playing');
+            updatePlayerSource();
+            const start = parseFloat(segments[0].dataset.start);
+            const end = parseFloat(segments[0].dataset.end);
+            playSegment(start, end);
+            firstPlay = false;
+        } else {
+            player.play();
+        }
+        playPauseButton.querySelector('i').classList.replace('fa-play', 'fa-pause');
     } else {
-        player.play();
+        player.pause();
+        playPauseButton.querySelector('i').classList.replace('fa-pause', 'fa-play');
     }
-});
-
-pauseButton.addEventListener('click', () => {
-    player.pause();
 });
 
 nextButton.addEventListener('click', () => {
