@@ -157,15 +157,18 @@ def main():
     args = parser.parse_args()
 
     for audio_path in args.files:
-        if not Path(audio_path).exists():
-            print(f"Error: File {audio_path} not found")
-            continue
-
-
         # Create output file with same path prefix but new suffix
         base_path = Path(audio_path).with_suffix("")
         output_file = base_path.with_suffix('.transcription.jsonl')
         output_text = base_path.with_suffix(".transcription.txt")
+        audio_path = base_path.with_suffix(".mp3")
+
+        dump(audio_path)
+
+        if not Path(audio_path).exists():
+            print(f"Error: File {audio_path} not found")
+            continue
+
 
         if output_file.exists() and not args.force:
             print(f"Skipping {audio_path} - transcription files already exist")

@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
+
 SYSTEM="""
 The user will share a transcript from a podcast episode.
 It's from an "Ask Me Anything" episode from Sean Carroll's Mindscape podcast.
@@ -28,7 +29,7 @@ Or start it with "<NAME1>, <NAME2> and <NAME3> ..." if the user gives you a set 
 Start the second sentence with "Sean ..."
 
 ONLY REPLY WITH THE 2 SENTENCES THAT SUMMARIZE THE QUESTION AND SEAN'S ANSWER.
-BE VERY CONCISE!
+BE VERY CONCISE, AT MOST {max_words} TOTAL!
 TWO **SHORT** SENTENCES!
 """.strip()
 
@@ -37,8 +38,10 @@ TWO **SHORT** SENTENCES!
 def summarize_one(text):
     model = "deepseek/deepseek-chat"
 
+    max_words = 50
+
     messages=[
-        dict(role="system", content=SYSTEM),
+        dict(role="system", content=SYSTEM.format(max_words=max_words)),
         dict(role="user", content=text),
     ]
 
@@ -50,15 +53,15 @@ def summarize_one(text):
     reply = comp.choices[0].message.content
 
     num_words = len(reply.split())
-    max_words = 100
     rounds = 0
-    while num_words > max_words and rounds < 3:
+    while num_words > max_words*1.5 and rounds <= 3:
         messages += [
             dict(role="assistant", content=reply),
             dict(role="user", content=f"That is too long! Make it less than {max_words} words!"),
         ]
         comp = litellm.completion(model=model, messages=messages, temperature=0)
         reply = comp.choices[0].message.content
+        rounds += 1
 
     #print()
     #dump(reply)

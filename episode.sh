@@ -29,6 +29,9 @@ for input_file in "$@"; do
     ./transcribe.py $force_flag "$input_file"
     ./punct.py "$input_file"
     ./segment.py $force_flag "$input_file"
-    ./render.py "$input_file"
+    ./summarize.py $force_flag "$input_file"
+    ./sync.py $input_file
 done
+
+./render.py "$@"
 

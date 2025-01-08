@@ -60,7 +60,7 @@ def process(fname):
     base_path = Path(fname).with_suffix("")
     mp3_file = base_path.with_suffix('.mp3')
     metadata_file = base_path.with_suffix('.json')
-    segments_file = base_path.with_suffix('.segments.jsonl')
+    segments_file = base_path.with_suffix('.summarized.jsonl')
     synced_file = base_path.with_suffix('.synced.jsonl')
 
     # Read metadata file to get URL
