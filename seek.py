@@ -58,8 +58,8 @@ def main():
             orig_offset = int(start_sec * orig_bytes_per_sec)
             target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
 
-            # Search for these bytes in new file
-            pos = 0
+            # Search for these bytes in new file starting after previous match
+            pos = last_match_pos if 'last_match_pos' in locals() else 0
             print(f"\nMapping segment at {format_time(start_sec)}:")
             found = False
             while True:
@@ -72,7 +72,8 @@ def main():
                 time_delta = found_sec - start_sec
                 print(f"  Found at {format_time(found_sec)} (offset {pos:,}, delta {format_time(abs(time_delta))})")
                 found = True
-                pos += 1
+                last_match_pos = pos + 1
+                pos = last_match_pos
 
             if not found:
                 print("  No matches found")
