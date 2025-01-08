@@ -80,6 +80,15 @@ yearFilter.addEventListener('change', filterSegments);
 monthFilter.addEventListener('change', filterSegments);
 searchInput.addEventListener('input', filterSegments);
 
+const clearFiltersButton = document.getElementById('clear-filters');
+clearFiltersButton.addEventListener('click', () => {
+    searchInput.value = '';
+    yearFilter.value = '';
+    monthFilter.value = '';
+    filterSegments();
+    searchInput.focus();
+});
+
 function handlePlayerError(error) {
     console.error('Audio playback error:', error);
     

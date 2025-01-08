@@ -106,6 +106,32 @@ h1 {
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
 }
 
+.clear-button {
+    padding: 0.75rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    color: #718096;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+}
+
+.clear-button:hover {
+    border-color: #cbd5e0;
+    background-color: #f7fafc;
+    color: #e53e3e;
+}
+
+.clear-button:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+    outline: none;
+}
+
 .segment-counter {
     margin-top: 0.5rem;
     font-size: 0.9rem;
