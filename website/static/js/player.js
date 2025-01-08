@@ -18,12 +18,19 @@ const visibleCount = document.getElementById('visible-count');
 // Initialize counter
 visibleCount.textContent = allSegments.length;
 
+function normalizeText(text) {
+    // Replace hyphens with spaces and remove other special characters
+    return text.toLowerCase()
+              .replace(/[-]/g, ' ')
+              .replace(/[^\w\s]/g, '');
+}
+
 searchInput.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
+    const searchTerm = normalizeText(e.target.value);
     let count = 0;
     
     allSegments.forEach(segment => {
-        const text = segment.querySelector('.segment-text').textContent.toLowerCase();
+        const text = normalizeText(segment.querySelector('.segment-text').textContent);
         if (text.includes(searchTerm)) {
             segment.style.display = '';
             count++;
