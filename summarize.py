@@ -49,9 +49,9 @@ def summarize_one(text):
     comp = litellm.completion(model=model, messages=messages, temperature=0)
     reply = comp.choices[0].message.content
 
-    num_words = #ai!
+    num_words = len(reply.split())
     max_words = 100
-    while max_words
+    while num_words > max_words:
         messages += [
             dict(role="assistant", content=reply),
             dict(role="user", content="That is too long! Make it less than {max_words} words!"),
