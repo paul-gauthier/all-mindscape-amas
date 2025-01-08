@@ -97,14 +97,17 @@ function handlePlayerError(error) {
     errorDiv.textContent = message;
     segment.appendChild(errorDiv);
     
-    // Automatically advance to next segment after a delay
-    setTimeout(() => {
-        if (currentSegment < segments.length - 1) {
-            currentSegment++;
-            const nextSegment = segments[shuffledIndices[currentSegment]];
-            nextSegment.click();
-        }
-    }, 3000);
+    // Only auto-advance if the player is not paused
+    if (!player.paused && currentSegment < segments.length - 1) {
+        setTimeout(() => {
+            // Double check we're still playing before advancing
+            if (!player.paused) {
+                currentSegment++;
+                const nextSegment = segments[shuffledIndices[currentSegment]];
+                nextSegment.click();
+            }
+        }, 3000);
+    }
 }
 
 function updatePlayerSource() {
