@@ -14,19 +14,20 @@ def get_file_size(url):
     response = requests.head(url)
     if 'Content-Length' in response.headers:
         return int(response.headers['Content-Length'])
-    
+
     # If no Content-Length, try GET with range header
     response = requests.get(url, headers={'Range': 'bytes=0-0'})
     if 'Content-Range' in response.headers:
         content_range = response.headers['Content-Range']
         return int(content_range.split('/')[-1])
-    
+
     # If all else fails, we'll have to download the whole file
     response = requests.get(url)
     return len(response.content)
 
 
 def get_byte_range(url, start, length):
+    dump(start, length)
     headers = {'Range': f'bytes={start}-{start+length-1}'}
     response = requests.get(url, headers=headers)
     return response.content
@@ -37,22 +38,23 @@ def get_duration(url):
     headers = {'Range': 'bytes=0-1048576'}
     response = requests.get(url, headers=headers)
     data = response.content
-    
+
+    # can we do this with mutagen rather than parsing ourselves ai!
     # Skip ID3v2 tag if present
     offset = 0
     if data[:3] == b'ID3':
         tag_size = (data[6] << 21) | (data[7] << 14) | (data[8] << 7) | data[9]
         offset = tag_size + 10
-    
+
     # Find first MP3 frame
     while offset < len(data) - 4:
         if data[offset:offset+2] == b'\xff\xfb':  # MPEG 1 Layer 3
             break
         offset += 1
-    
+
     if offset >= len(data) - 4:
         raise Exception("Could not find MP3 frame")
-    
+
     # Parse frame header
     header = int.from_bytes(data[offset:offset+4], 'big')
     version = (header >> 19) & 3
@@ -60,25 +62,25 @@ def get_duration(url):
     bitrate_index = (header >> 12) & 0xf
     sample_rate_index = (header >> 10) & 3
     padding = (header >> 9) & 1
-    
+
     # Lookup tables
     bitrates = [
         [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0],  # V1,L3
         [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0]  # V2,L3
     ]
     sample_rates = [44100, 48000, 32000, 0]  # MPEG1
-    
+
     # Calculate values
     bitrate = bitrates[0 if version == 3 else 1][bitrate_index] * 1000
     sample_rate = sample_rates[sample_rate_index]
-    
+
     if bitrate == 0 or sample_rate == 0:
         raise Exception("Invalid bitrate or sample rate")
-        
+
     # Calculate duration from total file size
     total_size = get_file_size(url)
     duration = (total_size * 8) / bitrate
-    
+
     return duration
 
 
@@ -91,7 +93,7 @@ def format_time(seconds):
 def main():
     orig_file = Path(sys.argv[1]).read_bytes()
     url = sys.argv[2]
-    
+
     # Get new file metadata without downloading whole file
     new_len = get_file_size(url)
     orig_len = len(orig_file)
@@ -151,11 +153,11 @@ def main():
             chunk_size = 50000  # Size of chunks to download and search
             found = False
             pos = search_start
-            
+
             while pos < new_len and not found:
                 chunk = get_byte_range(url, pos, chunk_size)
                 chunk_pos = chunk.find(target_bytes)
-                
+
                 if chunk_pos != -1:
                     actual_pos = pos + chunk_pos
                     found_sec = actual_pos / new_bytes_per_sec
