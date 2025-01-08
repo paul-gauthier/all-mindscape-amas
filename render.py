@@ -74,8 +74,9 @@ def generate_html(input_files):
                     }
                 )
 
-    # Sort segments by date in descending order (newest first)
-    sorted_segments = sorted(all_segments, key=lambda x: x["date_obj"], reverse=True)
+    # Sort segments by date (newest first) and then by start time within each episode
+    sorted_segments = sorted(all_segments, 
+                           key=lambda x: (-x["date_obj"].timestamp(), x["start"]))
     
     # Remove date_obj before rendering as it's not needed in the template
     for segment in sorted_segments:
