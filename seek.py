@@ -65,8 +65,7 @@ def process(fname):
     with open(metadata_file) as f:
         metadata = json.load(f)
 
-    url = metadata['url']
-    # follow redirects until we obtain a "final_url" ai!
+    url = metadata['final_url'] if 'final_url' in metadata else metadata['url']
 
     orig_file = Path(mp3_file).read_bytes()
 
