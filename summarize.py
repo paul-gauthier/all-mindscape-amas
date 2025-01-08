@@ -26,6 +26,7 @@ Start the first sentence with "<NAME> asks".
 Or start it with "<NAME1>, <NAME2> and <NAME3> ask" if the user gives you a set of questions from multiple users (Sean sometimes groups related questions together). Only provide a single concise sentence that summarizes the question topic that has been grouped.
 
 ONLY REPLY WITH THE 2 SENTENCES THAT SUMMARIZE THE QUESTION AND SEAN'S ANSWER.
+BE VERY CONCISE! JUST BASIC SUMMARIES!
 """.strip()
 
 
@@ -38,26 +39,34 @@ def summarize_one(text):
         dict(role="user", content=text),
     ]
 
+    print()
+    print()
+    dump(text)
     comp = litellm.completion(model=model, messages=messages, temperature=0)
-    return comp.choices[0].message.content
+    reply = comp.choices[0].message.content
+    print()
+    dump(reply)
+
+    return reply
 
 def summarize(input_file, output_file, text_file):
     # Read input segments
     segments = []
     with jsonlines.open(input_file) as reader:
         segments = list(reader)
-    
+
     # Process each segment
     summaries = []
     for segment in segments:
+        # refactor to call with lox .scatter() ai!
         summary = summarize_one(segment['text'])
         segment['text'] = summary
         summaries.append(summary)
-    
+
     # Save summarized JSONL
     with jsonlines.open(output_file, mode='w') as writer:
         writer.write_all(segments)
-        
+
     # Save text summaries
     with open(text_file, 'w') as f:
         for summary in summaries:
