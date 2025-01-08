@@ -4,6 +4,7 @@ from pathlib import Path
 import sys
 import json
 import requests
+import shutil
 from mutagen.mp3 import MP3
 from dump import dump
 from io import BytesIO
@@ -95,7 +96,7 @@ def process(fname):
     # If files are identical, just copy segments to synced
     if diff_len == 0:
         print("New mp3 is identical, no sync needed.")
-        Path(segments_file).copyfile(synced_file)
+        shutil.copy2(segments_file, synced_file)
         return
 
     print(f"New length: {new_len:,}")
