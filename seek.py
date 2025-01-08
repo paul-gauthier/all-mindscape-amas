@@ -49,6 +49,7 @@ def main():
     segments_file = sys.argv[3]
 
     # Read and process each segment
+    last_match_pos = 0
     with open(segments_file) as f:
         for line in f:
             segment = json.loads(line)
@@ -59,7 +60,7 @@ def main():
             target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
 
             # Search for these bytes in new file starting after previous match
-            pos = last_match_pos if 'last_match_pos' in locals() else 0
+            pos = last_match_pos
             print(f"\nMapping segment at {format_time(start_sec)}:")
             found = False
             while True:
