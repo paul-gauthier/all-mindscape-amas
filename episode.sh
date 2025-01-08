@@ -3,9 +3,14 @@
 # exit when any command fails
 set -e
 
-# accept the --force switch optionally. if present pass to transcribe.py and segment.py. ai!
+force_flag=""
+if [ "$1" = "--force" ]; then
+    force_flag="--force"
+    shift
+fi
+
 if [ -z "$1" ]; then
-    echo "Usage: $0 <input_file> [input_file2 ...]"
+    echo "Usage: $0 [--force] <input_file> [input_file2 ...]"
     echo "Example: $0 data/2024-12-AMA.mp3 data/2024-11-AMA.mp3"
     exit 1
 fi
@@ -21,9 +26,9 @@ for input_file in "$@"; do
     echo $input_file
     echo
     
-    ./transcribe.py "$input_file"
+    ./transcribe.py $force_flag "$input_file"
     ./punct.py "$input_file"
-    ./segment.py "$input_file"
+    ./segment.py $force_flag "$input_file"
     ./render.py "$input_file"
 done
 
