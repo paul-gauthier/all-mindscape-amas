@@ -110,8 +110,8 @@ def process(fname):
     last_match_pos = 0
     prev_duration = 0  # Track duration of previous segment
 
-    # write the synced file, which has the same data as segments but updated start,end fields. ai!
-    with open(segments_file) as f:
+    # Process segments and write synced version with updated timestamps
+    with open(segments_file) as f, open(synced_file, 'w') as out_f:
         for line in f:
             segment = json.loads(line)
             start_sec = segment['start']
@@ -147,7 +147,15 @@ def process(fname):
                     print(f"Segment at {format_time(start_sec)} found at {format_time(found_sec)} (offset {actual_pos:,}, delta {format_time(abs(time_delta))})")
                     found = True
                     last_match_pos = actual_pos + 1
-                    prev_duration = segment['end'] - segment['start']
+                    
+                    # Update segment timestamps and write to synced file
+                    duration = segment['end'] - segment['start']
+                    segment['start'] = found_sec
+                    segment['end'] = found_sec + duration
+                    json.dump(segment, out_f)
+                    out_f.write('\n')
+                    
+                    prev_duration = duration
                 else:
                     # Move to next chunk, overlapping slightly to avoid missing matches
                     pos += chunk_size - num_bytes
@@ -155,6 +163,9 @@ def process(fname):
 
             if not found:
                 print(f"Segment at {format_time(start_sec)} not found.")
+                # Write original segment timing if match not found
+                json.dump(segment, out_f)
+                out_f.write('\n')
 
 
 if __name__ == '__main__':
