@@ -8,10 +8,15 @@ def print_seek_table(filename):
     """Print the XING seek table for a given MP3 file."""
     try:
         audio = MP3(filename)
-        xing_header = audio.info.xing_header
+        info = audio.info
         
         print(f"\nFile: {filename}")
-        if xing_header and 'TOC' in xing_header:
+        # Try different ways to access Xing header info
+        xing_header = getattr(info, 'xing_header', None)
+        if not xing_header:
+            xing_header = getattr(info, 'xing', None)
+            
+        if xing_header and isinstance(xing_header, dict) and 'TOC' in xing_header:
             print("XING header found")
             toc = xing_header['TOC']
             print("\nSeek table entries (position%, byte offset):")
