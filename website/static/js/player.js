@@ -70,6 +70,12 @@ function handlePlayerError(error) {
     
     const segment = segments[shuffledIndices[currentSegment]];
     
+    // Reset duration display
+    const durationElement = segment.querySelector('.segment-duration');
+    const start = parseFloat(segment.dataset.start);
+    const end = parseFloat(segment.dataset.end);
+    durationElement.textContent = formatTime(end - start);
+    
     // Remove any existing error messages
     const existingError = segment.querySelector('.error-message');
     if (existingError) {
@@ -199,6 +205,12 @@ shuffleButton.addEventListener('click', () => {
 
 let currentListener = null;
 
+function formatTime(seconds) {
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.floor(seconds % 60);
+    return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
+}
+
 function isElementVisible(element) {
     const rect = element.getBoundingClientRect();
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
@@ -222,6 +234,11 @@ function playSegment(start, end) {
         currentListener = null;
     }
 
+    const segment = segments[shuffledIndices[currentSegment]];
+    const durationElement = segment.querySelector('.segment-duration');
+    const originalDurationText = durationElement.textContent;
+    const totalDuration = end - start;
+
     player.currentTime = start;
     player.play();
 
@@ -231,6 +248,7 @@ function playSegment(start, end) {
             player.pause();
             player.removeEventListener('timeupdate', checkTime);
             currentListener = null;
+            durationElement.innerHTML = originalDurationText;
 
             if (currentSegment < segments.length - 1) {
                 currentSegment++;
@@ -238,6 +256,9 @@ function playSegment(start, end) {
                 scrollToSegment(nextSegment);
                 nextSegment.click();
             }
+        } else {
+            const remaining = end - player.currentTime;
+            durationElement.textContent = formatTime(remaining);
         }
     };
 
