@@ -1,7 +1,8 @@
 {% extends "base.html" %}
 
 {% block content %}
-    <h1>Audio Segments</h1>
+  <h1>All Mindscape Ask Me Anythings</h1>
+# subheader: AMAMA ai!
     <div class="player-container">
         <audio id="audio-player"></audio>
         <div class="player-controls">
@@ -18,8 +19,7 @@
         <li class="segment-item" 
             data-start="{{ segment.start }}" 
             data-end="{{ segment.end }}"
-            data-url="{{ segment.url }}"
-            data-fingerprint="{{ segment.fingerprint|tojson }}">
+            data-url="{{ segment.url }}">
             <span class="segment-date">{{ segment.date }}</span>
             <span class="segment-text">{{ segment.text }}</span>
             <span class="segment-duration">{{ segment.duration_str }}</span>
