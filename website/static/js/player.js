@@ -48,24 +48,21 @@ function normalizeText(text) {
               .replace(/[^\w\s]/g, '');
 }
 
-const yearFilter = document.getElementById('year-filter');
-const monthFilter = document.getElementById('month-filter');
+const episodeFilter = document.getElementById('episode-filter');
 
 function filterSegments() {
     const searchTerm = normalizeText(searchInput.value);
-    const selectedYear = yearFilter.value;
-    const selectedMonth = monthFilter.value;
+    const selectedEpisode = episodeFilter.value;
     let count = 0;
     
     allSegments.forEach(segment => {
         const text = normalizeText(segment.querySelector('.segment-text').textContent);
-        const fullDate = segment.querySelector('.segment-date').dataset.fullDate;
+        const date = segment.querySelector('.segment-date').textContent;
         
         const matchesSearch = text.includes(searchTerm);
-        const matchesYear = !selectedYear || fullDate.startsWith(selectedYear);
-        const matchesMonth = !selectedMonth || fullDate.substring(5, 7) === selectedMonth;
+        const matchesEpisode = !selectedEpisode || date.trim() === selectedEpisode;
         
-        if (matchesSearch && matchesYear && matchesMonth) {
+        if (matchesSearch && matchesEpisode) {
             segment.style.display = '';
             count++;
         } else {
@@ -76,15 +73,13 @@ function filterSegments() {
     visibleCount.textContent = count;
 }
 
-yearFilter.addEventListener('change', filterSegments);
-monthFilter.addEventListener('change', filterSegments);
+episodeFilter.addEventListener('change', filterSegments);
 searchInput.addEventListener('input', filterSegments);
 
 const clearFiltersButton = document.getElementById('clear-filters');
 clearFiltersButton.addEventListener('click', () => {
     searchInput.value = '';
-    yearFilter.value = '';
-    monthFilter.value = '';
+    episodeFilter.value = '';
     filterSegments();
     searchInput.focus();
 });

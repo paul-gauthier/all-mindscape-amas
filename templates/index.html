@@ -17,27 +17,11 @@
     <div class="search-container" id="search-container" style="display: none;">
         <input type="text" id="search-input" placeholder="Search questions..." aria-label="Search segments">
         <div class="filter-container">
-            <select id="year-filter" aria-label="Filter by year">
-                <option value="">All Years</option>
-                {% for year in years %}
-                <option value="{{ year }}">{{ year }}</option>
+            <select id="episode-filter" aria-label="Filter by episode">
+                <option value="">All Episodes</option>
+                {% for episode in episodes %}
+                <option value="{{ episode }}">{{ episode }}</option>
                 {% endfor %}
-            </select>
-            
-            <select id="month-filter" aria-label="Filter by month">
-                <option value="">All Months</option>
-                <option value="01">January</option>
-                <option value="02">February</option>
-                <option value="03">March</option>
-                <option value="04">April</option>
-                <option value="05">May</option>
-                <option value="06">June</option>
-                <option value="07">July</option>
-                <option value="08">August</option>
-                <option value="09">September</option>
-                <option value="10">October</option>
-                <option value="11">November</option>
-                <option value="12">December</option>
             </select>
             <button id="clear-filters" class="clear-button" title="Clear all filters">
                 <i class="fas fa-times"></i>
