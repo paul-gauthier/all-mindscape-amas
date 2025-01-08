@@ -78,9 +78,9 @@ def generate_html(input_files):
 
     # Extract unique episodes (year-month combinations) from segments
     episodes = sorted(set(
-        segment["date_obj"].strftime("%Y %B")
+        (segment["date_obj"].strftime("%Y-%m-%d"), segment["date_obj"].strftime("%Y %B"))
         for segment in all_segments
-    ), key=lambda x: datetime.strptime(x, "%Y %B"), reverse=True)
+    ), key=lambda x: x[0], reverse=True)
     
     # Sort segments by date (newest first) and then by start time within each episode
     sorted_segments = sorted(all_segments,
