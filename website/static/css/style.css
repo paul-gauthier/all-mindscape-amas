@@ -5,10 +5,8 @@ body {
 }
 
 .fixed-header {
-    position: fixed;
+    position: sticky;
     top: 0;
-    left: 0;
-    right: 0;
     background: white;
     z-index: 100;
     padding: 20px;
@@ -19,7 +17,6 @@ body {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    padding-top: 180px; /* Make room for fixed header */
 }
 
 .fixed-header > * {
