@@ -6,6 +6,12 @@ from mutagen.mp3 import MP3
 from dump import dump
 
 
+def format_time(seconds):
+    minutes = int(seconds // 60)
+    remaining_seconds = seconds % 60
+    return f"{minutes:02d}:{remaining_seconds:05.2f}"
+
+
 def main():
     orig_file = Path(sys.argv[1]).read_bytes()
     new_file = Path(sys.argv[2]).read_bytes()
@@ -21,10 +27,9 @@ def main():
 
     orig_audio = MP3(sys.argv[1])
     new_audio = MP3(sys.argv[2])
-    # print these as MM:SS.ss. ai!
-    print(f"Original duration: {orig_audio.info.length:.3f} seconds")
-    print(f"New duration: {new_audio.info.length:.3f} seconds")
-    print(f"Duration difference: {(new_audio.info.length - orig_audio.info.length):.3f} seconds")
+    print(f"Original duration: {format_time(orig_audio.info.length)}")
+    print(f"New duration: {format_time(new_audio.info.length)}")
+    print(f"Duration difference: {format_time(new_audio.info.length - orig_audio.info.length)}")
     print()
 
     orig_bytes_per_sec = orig_len / orig_audio.info.length
