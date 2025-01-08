@@ -101,24 +101,13 @@ h1 {
     padding: 0;
 }
 
-.segment-date {
-    color: #666;
-    margin-right: 10px;
-    font-size: 0.9em;
-    min-width: 60px;
-    display: inline-block;
-}
-
 .segment-item {
-    padding: 1rem;
-    margin: 0.75rem 0;
+    padding: 0.75rem;
+    margin: 0.5rem 0;
     background: white;
     border-radius: 8px;
     cursor: pointer;
     transition: all 0.2s ease;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
     border: 1px solid #e2e8f0;
     box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
 }
@@ -134,21 +123,37 @@ h1 {
     border-color: #90cdf4;
 }
 
+.segment-metadata {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.8em;
+    color: #718096;
+    margin-bottom: 0.25rem;
+}
+
+.segment-date {
+    color: #718096;
+}
+
 .segment-duration {
-    background: #e0e0e0;
-    padding: 4px 10px;
-    border-radius: 12px;
-    font-size: 0.9em;
-    color: #666;
-    margin-left: 10px;
+    background: none;
+    padding: 0;
+    border-radius: 0;
+    font-size: 1em;
+    color: #718096;
+    margin-left: 0;
     text-decoration: none;
     transition: all 0.2s ease;
 }
 
 .segment-duration:hover {
-    background: #d0d0d0;
     color: #444;
     text-decoration: none;
+}
+
+.segment-text {
+    display: block;
+    color: #2d3748;
 }
 
 .player-container {
