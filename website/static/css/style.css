@@ -153,6 +153,11 @@ h1 {
     text-decoration: none;
 }
 
+.segment-duration .fa-external-link-alt {
+    font-size: 0.8em;
+    margin-left: 4px;
+}
+
 .segment-text {
     display: block;
     color: #2d3748;
