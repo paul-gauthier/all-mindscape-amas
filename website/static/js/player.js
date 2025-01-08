@@ -57,10 +57,10 @@ function filterSegments() {
     
     allSegments.forEach(segment => {
         const text = normalizeText(segment.querySelector('.segment-text').textContent);
-        const date = segment.querySelector('.segment-date').textContent;
+        const date = segment.querySelector('.segment-date').textContent.trim();
         
         const matchesSearch = text.includes(searchTerm);
-        const matchesEpisode = !selectedEpisode || date.trim() === selectedEpisode;
+        const matchesEpisode = !selectedEpisode || selectedEpisode.endsWith(date);
         
         if (matchesSearch && matchesEpisode) {
             segment.style.display = '';
