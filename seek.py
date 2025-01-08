@@ -62,6 +62,8 @@ def main():
             # Search for these bytes in new file starting after previous match
             pos = last_match_pos
             print(f"\nMapping segment at {format_time(start_sec)}:")
+
+            # don't find *all*, just the *next* one. ai!
             found = False
             while True:
                 pos = new_file.find(target_bytes, pos)
