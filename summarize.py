@@ -51,11 +51,13 @@ def summarize_one(text):
 
     num_words = len(reply.split())
     max_words = 100
-    while num_words > max_words:
+    while num_words > max_words: # max 3 rounds ai!
         messages += [
             dict(role="assistant", content=reply),
             dict(role="user", content="That is too long! Make it less than {max_words} words!"),
         ]
+        comp = litellm.completion(model=model, messages=messages, temperature=0)
+        reply = comp.choices[0].message.content
 
     #print()
     #dump(reply)
