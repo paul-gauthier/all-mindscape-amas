@@ -53,7 +53,7 @@ def main():
         for line in f:
             segment = json.loads(line)
             start_sec = segment['start']
-            
+
             # Calculate byte offset in original file
             orig_offset = int(start_sec * orig_bytes_per_sec)
             target_bytes = orig_file[orig_offset:orig_offset + num_bytes]
@@ -68,10 +68,12 @@ def main():
                     break
                 # Convert position back to seconds
                 found_sec = pos / new_bytes_per_sec
+
+                # Also print the time delta from orig->new. ai!
                 print(f"  Found at {format_time(found_sec)} (offset {pos:,})")
                 found = True
                 pos += 1
-            
+
             if not found:
                 print("  No matches found")
 
