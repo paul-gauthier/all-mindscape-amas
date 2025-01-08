@@ -5,8 +5,8 @@ import sys
 
 
 def main():
-    orig_file = Path(sys.argv[1]).read()
-    new_file = Path(sys.argv[2]).read()
+    orig_file = Path(sys.argv[1]).read_bytes()
+    new_file = Path(sys.argv[2]).read_bytes()
 
     dump(len(orig_file))
 
