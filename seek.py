@@ -94,8 +94,10 @@ def process(fname):
 
     # If files are identical, just copy segments to synced
     if diff_len == 0:
+        print("New mp3 is identical, no sync needed.")
         Path(segments_file).copyfile(synced_file)
         return
+
     print(f"New length: {new_len:,}")
     print(f"Difference: {diff_len:,}")
     print()
