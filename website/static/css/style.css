@@ -156,6 +156,56 @@ h1 {
     color: #d9534f;
 }
 
+/* Mobile-specific styles */
+@media screen and (max-width: 768px) {
+    body {
+        font-size: 18px; /* Larger base font size for mobile */
+    }
+
+    h1 {
+        font-size: 1.8rem; /* Slightly smaller heading but still readable */
+    }
+
+    .segment-item {
+        padding: 1rem;
+        font-size: 1.2rem;
+        flex-direction: column; /* Stack elements vertically on mobile */
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+
+    .segment-date {
+        font-size: 1.1em;
+        margin-bottom: 0.25rem;
+    }
+
+    .segment-text {
+        font-size: 1.2em;
+        line-height: 1.4;
+    }
+
+    .segment-duration {
+        font-size: 1.1em;
+        margin-left: 0;
+        align-self: flex-end;
+    }
+
+    .player-controls button {
+        width: 48px;  /* Slightly larger touch targets */
+        height: 48px;
+    }
+
+    #search-input {
+        font-size: 1.1rem;
+        padding: 1rem;
+    }
+
+    .podcast-info {
+        font-size: 1.2rem;
+        padding: 0 1rem;
+    }
+}
+
 .player-container {
     background: white;
     padding: 10px 0;
