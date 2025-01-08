@@ -2,7 +2,8 @@ body {
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, Arial, sans-serif;
     margin: 0;
     padding: 0;
-    line-height: 1.6;
+    line-height: 1.5;
+    font-size: 16px;
     color: #2d3748;
     background-color: #f7fafc;
 }
@@ -99,15 +100,16 @@ h1 {
 
 .segment-date {
     color: #666;
-    margin-right: 10px;
-    font-size: 0.9em;
-    min-width: 60px;
+    margin-right: 12px;
+    font-size: 1em;
+    min-width: 70px;
     display: inline-block;
 }
 
 .segment-item {
-    padding: 1rem;
-    margin: 0.75rem 0;
+    padding: 1.25rem 1rem;
+    margin: 1rem 0;
+    font-size: 1.1rem;
     background: white;
     border-radius: 8px;
     cursor: pointer;
@@ -132,12 +134,13 @@ h1 {
 
 .segment-duration {
     background: #e0e0e0;
-    padding: 4px 10px;
+    padding: 6px 12px;
     border-radius: 12px;
-    font-size: 0.9em;
+    font-size: 1em;
     color: #666;
-    margin-left: 10px;
+    margin-left: 12px;
     margin-right: 5px;
+    white-space: nowrap;
 }
 
 .debug-link {
