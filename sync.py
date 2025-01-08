@@ -3,6 +3,9 @@
 import json
 import shutil
 import sys
+import time
+import re
+import argparse
 from io import BytesIO
 from pathlib import Path
 
@@ -49,17 +52,29 @@ def format_time(seconds):
     return f"{minutes:02d}:{remaining_seconds:05.2f}"
 
 
+def check_validation_timestamp(url):
+    """Extract and check the validation timestamp from URL"""
+    match = re.search(r'validation=(\d+)', url)
+    if not match:
+        return True  # No timestamp found, proceed
+        
+    timestamp = int(match.group(1))
+    current_time = int(time.time())
+    
+    return current_time > timestamp
+
 def main():
-    if len(sys.argv) < 2:
-        print("Usage: seek.py FILE [FILE...]")
-        sys.exit(1)
+    parser = argparse.ArgumentParser(description='Sync audio segments with updated MP3 files')
+    parser.add_argument('files', nargs='+', help='Files to process')
+    parser.add_argument('--force', action='store_true', help='Force processing even if validation timestamp is in the future')
+    args = parser.parse_args()
 
-    for fname in sys.argv[1:]:
+    for fname in args.files:
         print(f"\nProcessing {fname}...")
-        process(fname)
+        process(fname, args.force)
 
 
-def process(fname):
+def process(fname, force=False):
     base_path = Path(fname).with_suffix("")
     mp3_file = base_path.with_suffix(".mp3")
     metadata_file = base_path.with_suffix(".json")
@@ -78,6 +93,12 @@ def process(fname):
     metadata["final_url"] = final_url
 
     dump(final_url)
+    
+    # Check validation timestamp unless forced
+    if not force and not check_validation_timestamp(final_url):
+        print("Validation timestamp is in the future. Skipping processing.")
+        print("Use --force to process anyway.")
+        return
 
     # Save updated metadata with final URL
     with open(metadata_file, "w") as f:
