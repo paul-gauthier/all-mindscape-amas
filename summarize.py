@@ -55,13 +55,13 @@ def summarize(input_file, output_file, text_file):
     with jsonlines.open(input_file) as reader:
         segments = list(reader)
 
-    # Process each segment
-    summaries = []
-    for segment in segments:
-        # refactor to call with lox .scatter() ai!
-        summary = summarize_one(segment['text'])
+    # Process segments in parallel
+    texts = [segment['text'] for segment in segments]
+    summaries = lox.scatter(summarize_one, texts)
+    
+    # Update segments with summaries
+    for segment, summary in zip(segments, summaries):
         segment['text'] = summary
-        summaries.append(summary)
 
     # Save summarized JSONL
     with jsonlines.open(output_file, mode='w') as writer:
