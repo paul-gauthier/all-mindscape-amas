@@ -30,8 +30,7 @@ ONLY REPLY WITH THE 2 SENTENCES THAT SUMMARIZE THE QUESTION AND SEAN'S ANSWER.
 
 
 @lox.thread(10)
-def summarize_one():
-
+def summarize_one(text):
     model = "deepseek/deepseek-chat"
 
     messages=[
@@ -40,13 +39,29 @@ def summarize_one():
     ]
 
     comp = litellm.completion(model=model, messages=messages, temperature=0)
-    res = comp.choices[0].message.content
+    return comp.choices[0].message.content
 
 def summarize(input_file, output_file, text_file):
-    # read the segments file, call summarize_one on each entry
-    # replace the "text" with the response
-    # save the new file to the output file
-    # ai!
+    # Read input segments
+    segments = []
+    with jsonlines.open(input_file) as reader:
+        segments = list(reader)
+    
+    # Process each segment
+    summaries = []
+    for segment in segments:
+        summary = summarize_one(segment['text'])
+        segment['text'] = summary
+        summaries.append(summary)
+    
+    # Save summarized JSONL
+    with jsonlines.open(output_file, mode='w') as writer:
+        writer.write_all(segments)
+        
+    # Save text summaries
+    with open(text_file, 'w') as f:
+        for summary in summaries:
+            f.write(summary + '\n\n')
 
 
 def main():
