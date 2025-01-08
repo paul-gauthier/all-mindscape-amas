@@ -87,6 +87,8 @@ def process(fname):
     orig_len = len(orig_file)
     diff_len = new_len - orig_len
 
+    # if diff_len is 0, copy segments file to synced file, we are done. ai!
+
     print(f"Original length: {orig_len:,}")
     print(f"New length: {new_len:,}")
     print(f"Difference: {diff_len:,}")
@@ -147,14 +149,14 @@ def process(fname):
                     print(f"Segment at {format_time(start_sec)} found at {format_time(found_sec)} (offset {actual_pos:,}, delta {format_time(abs(time_delta))})")
                     found = True
                     last_match_pos = actual_pos + 1
-                    
+
                     # Update segment timestamps and write to synced file
                     duration = segment['end'] - segment['start']
                     segment['start'] = found_sec
                     segment['end'] = found_sec + duration
                     json.dump(segment, out_f)
                     out_f.write('\n')
-                    
+
                     prev_duration = duration
                 else:
                     # Move to next chunk, overlapping slightly to avoid missing matches
