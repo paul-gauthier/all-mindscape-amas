@@ -69,11 +69,8 @@ def process(fname):
 
     url = metadata['url']
 
-    # Follow redirects to get final URL.
-    # HEAD is not triggering the redirects, maybe need to GET
-    # But it's a huge file, so only get a few bytes.
-    # ai!
-    response = requests.head(url, allow_redirects=True)
+    # Follow redirects to get final URL using a small range request
+    response = requests.get(url, headers={'Range': 'bytes=0-1'}, allow_redirects=True)
     final_url = response.url
     metadata['final_url'] = final_url
 
