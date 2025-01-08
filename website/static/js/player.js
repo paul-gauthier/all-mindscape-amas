@@ -127,6 +127,23 @@ shuffleButton.addEventListener('click', () => {
 
 let currentListener = null;
 
+function isElementVisible(element) {
+    const rect = element.getBoundingClientRect();
+    const headerHeight = document.querySelector('.fixed-header').offsetHeight;
+    return rect.top >= headerHeight && rect.bottom <= window.innerHeight;
+}
+
+function scrollToSegment(segment) {
+    if (isElementVisible(segments[shuffledIndices[currentSegment]])) {
+        const headerHeight = document.querySelector('.fixed-header').offsetHeight;
+        const elementTop = segment.getBoundingClientRect().top + window.pageYOffset;
+        window.scrollTo({
+            top: elementTop - headerHeight - 20,
+            behavior: 'smooth'
+        });
+    }
+}
+
 function playSegment(start, end) {
     if (currentListener) {
         player.removeEventListener('timeupdate', currentListener);
@@ -145,7 +162,8 @@ function playSegment(start, end) {
 
             if (currentSegment < segments.length - 1) {
                 currentSegment++;
-                const nextSegment = segments[currentSegment];
+                const nextSegment = segments[shuffledIndices[currentSegment]];
+                scrollToSegment(nextSegment);
                 nextSegment.click();
             }
         }
@@ -166,6 +184,7 @@ segments.forEach((segment, index) => {
         segment.classList.add('playing');
         currentSegment = shuffledIndices.indexOf(index);
         updatePlayerSource();
+        scrollToSegment(segment);
         const start = parseFloat(segment.dataset.start);
         const end = parseFloat(segment.dataset.end);
         playSegment(start, end);
