@@ -69,8 +69,8 @@ def main():
                 # Convert position back to seconds
                 found_sec = pos / new_bytes_per_sec
 
-                # Also print the time delta from orig->new. ai!
-                print(f"  Found at {format_time(found_sec)} (offset {pos:,})")
+                time_delta = found_sec - start_sec
+                print(f"  Found at {format_time(found_sec)} (offset {pos:,}, delta {format_time(abs(time_delta))})")
                 found = True
                 pos += 1
 
