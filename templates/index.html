@@ -69,7 +69,7 @@
             data-end="{{ segment.end }}"
             data-url="{{ segment.url }}">
             <div class="segment-metadata">
-                <span class="segment-date">{{ segment.date }}</span>
+                <span class="segment-date" data-full-date="{{ segment.full_date }}">{{ segment.date }}</span>
                 <a href="{{ segment.url }}#t={{ segment.start }},{{ segment.end }}"
                    class="segment-duration"
                    target="_blank"

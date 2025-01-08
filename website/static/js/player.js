@@ -59,11 +59,11 @@ function filterSegments() {
     
     allSegments.forEach(segment => {
         const text = normalizeText(segment.querySelector('.segment-text').textContent);
-        const date = segment.querySelector('.segment-date').textContent;
+        const fullDate = segment.querySelector('.segment-date').dataset.fullDate;
         
         const matchesSearch = text.includes(searchTerm);
-        const matchesYear = !selectedYear || date.startsWith(selectedYear);
-        const matchesMonth = !selectedMonth || date.substring(5, 7) === selectedMonth;
+        const matchesYear = !selectedYear || fullDate.startsWith(selectedYear);
+        const matchesMonth = !selectedMonth || fullDate.substring(5, 7) === selectedMonth;
         
         if (matchesSearch && matchesYear && matchesMonth) {
             segment.style.display = '';

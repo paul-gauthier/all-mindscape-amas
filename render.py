@@ -60,6 +60,7 @@ def generate_html(input_files):
                     metadata["date"], "%a, %d %b %Y %H:%M:%S %z"
                 )
                 formatted_date = date_obj.strftime("%b %Y")
+                full_date = date_obj.strftime("%Y-%m-%d")  # Add full date for filtering
 
                 all_segments.append(
                     {
@@ -70,6 +71,7 @@ def generate_html(input_files):
                         "url": chosen_url,
                         "title": metadata["title"],
                         "date": formatted_date,
+                        "full_date": full_date,  # Add full date for filtering
                         "date_obj": date_obj,  # Store the datetime object for sorting
                     }
                 )
