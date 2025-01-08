@@ -34,10 +34,8 @@ def get_byte_range(url, start, length):
 
 
 def get_duration(url):
-    # Download first 1MB which should contain enough header info
-    mb = 3 # download 3mb ai!
-
-    headers = {'Range': 'bytes=0-1048576'}
+    # Download first 3MB which should contain enough header info
+    headers = {'Range': 'bytes=0-3145728'}
     response = requests.get(url, headers=headers)
     data = response.content
 
