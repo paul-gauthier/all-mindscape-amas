@@ -87,9 +87,15 @@ def process(fname):
     orig_len = len(orig_file)
     diff_len = new_len - orig_len
 
-    # if diff_len is 0, copy segments file to synced file, we are done. ai!
-
     print(f"Original length: {orig_len:,}")
+    print(f"New length: {new_len:,}")
+    print(f"Difference: {diff_len:,}")
+    print()
+
+    # If files are identical, just copy segments to synced
+    if diff_len == 0:
+        Path(segments_file).copyfile(synced_file)
+        return
     print(f"New length: {new_len:,}")
     print(f"Difference: {diff_len:,}")
     print()
