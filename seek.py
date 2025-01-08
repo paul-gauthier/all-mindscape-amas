@@ -3,8 +3,29 @@
 from pathlib import Path
 import sys
 import json
+import requests
 from mutagen.mp3 import MP3
 from dump import dump
+from io import BytesIO
+
+
+def get_file_size(url):
+    response = requests.head(url)
+    return int(response.headers['Content-Length'])
+
+
+def get_byte_range(url, start, length):
+    headers = {'Range': f'bytes={start}-{start+length-1}'}
+    response = requests.get(url, headers=headers)
+    return response.content
+
+
+def get_duration(url):
+    # Get first few KB to parse MP3 headers
+    headers = {'Range': 'bytes=0-8192'}  # Usually enough for MP3 headers
+    response = requests.get(url, headers=headers)
+    audio = MP3(BytesIO(response.content))
+    return audio.info.length
 
 
 def format_time(seconds):
@@ -15,10 +36,11 @@ def format_time(seconds):
 
 def main():
     orig_file = Path(sys.argv[1]).read_bytes()
-    new_file = Path(sys.argv[2]).read_bytes()
-
+    url = sys.argv[2]
+    
+    # Get new file metadata without downloading whole file
+    new_len = get_file_size(url)
     orig_len = len(orig_file)
-    new_len = len(new_file)
     diff_len = new_len - orig_len
 
     print(f"Original length: {orig_len:,}")
@@ -27,14 +49,14 @@ def main():
     print()
 
     orig_audio = MP3(sys.argv[1])
-    new_audio = MP3(sys.argv[2])
+    new_duration = get_duration(url)
     print(f"Original duration: {format_time(orig_audio.info.length)}")
-    print(f"New duration: {format_time(new_audio.info.length)}")
-    print(f"Duration difference: {format_time(new_audio.info.length - orig_audio.info.length)}")
+    print(f"New duration: {format_time(new_duration)}")
+    print(f"Duration difference: {format_time(new_duration - orig_audio.info.length)}")
     print()
 
     orig_bytes_per_sec = orig_len / orig_audio.info.length
-    new_bytes_per_sec = new_len / new_audio.info.length
+    new_bytes_per_sec = new_len / new_duration
     print(f"Original bytes/sec: {orig_bytes_per_sec:.2f}")
     print(f"New bytes/sec: {new_bytes_per_sec:.2f}")
     print(f"Bytes/sec difference: {(new_bytes_per_sec - orig_bytes_per_sec):.2f}")
@@ -42,7 +64,7 @@ def main():
     print()
 
     if len(sys.argv) != 4:
-        print("Usage: seek.py ORIG_FILE NEW_FILE SEGMENTS_FILE")
+        print("Usage: seek.py ORIG_FILE URL SEGMENTS_FILE")
         sys.exit(1)
 
     num_bytes = 128
@@ -71,15 +93,26 @@ def main():
             pos = search_start
 
             found = False
-            pos = new_file.find(target_bytes, pos)
-            if pos != -1:
-                # Convert position back to seconds
-                found_sec = pos / new_bytes_per_sec
-                time_delta = found_sec - start_sec
-                print(f"Segment at {format_time(start_sec)} found at {format_time(found_sec)} (offset {pos:,}, delta {format_time(abs(time_delta))})")
-                found = True
-                last_match_pos = pos + 1
-                prev_duration = segment['end'] - segment['start']  # Update for next iteration
+            # Search in chunks to avoid downloading entire file
+            chunk_size = 50000  # Size of chunks to download and search
+            found = False
+            pos = search_start
+            
+            while pos < new_len and not found:
+                chunk = get_byte_range(url, pos, chunk_size)
+                chunk_pos = chunk.find(target_bytes)
+                
+                if chunk_pos != -1:
+                    actual_pos = pos + chunk_pos
+                    found_sec = actual_pos / new_bytes_per_sec
+                    time_delta = found_sec - start_sec
+                    print(f"Segment at {format_time(start_sec)} found at {format_time(found_sec)} (offset {actual_pos:,}, delta {format_time(abs(time_delta))})")
+                    found = True
+                    last_match_pos = actual_pos + 1
+                    prev_duration = segment['end'] - segment['start']
+                else:
+                    # Move to next chunk, overlapping slightly to avoid missing matches
+                    pos += chunk_size - num_bytes
 
             if not found:
                 print(f"Segment at {format_time(start_sec)} not found.")
