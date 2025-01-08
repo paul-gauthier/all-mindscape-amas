@@ -65,11 +65,10 @@ def main():
             search_start = last_match_pos
             if prev_duration > 0:
                 # Start searching a bit before where we expect the segment to be
-                expected_pos = last_match_pos + int((prev_duration - 20) * new_bytes_per_sec)
+                expected_pos = last_match_pos + int((prev_duration - 10) * new_bytes_per_sec)
                 search_start = max(last_match_pos, expected_pos)
 
             pos = search_start
-            print(f"\nMapping segment at {format_time(start_sec)}:")
 
             found = False
             pos = new_file.find(target_bytes, pos)
@@ -77,13 +76,13 @@ def main():
                 # Convert position back to seconds
                 found_sec = pos / new_bytes_per_sec
                 time_delta = found_sec - start_sec
-                print(f"  Found at {format_time(found_sec)} (offset {pos:,}, delta {format_time(abs(time_delta))})")
+                print(f"Segment at {format_time(start_sec)} found at {format_time(found_sec)} (offset {pos:,}, delta {format_time(abs(time_delta))})")
                 found = True
                 last_match_pos = pos + 1
                 prev_duration = segment['end'] - segment['start']  # Update for next iteration
 
             if not found:
-                print("  No matches found")
+                print(f"Segment at {format_time(start_sec)} not found.")
 
 if __name__ == '__main__':
     main()
