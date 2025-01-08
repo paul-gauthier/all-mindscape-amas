@@ -33,18 +33,53 @@ def get_byte_range(url, start, length):
 
 
 def get_duration(url):
-    # Get a larger chunk from the start of the file to ensure we can read headers
-    headers = {'Range': 'bytes=0-65536'}  # Increased to 64KB
+    # Download first 1MB which should contain enough frames to calculate duration
+    headers = {'Range': 'bytes=0-1048576'}
     response = requests.get(url, headers=headers)
-    try:
-        audio = MP3(BytesIO(response.content))
-        return audio.info.length
-    except Exception as e:
-        # If parsing fails with first chunk, try downloading more
-        headers = {'Range': 'bytes=0-262144'}  # Try with 256KB if first attempt fails
-        response = requests.get(url, headers=headers)
-        audio = MP3(BytesIO(response.content))
-        return audio.info.length
+    data = response.content
+    
+    # Skip ID3v2 tag if present
+    offset = 0
+    if data[:3] == b'ID3':
+        tag_size = (data[6] << 21) | (data[7] << 14) | (data[8] << 7) | data[9]
+        offset = tag_size + 10
+    
+    # Find first MP3 frame
+    while offset < len(data) - 4:
+        if data[offset:offset+2] == b'\xff\xfb':  # MPEG 1 Layer 3
+            break
+        offset += 1
+    
+    if offset >= len(data) - 4:
+        raise Exception("Could not find MP3 frame")
+    
+    # Parse frame header
+    header = int.from_bytes(data[offset:offset+4], 'big')
+    version = (header >> 19) & 3
+    layer = (header >> 17) & 3
+    bitrate_index = (header >> 12) & 0xf
+    sample_rate_index = (header >> 10) & 3
+    padding = (header >> 9) & 1
+    
+    # Lookup tables
+    bitrates = [
+        [0, 32, 40, 48, 56, 64, 80, 96, 112, 128, 160, 192, 224, 256, 320, 0],  # V1,L3
+        [0, 8, 16, 24, 32, 40, 48, 56, 64, 80, 96, 112, 128, 144, 160, 0]  # V2,L3
+    ]
+    sample_rates = [44100, 48000, 32000, 0]  # MPEG1
+    
+    # Calculate values
+    bitrate = bitrates[0 if version == 3 else 1][bitrate_index] * 1000
+    sample_rate = sample_rates[sample_rate_index]
+    
+    if bitrate == 0 or sample_rate == 0:
+        raise Exception("Invalid bitrate or sample rate")
+        
+    # Calculate duration from total file size
+    total_size = get_file_size(url)
+    duration = (total_size * 8) / bitrate
+    
+    return duration
 
 
 def format_time(seconds):
