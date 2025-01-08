@@ -1,9 +1,7 @@
 body {
     font-family: Arial, sans-serif;
-    max-width: 800px;
-    margin: 0 auto;
-    padding: 20px;
-    padding-top: 180px; /* Make room for fixed header */
+    margin: 0;
+    padding: 0;
 }
 
 .fixed-header {
@@ -15,6 +13,13 @@ body {
     z-index: 100;
     padding: 20px;
     box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+}
+
+.content {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    padding-top: 180px; /* Make room for fixed header */
 }
 
 .fixed-header > * {
