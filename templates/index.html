@@ -43,15 +43,17 @@
             data-start="{{ segment.start }}" 
             data-end="{{ segment.end }}"
             data-url="{{ segment.url }}">
-            <span class="segment-date">{{ segment.date }}</span>
+            <div class="segment-metadata">
+                <span class="segment-date">{{ segment.date }}</span>
+                <a href="{{ segment.url }}#t={{ segment.start }},{{ segment.end }}"
+                   class="segment-duration"
+                   target="_blank"
+                   rel="noopener noreferrer"
+                   title="Direct link to this segment in the episode">
+                   {{ segment.duration_str }}
+                </a>
+            </div>
             <span class="segment-text">{{ segment.text }}</span>
-            <a href="{{ segment.url }}#t={{ segment.start }},{{ segment.end }}"
-               class="segment-duration"
-               target="_blank"
-               rel="noopener noreferrer"
-               title="Direct link to this segment in the episode">
-               {{ segment.duration_str }}
-            </a>
         </li>
         {% endfor %}
     </ul>
