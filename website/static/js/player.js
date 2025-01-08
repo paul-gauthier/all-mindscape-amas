@@ -48,13 +48,24 @@ function normalizeText(text) {
               .replace(/[^\w\s]/g, '');
 }
 
-searchInput.addEventListener('input', (e) => {
-    const searchTerm = normalizeText(e.target.value);
+const yearFilter = document.getElementById('year-filter');
+const monthFilter = document.getElementById('month-filter');
+
+function filterSegments() {
+    const searchTerm = normalizeText(searchInput.value);
+    const selectedYear = yearFilter.value;
+    const selectedMonth = monthFilter.value;
     let count = 0;
     
     allSegments.forEach(segment => {
         const text = normalizeText(segment.querySelector('.segment-text').textContent);
-        if (text.includes(searchTerm)) {
+        const date = segment.querySelector('.segment-date').textContent;
+        
+        const matchesSearch = text.includes(searchTerm);
+        const matchesYear = !selectedYear || date.startsWith(selectedYear);
+        const matchesMonth = !selectedMonth || date.substring(5, 7) === selectedMonth;
+        
+        if (matchesSearch && matchesYear && matchesMonth) {
             segment.style.display = '';
             count++;
         } else {
@@ -63,7 +74,11 @@ searchInput.addEventListener('input', (e) => {
     });
     
     visibleCount.textContent = count;
-});
+}
+
+yearFilter.addEventListener('change', filterSegments);
+monthFilter.addEventListener('change', filterSegments);
+searchInput.addEventListener('input', filterSegments);
 
 function handlePlayerError(error) {
     console.error('Audio playback error:', error);

@@ -70,6 +70,29 @@ h1 {
     box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
 }
 
+.filter-container {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin: 1rem auto;
+}
+
+.filter-container select {
+    padding: 0.5rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    outline: none;
+    transition: all 0.2s ease;
+}
+
+.filter-container select:focus {
+    border-color: #4299e1;
+    box-shadow: 0 0 0 3px rgba(66, 153, 225, 0.2);
+}
+
 .segment-counter {
     margin-top: 0.5rem;
     font-size: 0.9rem;
