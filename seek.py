@@ -35,7 +35,7 @@ def get_byte_range(url, start, length):
 
 def get_duration(url):
     # Download first few MB which should contain enough header info
-    mb = 3
+    mb = 1
     headers = {'Range': f'bytes=0-{mb * 1024 * 1024}'}
     response = requests.get(url, headers=headers)
     data = response.content
@@ -72,14 +72,17 @@ def main():
     print(f"Difference: {diff_len:,}")
     print()
 
+    orig_bytes_per_sec = orig_len / orig_audio.info.length
+
     orig_audio = MP3(sys.argv[1])
-    new_duration = get_duration(url)
+
+    # update to use orig_bytes_per_sec to compute new duration. ai!
+    new_duration = get_duration(url, orig_bytes_per_sec)
     print(f"Original duration: {format_time(orig_audio.info.length)}")
     print(f"New duration: {format_time(new_duration)}")
     print(f"Duration difference: {format_time(new_duration - orig_audio.info.length)}")
     print()
 
-    orig_bytes_per_sec = orig_len / orig_audio.info.length
     new_bytes_per_sec = new_len / new_duration
     print(f"Original bytes/sec: {orig_bytes_per_sec:.2f}")
     print(f"New bytes/sec: {new_bytes_per_sec:.2f}")
@@ -118,7 +121,7 @@ def main():
 
             found = False
             # Search in chunks to avoid downloading entire file
-            chunk_size = 50000  # Size of chunks to download and search
+            chunk_size = 128*1024  # Size of chunks to download and search
             found = False
             pos = search_start
 
