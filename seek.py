@@ -47,10 +47,15 @@ def format_time(seconds):
 
 
 def main():
-    orig_file = Path(sys.argv[1]).read_bytes()
-    url = sys.argv[2]
+    # call process with each file on cmd line. ai!
 
-    url = 'https://content.production.cdn.art19.com/validation=1736442817,d98cb5a2-af8c-5b5f-8dd4-1f70cebe794a,3OPRxyMQrKiS0bi2AfMbkj6J2VI/episodes/fc3cf13a-51ac-472a-b070-de55023ed70a/065f259cdfa75cbb2c0577d7975592fd2f40c49c4d22555236c887ca778a86709cfe1f38790f247f57f999bde1bc92e9038c6a81a85a06513f3955e73632b1df/AMA-Dec-20.mp3'
+def process(fname):
+    base_path = Path(fname).with_suffix("")
+    mp3_file = base_path.with_suffix('.mp3')
+    metadata_file = base_path.with_suffix('.json')
+    segments_file = base_path.with_suffix('.segments.jsonl')
+
+    orig_file = Path(mp3_file).read_bytes()
 
     # Get new file metadata without downloading whole file
     new_len = get_file_size(url)
@@ -62,20 +67,15 @@ def main():
     print(f"Difference: {diff_len:,}")
     print()
 
-    orig_bytes_per_sec = orig_len / orig_audio.info.length
-
     orig_audio = MP3(sys.argv[1])
+    orig_bytes_per_sec = orig_len / orig_audio.info.length
+    print(f"Original bytes/sec: {orig_bytes_per_sec:.2f}")
 
     new_duration = get_duration(url, orig_bytes_per_sec)
     print(f"Original duration: {format_time(orig_audio.info.length)}")
     print(f"New duration: {format_time(new_duration)}")
     print(f"Duration difference: {format_time(new_duration - orig_audio.info.length)}")
     print()
-
-    new_bytes_per_sec = new_len / new_duration
-    print(f"Original bytes/sec: {orig_bytes_per_sec:.2f}")
-    print(f"New bytes/sec: {new_bytes_per_sec:.2f}")
-    print(f"Bytes/sec difference: {(new_bytes_per_sec - orig_bytes_per_sec):.2f}")
 
     print()
 
@@ -103,24 +103,24 @@ def main():
             search_start = last_match_pos
             if prev_duration > 0:
                 # Start searching a bit before where we expect the segment to be
-                expected_pos = last_match_pos + int((prev_duration - 10) * new_bytes_per_sec)
+                expected_pos = last_match_pos + int((prev_duration - 5) * orig_bytes_per_sec)
                 search_start = max(last_match_pos, expected_pos)
 
             pos = search_start
 
             found = False
             # Search in chunks to avoid downloading entire file
-            chunk_size = 128*1024  # Size of chunks to download and search
             found = False
             pos = search_start
 
+            chunk_size = 128*1024  # Size of chunks to download and search
             while pos < new_len and not found:
                 chunk = get_byte_range(url, pos, chunk_size)
                 chunk_pos = chunk.find(target_bytes)
 
                 if chunk_pos != -1:
                     actual_pos = pos + chunk_pos
-                    found_sec = actual_pos / new_bytes_per_sec
+                    found_sec = actual_pos / orig_bytes_per_sec
                     time_delta = found_sec - start_sec
                     print(f"Segment at {format_time(start_sec)} found at {format_time(found_sec)} (offset {actual_pos:,}, delta {format_time(abs(time_delta))})")
                     found = True
@@ -129,6 +129,7 @@ def main():
                 else:
                     # Move to next chunk, overlapping slightly to avoid missing matches
                     pos += chunk_size - num_bytes
+                    chunk_size = min(chunk_size*2, 1024*1024)
 
             if not found:
                 print(f"Segment at {format_time(start_sec)} not found.")
