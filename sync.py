@@ -132,6 +132,7 @@ def get_validated_url(url):
             # If no validation timestamp, just use this URL
             return final_url
 
+
 def get_date_from_url(url):
     """
     Extract and format validation timestamp from URL if present.
