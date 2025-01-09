@@ -126,10 +126,11 @@ def check_valid(url):
         if response.status_code != 206 and response.status_code != 200:
             print("Existing URL:", url)
             # Extract and format validation timestamp
-            match = re.search(r'validation=(\d+)', url)
+            match = re.search(r"validation=(\d+)", url)
             if match:
                 timestamp = int(match.group(1))
                 from datetime import datetime
+
                 dt = datetime.fromtimestamp(timestamp)
                 print(f"Validation timestamp: {dt.strftime('%Y-%m-%d %H:%M:%S')}")
             print(f"URL validation failed with status code: {response.status_code}")
