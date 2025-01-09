@@ -7,9 +7,9 @@ individual questions from the
 It includes tools for:
 
 - Downloading podcast episodes
-- Transcribing audio with word-level timestamps
-- Segmenting transcripts into individual questions/answers
-- Summarizing the questions and answers.
+- Transcribing audio with word-level timestamps, using Whisper
+- Segmenting transcripts into individual questions/answers, using DeepSeek
+- Summarizing the questions and answers, using DeepSeek
 - Generating searchable HTML pages with audio playback
 
 ## Features
@@ -38,8 +38,10 @@ All audio streams directly from the
     Mindscape podcast</a>,
 and includes the original ads between questions.
 
-This site has no affiliation with Mindscape.
+This project has no affiliation with Mindscape.
 
 Please consider supporting
 <a href="https://www.patreon.com/seanmcarroll" target="_blank" rel="noopener noreferrer">
     Mindscape on Patreon</a>.
+
+[Aider](https://aider.chat/) wrote more than half of the code for this project.
