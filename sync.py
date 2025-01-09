@@ -218,6 +218,8 @@ def process(fname, force=False):
     final_url = response.url
     metadata["final_url"] = final_url
 
+    # print the date of the new url. ai!
+
     # Save updated metadata with final URL
     with open(metadata_file, "w") as f:
         json.dump(metadata, f, indent=2)
