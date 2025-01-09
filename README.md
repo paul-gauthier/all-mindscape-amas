@@ -15,8 +15,8 @@ It includes tools for:
 ## Features
 
 - **Audio Player**
-  - Play individual question segments with smooth transitions
-  - Includes the original ads between questions
+  - Play individual questions directly from the official podcast mp3 feed
+  - Includes all the original ads between questions
   - Shuffle to play questions in random order
 - **Search & Filter**: Find questions by keyword or by episode
 - **Direct Podcast Links**: Launch the podcast starting from any specific question
@@ -34,17 +34,17 @@ The project consists of several Python scripts that handle different stages of p
 
 ## Notes
 
+Please consider supporting
+<a href="https://www.patreon.com/seanmcarroll" target="_blank" rel="noopener noreferrer">
+    Mindscape on Patreon</a>.
+
 All audio streams directly from the
 <a href="https://art19.com/shows/sean-carrolls-mindscape" target="_blank" rel="noopener noreferrer">
     official feed</a> of the
 <a href="https://www.preposterousuniverse.com/podcast/" target="_blank" rel="noopener noreferrer">
     Mindscape podcast</a>,
-and includes the original ads between questions.
+and includes all the original ads between questions.
 
 This project has no affiliation with Mindscape.
-
-Please consider supporting
-<a href="https://www.patreon.com/seanmcarroll" target="_blank" rel="noopener noreferrer">
-    Mindscape on Patreon</a>.
 
 [Aider](https://aider.chat/) wrote more than half of the code for this project.
