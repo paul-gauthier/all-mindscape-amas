@@ -214,8 +214,12 @@ def process(fname, force=False):
     url = metadata["url"]
 
     # Follow redirects to get final URL using a small range request
-    response = requests.get(url, headers={"Range": "bytes=0-1"}, allow_redirects=True)
+
+    # if the new url date is < now+12 hours, try again. loop till we get a good one. ai!
+    response = requests.get(url, headers={"Range": "bytes=0-1024"}, allow_redirects=True)
     final_url = response.url
+
+
     metadata["final_url"] = final_url
 
     print(f"New URL date: {get_date_from_url(final_url)}")
@@ -242,10 +246,6 @@ def process(fname, force=False):
         print("New mp3 is identical, no sync needed.")
         shutil.copy2(segments_file, synced_file)
         return
-
-    print(f"New length: {new_len:,}")
-    print(f"Difference: {diff_len:,}")
-    print()
 
     # Calculate encoding rate from original file
     orig_audio = MP3(mp3_file)
