@@ -295,9 +295,10 @@ function playSegment(start, end) {
             durationElement.textContent = formatTime(remaining);
 
             // Start fading out during the last 750ms
-            if (remaining <= fadeOutDuration) {
-                const fadeVolume = remaining / fadeOutDuration;
-                player.volume = Math.max(0, fadeVolume);
+          if (remaining <= fadeOutDuration) {
+                const endVolume = 0.3;
+                const fadeVolume = remaining / fadeOutDuration * endVolume;
+                player.volume = Math.max(endVolume, fadeVolume);
             }
         }
     };
