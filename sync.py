@@ -303,83 +303,83 @@ def process(fname, force=False):
     last_match_pos = 0
     prev_duration = 0  # Track duration of previous segment
 
-    # Process segments and write synced version with updated timestamps
-    with open(segments_file) as f, open(synced_file, "w") as out_f:
-        prev_segment = None
-        for line in f:
-            segment = json.loads(line)
-            start_sec = segment["start"]
+    prev_segment = None
 
-            # Calculate byte offset in original file
-            orig_offset = int(start_sec * orig_bytes_per_sec)
-            target_bytes = orig_file[orig_offset : orig_offset + num_bytes]
+    out_segments = []
+    for line in Path(segments_file).read_lines():
+        segment = json.loads(line)
+        start_sec = segment["start"]
 
-            # Search for these bytes in new file starting after previous match
-            search_start = last_match_pos
-            if prev_duration > 0:
-                # Start searching a bit before where we expect the segment to be
-                expected_pos = last_match_pos + int(
-                    (prev_duration - 5) * orig_bytes_per_sec
-                )
-                search_start = max(last_match_pos, expected_pos)
+        # Calculate byte offset in original file
+        orig_offset = int(start_sec * orig_bytes_per_sec)
+        target_bytes = orig_file[orig_offset : orig_offset + num_bytes]
 
-            pos = search_start
-            found = False
-            chunk_size = 128 * 1024  # Size of chunks to download and search
+        # Search for these bytes in new file starting after previous match
+        search_start = last_match_pos
+        if prev_duration > 0:
+            # Start searching a bit before where we expect the segment to be
+            expected_pos = last_match_pos + int(
+                (prev_duration - 5) * orig_bytes_per_sec
+            )
+            search_start = max(last_match_pos, expected_pos)
 
-            # Search through the file in chunks
-            while pos < new_len and not found:
-                chunk = get_byte_range(url, pos, chunk_size)
-                chunk_pos = chunk.find(target_bytes)
+        pos = search_start
+        found = False
+        chunk_size = 128 * 1024  # Size of chunks to download and search
 
-                if chunk_pos != -1:
-                    # Found matching bytes - calculate new timing
-                    actual_pos = pos + chunk_pos
-                    found_sec = actual_pos / orig_bytes_per_sec
-                    time_delta = found_sec - start_sec
-                    print(
-                        f"Segment at {format_time(start_sec)} found at {format_time(found_sec)} (offset {actual_pos:,}, delta {format_time(abs(time_delta))})"
-                    )
-                    found = True
-                    last_match_pos = actual_pos + 1
+        # Search through the file in chunks
+        while pos < new_len and not found:
+            chunk = get_byte_range(url, pos, chunk_size)
+            chunk_pos = chunk.find(target_bytes)
 
-                    # Update segment timestamps and write to synced file
-                    # Store current segment's start time before updating
-                    current_start = found_sec
-                    duration = segment["end"] - segment["start"]
-                    segment["start"] = current_start
+            if chunk_pos != -1:
+                found = True
+                break
 
-                    # For the previous segment, update its end time to be this segment's start
-                    # This way we keep any ads which were inserted between this pair of segments.
-                    if prev_segment:
-                        prev_segment["end"] = current_start
-                        json.dump(prev_segment, out_f)
-                        out_f.write("\n")
+            # Move to next chunk, overlapping slightly to avoid missing matches
+            pos += chunk_size - num_bytes
+            chunk_size = min(chunk_size * 2, 1024 * 1024)
+            continue
 
-                    # Store current segment to update its end time when we process the next one
-                    prev_segment = segment
-                    prev_duration = duration
-                else:
-                    # Move to next chunk, overlapping slightly to avoid missing matches
-                    pos += chunk_size - num_bytes
-                    chunk_size = min(chunk_size * 2, 1024 * 1024)
+        if not found:
+            print(f"Segment at {format_time(start_sec)} not found.")
+            assert False
 
-            if not found:
-                print(f"Segment at {format_time(start_sec)} not found.")
-                assert False
-                # Write original segment timing if match not found
-                json.dump(segment, out_f)
-                out_f.write("\n")
+        # Found matching bytes - calculate new timing
+        actual_pos = pos + chunk_pos
+        found_sec = actual_pos / orig_bytes_per_sec
+        time_delta = found_sec - start_sec
+        print(
+            f"Segment at {format_time(start_sec)} found at {format_time(found_sec)} (offset {actual_pos:,}, delta {format_time(abs(time_delta))})"
+        )
+        found = True
+        last_match_pos = actual_pos + 1
 
-        # Write the last segment with its original duration
-        if prev_segment:
-            prev_segment["end"] = prev_segment["start"] + prev_duration
-            json.dump(prev_segment, out_f)
-            out_f.write("\n")
+        # Update segment timestamps and write to synced file
+        # Store current segment's start time before updating
+        current_start = found_sec
+        duration = segment["end"] - segment["start"]
+        segment["start"] = current_start
 
-        # Save updated metadata with final URL
-        with open(metadata_file, "w") as f:
-            json.dump(metadata, f, indent=2)
+        # For the previous segment, update its end time to be this segment's start
+        # This way we keep any ads which were inserted between this pair of segments.
+        if out_segments:
+            out_segments[-1]["end"] = current_start
+
+        # Store current segment to update its end time when we process the next one
+        out_segments.append(segment)
+        prev_duration = duration
+
+
+    # Write the last segment with its original duration
+    if out_segments:
+        out_segments[-1]["end"] = prev_segment["start"] + prev_duration
+
+    # Save updated metadata with final URL
+    with open(metadata_file, "w") as f:
+        json.dump(metadata, f, indent=2)
+
+    # save the out_segments, overwrite the sync jsonl file. ai!
 
 
 if __name__ == "__main__":
