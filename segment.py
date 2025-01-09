@@ -63,13 +63,13 @@ Do not skip, re-order or summarize.
 @lox.thread(10)
 def find_questions(words, start, end, rough=False):
     """Identify questions in a segment of transcript words.
-    
+
     Args:
         words: List of word dicts containing text and timestamps
         start: Start index in words list
         end: End index in words list
         rough: If True, skip questions near chunk boundaries to avoid duplicates
-        
+
     Returns:
         dict: Mapping of word indices to question text for found questions
     """
@@ -134,13 +134,13 @@ def find_questions(words, start, end, rough=False):
 
 def find_question_in_words(question, words):
     """Locate the starting position of a question in the words list.
-    
+
     Uses exact matching first, then falls back to fuzzy matching if needed.
-    
+
     Args:
         question: The question text to search for
         words: List of word dicts containing text and timestamps
-        
+
     Returns:
         int or None: Index of matching word or None if not found
     """
@@ -192,7 +192,7 @@ def find_question_in_words(question, words):
 
 def segment(input_file, output_file, text_file):
     """Main segmentation function that processes a transcript file.
-    
+
     Args:
         input_file: Path to input JSONL file with transcript words
         output_file: Path to output JSONL file for segmented questions
@@ -297,10 +297,10 @@ def segment(input_file, output_file, text_file):
 
 def pretty(merged):
     """Convert list of word objects into continuous text.
-    
+
     Args:
         merged: List of word dicts containing text
-        
+
     Returns:
         str: Continuous text with word wrapping applied
     """
@@ -317,7 +317,7 @@ def pretty(merged):
 
 def main():
     """Command line interface for segmenting podcast transcripts.
-    
+
     Processes one or more input files, producing segmented output files.
     Supports force overwrite of existing files with --force flag.
     """
