@@ -25,7 +25,7 @@ from dump import dump
 def align_transcription(input_file, output_file, output_text):
     """
     Align transcription chunks by removing overlapping words between chunks.
-    
+
     Processes a JSONL file containing word-level transcription data and:
     1. Aligns words with their corresponding text segments
     2. Handles overlapping timestamps between chunks
@@ -124,11 +124,11 @@ def align_transcription(input_file, output_file, output_text):
 def main():
     """
     Command-line interface for processing transcription files.
-    
+
     Processes one or more JSONL transcription files, producing:
     - Aligned JSONL output with proper word boundaries
     - Formatted text output with word wrapping
-    
+
     Handles:
     - Multiple input files
     - File existence checking
@@ -138,7 +138,7 @@ def main():
 
     parser = argparse.ArgumentParser(
         description="Align transcription chunks and process punctuation",
-        epilog="Example: punct.py *.jsonl --force"
+        epilog="Example: punct.py *.jsonl --force",
     )
     parser.add_argument("files", nargs="+", help="Input JSONL files to process")
     parser.add_argument(
