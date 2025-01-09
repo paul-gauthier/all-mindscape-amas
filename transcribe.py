@@ -15,9 +15,12 @@ import warnings
 # Suppress Pydantic warnings that can be noisy
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
+import argparse
 import json
 import os
 import sys
+import tempfile
+import textwrap
 from pathlib import Path
 
 import jsonlines
@@ -122,8 +125,6 @@ def transcribe_large_audio(audio_path, output_file):
     # chunk_positions = chunk_positions[:1]
 
     # Create temporary directory for chunk files
-    import tempfile
-
     with tempfile.TemporaryDirectory() as temp_dir:
         for current_position_ms in chunk_positions:
             print()
@@ -210,8 +211,6 @@ def main():
     - Transcription process orchestration
     - Output file generation
     """
-    import argparse
-
     parser = argparse.ArgumentParser(
         description="Transcribe audio files using Whisper API with word-level timestamps"
     )
@@ -249,8 +248,6 @@ def main():
                 for obj in reader:
                     if obj.get("text"):
                         # Wrap text at 80 columns
-                        import textwrap
-
                         wrapped_text = textwrap.fill(obj["text"], width=80)
                         txt_file.write(wrapped_text + "\n\n")
 
