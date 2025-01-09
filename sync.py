@@ -97,10 +97,10 @@ def get_duration(url, bytes_per_sec):
 def get_date_from_url(url):
     """
     Extract and format validation timestamp from URL if present.
-    
+
     Args:
         url (str): URL to check for validation timestamp
-        
+
     Returns:
         str: Formatted timestamp or "None" if not found
     """
@@ -108,9 +108,11 @@ def get_date_from_url(url):
     if match:
         timestamp = int(match.group(1))
         from datetime import datetime
+
         dt = datetime.fromtimestamp(timestamp)
-        return dt.strftime('%Y-%m-%d %H:%M:%S')
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
     return "None"
+
 
 def format_time(seconds):
     """
