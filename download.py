@@ -142,6 +142,7 @@ def main():
     # Create data directory if it doesn't exist
     os.makedirs("data", exist_ok=True)
 
+    # wget https://rss.art19.com/sean-carrolls-mindscape
     xml_file = "sean-carrolls-mindscape.xml"
     episodes = get_ama_episodes(xml_file)
 
