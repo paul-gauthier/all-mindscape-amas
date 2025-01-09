@@ -379,7 +379,10 @@ def process(fname, force=False):
     with open(metadata_file, "w") as f:
         json.dump(metadata, f, indent=2)
 
-    # save the out_segments, overwrite the sync jsonl file. ai!
+    # Save synchronized segments
+    with open(synced_file, "w") as f:
+        for segment in out_segments:
+            f.write(json.dumps(segment) + "\n")
 
 
 if __name__ == "__main__":
