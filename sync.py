@@ -14,12 +14,12 @@ content structure remains similar, allowing for automatic realignment of
 previously identified segments.
 """
 
+import argparse
 import json
+import re
 import shutil
 import sys
 import time
-import re
-import argparse
 from io import BytesIO
 from pathlib import Path
 
@@ -32,13 +32,13 @@ from dump import dump  # Debugging utility for printing values
 def get_file_size(url):
     """
     Get the size of a remote file in bytes using efficient HTTP requests.
-    
+
     Args:
         url (str): The URL of the file to measure
-        
+
     Returns:
         int: File size in bytes
-        
+
     The method tries three approaches in order of efficiency:
     1. HEAD request for Content-Length header
     2. Range request for Content-Range header
@@ -63,12 +63,12 @@ def get_file_size(url):
 def get_byte_range(url, start, length):
     """
     Fetch a specific byte range from a remote file.
-    
+
     Args:
         url (str): The URL of the file
         start (int): Starting byte position
         length (int): Number of bytes to fetch
-        
+
     Returns:
         bytes: The requested byte range content
     """
@@ -81,11 +81,11 @@ def get_byte_range(url, start, length):
 def get_duration(url, bytes_per_sec):
     """
     Calculate audio duration based on file size and encoding rate.
-    
+
     Args:
         url (str): URL of the audio file
         bytes_per_sec (float): Encoding rate in bytes per second
-        
+
     Returns:
         float: Calculated duration in seconds
     """
@@ -97,10 +97,10 @@ def get_duration(url, bytes_per_sec):
 def format_time(seconds):
     """
     Format a duration in seconds into a human-readable MM:SS.ss string.
-    
+
     Args:
         seconds (float): Duration in seconds
-        
+
     Returns:
         str: Formatted time string (MM:SS.ss)
     """
@@ -112,10 +112,10 @@ def format_time(seconds):
 def check_valid(url):
     """
     Validate that a URL is accessible and supports range requests.
-    
+
     Args:
         url (str): URL to validate
-        
+
     Returns:
         bool: True if URL is valid and supports range requests
     """
@@ -132,17 +132,23 @@ def check_valid(url):
 
     return True
 
+
 def main():
     """
     Main entry point for the synchronization tool.
-    
+
     Processes one or more files, synchronizing their audio segments with updated
     MP3 versions from their source URLs.
     """
-    parser = argparse.ArgumentParser(description='Sync audio segments with updated MP3 files')
-    parser.add_argument('files', nargs='+', help='Files to process')
-    parser.add_argument('--force', action='store_true', 
-                       help='Force processing even if validation timestamp is in the future')
+    parser = argparse.ArgumentParser(
+        description="Sync audio segments with updated MP3 files"
+    )
+    parser.add_argument("files", nargs="+", help="Files to process")
+    parser.add_argument(
+        "--force",
+        action="store_true",
+        help="Force processing even if validation timestamp is in the future",
+    )
     args = parser.parse_args()
 
     for fname in args.files:
@@ -153,11 +159,11 @@ def main():
 def process(fname, force=False):
     """
     Process a single file to synchronize its segments with updated audio.
-    
+
     Args:
         fname (str): Path to the file to process
         force (bool): If True, process even if URL appears valid
-        
+
     The processing workflow:
     1. Load metadata and check URL validity
     2. Compare original and new file sizes
