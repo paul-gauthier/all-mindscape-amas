@@ -1,7 +1,18 @@
 #!/usr/bin/env python3
 
+"""
+Transcription module using OpenAI Whisper API with word-level timestamps.
+
+This module handles:
+- Large audio file processing by splitting into chunks
+- Word-level timestamp generation
+- Parallel processing of audio chunks
+- Output in both JSONL and text formats
+"""
+
 import warnings
 
+# Suppress Pydantic warnings that can be noisy
 warnings.filterwarnings("ignore", category=UserWarning, module="pydantic")
 
 import json
@@ -25,8 +36,16 @@ load_dotenv()
 @lox.thread(10)
 def transcribe_audio(chunk, audio_path):
     """
-    Transcribe audio file using OpenAI Whisper API with word-level timestamps
-    Returns list of words with timestamps
+    Transcribe an audio chunk using OpenAI Whisper API with word-level timestamps.
+
+    Args:
+        chunk (AudioSegment): Audio chunk to transcribe
+        audio_path (str): Temporary file path to save chunk for processing
+
+    Returns:
+        tuple: (list of word dicts, text segment dict)
+            Word dict format: {"word": str, "start": float, "end": float}
+            Text segment format: {"text": str, "start": float, "end": float}
     """
 
     print(f"Exporting chunk to {audio_path}...")
@@ -69,9 +88,18 @@ def transcribe_audio(chunk, audio_path):
 
 def transcribe_large_audio(audio_path, output_file):
     """
-    Handle large audio files by processing chunks sequentially,
-    using word timestamps to determine clean cut points.
-    Includes overlap between chunks to ensure no words are lost.
+    Handle large audio files by splitting into chunks and processing in parallel.
+
+    Args:
+        audio_path (str): Path to input audio file
+        output_file (str): Path to save JSONL transcription output
+
+    Processing details:
+    - Splits audio into 10 minute chunks with 10 second overlap
+    - Uses temporary directory for chunk storage
+    - Processes chunks in parallel using lox threads
+    - Adjusts timestamps to account for chunk offsets
+    - Saves results in JSONL format with word-level timestamps
     """
     # Number of words to overlap between chunks
     OVERLAP_WORDS = 10
@@ -149,7 +177,14 @@ def transcribe_large_audio(audio_path, output_file):
 
 
 def print_words(words_and_text):
-    """Print words and text segments with their timestamps"""
+    """
+    Print transcription results with timestamps for debugging.
+
+    Args:
+        words_and_text (tuple or list): Contains either:
+            - Tuple of (words, text_segment)
+            - List of word dicts
+    """
     words, text = (
         words_and_text if isinstance(words_and_text, tuple) else (words_and_text, None)
     )
@@ -166,9 +201,20 @@ def print_words(words_and_text):
 
 
 def main():
+    """
+    Main entry point for transcription script.
+
+    Handles:
+    - Command line argument parsing
+    - File path management
+    - Transcription process orchestration
+    - Output file generation
+    """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Transcribe audio files using Whisper")
+    parser = argparse.ArgumentParser(
+        description="Transcribe audio files using Whisper API with word-level timestamps"
+    )
     parser.add_argument("files", nargs="+", help="Audio files to transcribe")
     parser.add_argument(
         "--force", action="store_true", help="Overwrite existing transcription files"
