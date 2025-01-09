@@ -306,7 +306,7 @@ def process(fname, force=False):
     prev_segment = None
 
     out_segments = []
-    for line in Path(segments_file).read_lines():
+    for line in Path(segments_file).read_text().splitlines():
         segment = json.loads(line)
         start_sec = segment["start"]
 
@@ -360,6 +360,7 @@ def process(fname, force=False):
         current_start = found_sec
         duration = segment["end"] - segment["start"]
         segment["start"] = current_start
+        segment["end"] = current_start + duration
 
         # For the previous segment, update its end time to be this segment's start
         # This way we keep any ads which were inserted between this pair of segments.
@@ -369,10 +370,6 @@ def process(fname, force=False):
         # Store current segment to update its end time when we process the next one
         out_segments.append(segment)
         prev_duration = duration
-
-    # Write the last segment with its original duration
-    if out_segments:
-        out_segments[-1]["end"] = prev_segment["start"] + prev_duration
 
     # Save updated metadata with final URL
     with open(metadata_file, "w") as f:
