@@ -269,14 +269,17 @@ function playSegment(start, end) {
     const durationElement = segment.querySelector('.segment-duration');
     const originalDurationText = durationElement.textContent;
     const totalDuration = end - start;
+    const fadeOutDuration = 0.75; // 750ms fade out
 
     player.currentTime = start;
+    player.volume = 1;
     player.play();
 
     const stopAt = end;
     const checkTime = () => {
         if (player.currentTime >= stopAt) {
             player.pause();
+            player.volume = 1; // Reset volume for next segment
             player.removeEventListener('timeupdate', checkTime);
             currentListener = null;
             durationElement.innerHTML = originalDurationText;
@@ -290,6 +293,12 @@ function playSegment(start, end) {
         } else {
             const remaining = end - player.currentTime;
             durationElement.textContent = formatTime(remaining);
+
+            // Start fading out during the last 750ms
+            if (remaining <= fadeOutDuration) {
+                const fadeVolume = remaining / fadeOutDuration;
+                player.volume = Math.max(0, fadeVolume);
+            }
         }
     };
 
