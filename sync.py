@@ -308,7 +308,7 @@ def process(fname, force=False):
                 # Write original segment timing if match not found
                 json.dump(segment, out_f)
                 out_f.write("\n")
-        
+
         # Write the last segment with its original duration
         if prev_segment:
             prev_segment["end"] = prev_segment["start"] + prev_duration
