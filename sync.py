@@ -284,6 +284,8 @@ def process(fname, force=False):
                     # Update segment timestamps and write to synced file
                     duration = segment["end"] - segment["start"]
                     segment["start"] = found_sec
+
+                    # if this is the last segment in the episode, use found_sec + duration, otherwise we want to set the end to be the START of the NEXT segment. ai!
                     segment["end"] = found_sec + duration
                     json.dump(segment, out_f)
                     out_f.write("\n")
