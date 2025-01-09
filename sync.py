@@ -94,6 +94,24 @@ def get_duration(url, bytes_per_sec):
     return duration
 
 
+def get_date_from_url(url):
+    """
+    Extract and format validation timestamp from URL if present.
+    
+    Args:
+        url (str): URL to check for validation timestamp
+        
+    Returns:
+        str: Formatted timestamp or "None" if not found
+    """
+    match = re.search(r"validation=(\d+)", url)
+    if match:
+        timestamp = int(match.group(1))
+        from datetime import datetime
+        dt = datetime.fromtimestamp(timestamp)
+        return dt.strftime('%Y-%m-%d %H:%M:%S')
+    return "None"
+
 def format_time(seconds):
     """
     Format a duration in seconds into a human-readable MM:SS.ss string.
@@ -125,16 +143,7 @@ def check_valid(url):
         # Accept either partial content (206) or full content (200)
         if response.status_code != 206 and response.status_code != 200:
             print("Existing URL:", url)
-
-            # refactor into get_date_from_url() ai!
-            # Extract and format validation timestamp
-            match = re.search(r"validation=(\d+)", url)
-            if match:
-                timestamp = int(match.group(1))
-                from datetime import datetime
-
-                dt = datetime.fromtimestamp(timestamp)
-                print(f"Validation timestamp: {dt.strftime('%Y-%m-%d %H:%M:%S')}")
+            print(f"Validation timestamp: {get_date_from_url(url)}")
             print(f"URL validation failed with status code: {response.status_code}")
             return False
     except requests.RequestException as e:
