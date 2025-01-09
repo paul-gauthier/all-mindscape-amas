@@ -124,6 +124,9 @@ def check_valid(url):
         response = requests.get(url, headers={"Range": "bytes=0-0"})
         # Accept either partial content (206) or full content (200)
         if response.status_code != 206 and response.status_code != 200:
+            print("Existing URL:", url)
+            # Pull the validation timestamp out of url and convert it to proper datetime, print ai!
+            # Existing URL: https://content.production.cdn.art19.com/validation=1736451442,0d0f04ed-cfed-5d04-a00b-ac6a1f4100a9,kg1fHFD7nJsJNy96FeZz2GZblu8/episodes/ae9be41b-8893-4dd6-8d79-b9577e6957ac/795a5f6b731a939be3c92ea4450c6aa2632facb11a870dbeaf58f29510dda384999a8f2e1dd769768705ff0ade5da887cffeee087690d4976dda7fd4e399cb39/ama-Feb-2022.mp3
             print(f"URL validation failed with status code: {response.status_code}")
             return False
     except requests.RequestException as e:
