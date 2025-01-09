@@ -15,6 +15,7 @@ The main functions:
 
 import re
 import sys
+import textwrap
 from pathlib import Path
 
 import jsonlines
@@ -114,8 +115,6 @@ def align_transcription(input_file, output_file, output_text):
             full_text += obj.get("text", "")
 
         # Write word-wrapped text to output file
-        import textwrap
-
         wrapped_text = "\n".join(textwrap.wrap(full_text, width=80))
         txt_writer.write(wrapped_text)
         # print(wrapped_text)
