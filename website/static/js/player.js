@@ -1,3 +1,7 @@
+/**
+ * Audio player controller for AMA episode segments
+ * Handles playback, navigation, filtering and error handling for audio segments
+ */
 const player = document.getElementById('audio-player');
 const playPauseButton = document.getElementById('play-pause-button');
 const prevButton = document.getElementById('prev-button');
@@ -5,9 +9,13 @@ const nextButton = document.getElementById('next-button');
 const shuffleButton = document.getElementById('shuffle-button');
 const segmentList = document.querySelector('.segment-list');
 let segments = document.querySelectorAll('.segment-item');
-let currentSegment = 0;
-let shuffledIndices = Array.from(segments.keys()); // Array of original indices
+let currentSegment = 0; // Index of currently playing segment
+let shuffledIndices = Array.from(segments.keys()); // Array of original indices for shuffle functionality
 
+/**
+ * Get currently visible segments after filtering
+ * @returns {Array} Array of visible segment elements
+ */
 function getVisibleSegments() {
     return Array.from(segments).filter(segment => 
         segment.style.display !== 'none'
@@ -50,6 +58,11 @@ searchToggleButton.addEventListener('click', () => {
 // Initialize counter
 visibleCount.textContent = allSegments.length;
 
+/**
+ * Normalize text for search comparisons
+ * @param {string} text - Input text to normalize
+ * @returns {string} Normalized text in lowercase with special characters removed
+ */
 function normalizeText(text) {
     // Replace hyphens with spaces and remove other special characters
     return text.toLowerCase()
@@ -59,6 +72,10 @@ function normalizeText(text) {
 
 const episodeFilter = document.getElementById('episode-filter');
 
+/**
+ * Filter segments based on search term and episode selection
+ * Updates visible segment count and display
+ */
 function filterSegments() {
     const searchTerm = normalizeText(searchInput.value);
     const selectedEpisode = episodeFilter.value;
@@ -93,6 +110,10 @@ clearFiltersButton.addEventListener('click', () => {
     searchInput.focus();
 });
 
+/**
+ * Handle audio player errors with user-friendly messages
+ * @param {Error} error - The error object from the audio player
+ */
 function handlePlayerError(error) {
     console.error('Audio playback error:', error);
     
@@ -142,6 +163,10 @@ function handlePlayerError(error) {
     }
 }
 
+/**
+ * Update audio player source to current segment's URL
+ * Handles errors if segment URL is invalid
+ */
 function updatePlayerSource() {
     const segment = segments[shuffledIndices[currentSegment]];
     console.log('Updating player source for segment:', segment);
@@ -252,12 +277,21 @@ shuffleButton.addEventListener('click', () => {
 
 let currentListener = null;
 
+/**
+ * Format seconds into MM:SS display format
+ * @param {number} seconds - Time in seconds
+ * @returns {string} Formatted time string
+ */
 function formatTime(seconds) {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
     return `${minutes}:${remainingSeconds.toString().padStart(2, '0')}`;
 }
 
+/**
+ * Reset duration display for a segment to its original value
+ * @param {Element} segment - The segment element to reset
+ */
 function resetDurationDisplay(segment) {
     const durationElement = segment.querySelector('.segment-duration');
     const start = parseFloat(segment.dataset.start);
@@ -265,12 +299,21 @@ function resetDurationDisplay(segment) {
     durationElement.innerHTML = `${formatTime(end - start)} <i class="fas fa-external-link-alt"></i>`;
 }
 
+/**
+ * Check if element is visible in viewport (below header)
+ * @param {Element} element - DOM element to check
+ * @returns {boolean} True if element is visible
+ */
 function isElementVisible(element) {
     const rect = element.getBoundingClientRect();
     const headerHeight = document.querySelector('.fixed-header').offsetHeight;
     return rect.top >= headerHeight && rect.bottom <= window.innerHeight;
 }
 
+/**
+ * Smooth scroll to segment, accounting for fixed header
+ * @param {Element} segment - Segment element to scroll to
+ */
 function scrollToSegment(segment) {
     if (isElementVisible(segments[shuffledIndices[currentSegment]])) {
         const headerHeight = document.querySelector('.fixed-header').offsetHeight;
@@ -282,6 +325,11 @@ function scrollToSegment(segment) {
     }
 }
 
+/**
+ * Play audio segment with smooth fade out and auto-advance
+ * @param {number} start - Start time in seconds
+ * @param {number} end - End time in seconds
+ */
 function playSegment(start, end) {
     if (currentListener) {
         player.removeEventListener('timeupdate', currentListener);
