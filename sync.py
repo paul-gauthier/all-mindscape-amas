@@ -20,6 +20,7 @@ import re
 import shutil
 import sys
 import time
+from datetime import datetime, timedelta
 from io import BytesIO
 from pathlib import Path
 
@@ -93,6 +94,43 @@ def get_duration(url, bytes_per_sec):
     duration = total_size / bytes_per_sec
     return duration
 
+
+def get_validated_url(url):
+    """
+    Get a validated URL with a future timestamp.
+
+    Args:
+        url (str): The URL to validate
+
+    Returns:
+        str: Validated URL with timestamp at least 12 hours in the future
+
+    Keeps trying until it gets a URL with a validation timestamp at least
+    12 hours in the future, or falls back to the original URL if no timestamp
+    is found.
+    """
+    while True:
+        response = requests.get(
+            url, headers={"Range": "bytes=0-1024"}, allow_redirects=True
+        )
+        final_url = response.url
+
+        # Check validation timestamp
+        match = re.search(r"validation=(\d+)", final_url)
+        if match:
+            timestamp = int(match.group(1))
+            validation_time = datetime.fromtimestamp(timestamp)
+            now = datetime.now()
+
+            # If validation is more than 12 hours in the future, we're good
+            if validation_time > now + timedelta(hours=12):
+                return final_url
+
+            # Otherwise wait a bit and try again
+            time.sleep(5)
+        else:
+            # If no validation timestamp, just use this URL
+            return final_url
 
 def get_date_from_url(url):
     """
