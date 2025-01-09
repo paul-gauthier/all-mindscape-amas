@@ -1,5 +1,20 @@
 #!/usr/bin/env python3
 
+"""
+Podcast Episode Downloader
+
+This script handles downloading AMA (Ask Me Anything) episodes from the Sean Carroll's Mindscape podcast.
+It processes an RSS feed XML file, extracts episode metadata, downloads MP3 files, and saves metadata to JSON files.
+
+Key Features:
+- Parses podcast RSS feed XML
+- Filters for AMA episodes
+- Downloads MP3 files with progress bar
+- Saves episode metadata to JSON
+- Handles URL cleanup and redirections
+- Implements atomic file operations
+"""
+
 import json
 import os
 from datetime import datetime
@@ -13,7 +28,18 @@ from ama_extractor import extract_ama_episodes
 
 
 def get_ama_episodes(xml_file):
-    """Get AMA episodes with their titles and URLs"""
+    """
+    Parse the podcast RSS feed XML and extract AMA episodes.
+    
+    Args:
+        xml_file (str): Path to the RSS feed XML file
+        
+    Returns:
+        list: List of dictionaries containing episode metadata with keys:
+            - title: Episode title
+            - url: Cleaned MP3 URL
+            - date: Publication date string
+    """
     tree = ET.parse(xml_file)
     root = tree.getroot()
 
@@ -36,7 +62,18 @@ def get_ama_episodes(xml_file):
 
 
 def download_episode(url, filename):
-    """Download an episode and save it to filename. Returns final URL if successful."""
+    """
+    Download a podcast episode MP3 file with progress tracking.
+    
+    Args:
+        url (str): Source URL for the MP3 file
+        filename (str): Destination path for the downloaded file
+        
+    Returns:
+        tuple: (success: bool, final_url: str)
+            success: True if download completed successfully
+            final_url: Final URL after any redirects, or None if failed
+    """
     print(f"Downloading from URL: {url}")
 
     if os.path.exists(filename):
@@ -75,7 +112,16 @@ def download_episode(url, filename):
 
 
 def format_filename(date_str, title):
-    """Format filename as YYYY-MM-AMA.mp3"""
+    """
+    Generate a standardized filename from episode metadata.
+    
+    Args:
+        date_str (str): Publication date string in RFC 2822 format
+        title (str): Episode title (used to verify it's an AMA episode)
+        
+    Returns:
+        str: Filename in format 'data/YYYY-MM-AMA.mp3' or None if date parsing fails
+    """
     try:
         # Parse date from format like "Wed, 03 Jan 2024 10:00:00 +0000"
         dt = datetime.strptime(date_str, "%a, %d %b %Y %H:%M:%S %z")
@@ -85,6 +131,14 @@ def format_filename(date_str, title):
 
 
 def main():
+    """
+    Main execution function that:
+    1. Creates data directory if needed
+    2. Parses RSS feed for AMA episodes
+    3. Downloads new episodes with progress tracking
+    4. Saves episode metadata to JSON files
+    5. Handles existing files gracefully
+    """
     # Create data directory if it doesn't exist
     os.makedirs("data", exist_ok=True)
 
