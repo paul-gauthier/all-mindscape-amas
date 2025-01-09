@@ -125,6 +125,8 @@ def check_valid(url):
         # Accept either partial content (206) or full content (200)
         if response.status_code != 206 and response.status_code != 200:
             print("Existing URL:", url)
+
+            # refactor into get_date_from_url() ai!
             # Extract and format validation timestamp
             match = re.search(r"validation=(\d+)", url)
             if match:
