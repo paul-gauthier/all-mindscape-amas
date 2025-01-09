@@ -120,6 +120,7 @@ def get_validated_url(url):
         if match:
             timestamp = int(match.group(1))
             validation_time = datetime.fromtimestamp(timestamp)
+            dump(validation_time)
             now = datetime.now()
 
             # If validation is more than 12 hours in the future, we're good
@@ -247,6 +248,7 @@ def process(fname, force=False):
     # Check validation timestamp unless forced
     if not force and check_valid(existing_final_url):
         print("Final URL is valid, skipping processing.")
+        # print the timestamp date ai!
         print("Use --force to process anyway.")
         return
 
