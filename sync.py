@@ -370,7 +370,6 @@ def process(fname, force=False):
         out_segments.append(segment)
         prev_duration = duration
 
-
     # Write the last segment with its original duration
     if out_segments:
         out_segments[-1]["end"] = prev_segment["start"] + prev_duration
