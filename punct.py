@@ -1,5 +1,18 @@
 #!/usr/bin/env python3
 
+"""
+Transcription Alignment and Punctuation Processing
+
+This module handles the alignment of transcription chunks from audio files, 
+ensuring proper word boundaries and punctuation. It processes JSONL files 
+containing word-level transcription data and produces aligned output with 
+proper text formatting.
+
+The main functions:
+- align_transcription: Aligns transcription chunks and handles word overlaps
+- main: CLI interface for processing multiple transcription files
+"""
+
 import re
 import sys
 from pathlib import Path
@@ -12,6 +25,18 @@ from dump import dump
 def align_transcription(input_file, output_file, output_text):
     """
     Align transcription chunks by removing overlapping words between chunks.
+    
+    Processes a JSONL file containing word-level transcription data and:
+    1. Aligns words with their corresponding text segments
+    2. Handles overlapping timestamps between chunks
+    3. Produces clean, aligned output with proper word boundaries
+    4. Generates a formatted text file with word wrapping
+
+    The alignment process:
+    - Matches words to their position in the transcription text
+    - Removes non-alphanumeric characters from word boundaries
+    - Handles cases where words span chunk boundaries
+    - Merges overlapping segments using a time threshold
 
     Args:
         input_file: Path to input JSONL file with transcription data
@@ -97,9 +122,24 @@ def align_transcription(input_file, output_file, output_text):
 
 
 def main():
+    """
+    Command-line interface for processing transcription files.
+    
+    Processes one or more JSONL transcription files, producing:
+    - Aligned JSONL output with proper word boundaries
+    - Formatted text output with word wrapping
+    
+    Handles:
+    - Multiple input files
+    - File existence checking
+    - Overwrite protection (unless --force is specified)
+    """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Align transcription chunks")
+    parser = argparse.ArgumentParser(
+        description="Align transcription chunks and process punctuation",
+        epilog="Example: punct.py *.jsonl --force"
+    )
     parser.add_argument("files", nargs="+", help="Input JSONL files to process")
     parser.add_argument(
         "--force", action="store_true", help="Overwrite existing output files"
@@ -128,4 +168,8 @@ def main():
 
 
 if __name__ == "__main__":
+    """
+    Entry point for the script when run directly from command line.
+    Processes transcription files according to command line arguments.
+    """
     main()
