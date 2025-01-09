@@ -297,6 +297,7 @@ def process(fname, force=False):
 
             if not found:
                 print(f"Segment at {format_time(start_sec)} not found.")
+                assert False
                 # Write original segment timing if match not found
                 json.dump(segment, out_f)
                 out_f.write("\n")
