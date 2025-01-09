@@ -3,13 +3,13 @@
 """
 Transcription Alignment and Punctuation Processing
 
-This module handles the alignment of transcription chunks from audio files, 
-ensuring proper word boundaries and punctuation. It processes JSONL files 
-containing word-level transcription data and produces aligned output with 
+This module handles the alignment of transcription chunks from audio files,
+ensuring proper word boundaries and punctuation. It processes JSONL files
+containing word-level transcription data and produces aligned output with
 proper text formatting.
 
 The main functions:
-- align_transcription: Aligns transcription chunks and handles word overlaps
+- align_transcription: Aligns transcription chunks and handles overlapping sections of audio transcription
 - main: CLI interface for processing multiple transcription files
 """
 
