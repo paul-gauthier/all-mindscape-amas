@@ -260,10 +260,6 @@ def process(fname, force=False):
 
     print(f"New URL date: {get_date_from_url(final_url)}")
 
-    # Save updated metadata with final URL
-    with open(metadata_file, "w") as f:
-        json.dump(metadata, f, indent=2)
-
     url = final_url  # Use final URL for subsequent operations
     orig_file = Path(mp3_file).read_bytes()
 
@@ -280,6 +276,11 @@ def process(fname, force=False):
     # If files are identical, just copy segments to synced
     if diff_len == 0:
         print("New mp3 is identical, no sync needed.")
+
+        # Save updated metadata with final URL
+        with open(metadata_file, "w") as f:
+            json.dump(metadata, f, indent=2)
+
         shutil.copy2(segments_file, synced_file)
         return
 
@@ -375,6 +376,10 @@ def process(fname, force=False):
             prev_segment["end"] = prev_segment["start"] + prev_duration
             json.dump(prev_segment, out_f)
             out_f.write("\n")
+
+        # Save updated metadata with final URL
+        with open(metadata_file, "w") as f:
+            json.dump(metadata, f, indent=2)
 
 
 if __name__ == "__main__":
