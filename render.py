@@ -77,20 +77,29 @@ def generate_html(input_files):
                 )
 
     # Extract unique episodes (year-month combinations) from segments
-    episodes = sorted(set(
-        (segment["date_obj"].strftime("%Y-%m-%d"), segment["date_obj"].strftime("%Y %B"))
-        for segment in all_segments
-    ), key=lambda x: x[0], reverse=True)
-    
+    episodes = sorted(
+        set(
+            (
+                segment["date_obj"].strftime("%Y-%m-%d"),
+                segment["date_obj"].strftime("%Y %B"),
+            )
+            for segment in all_segments
+        ),
+        key=lambda x: x[0],
+        reverse=True,
+    )
+
     # Sort segments by date (newest first) and then by start time within each episode
-    sorted_segments = sorted(all_segments,
-                           key=lambda x: (x["date_obj"].strftime("%Y-%m-%d"), x["start"]),
-                           reverse=True)
-    
+    sorted_segments = sorted(
+        all_segments,
+        key=lambda x: (x["date_obj"].strftime("%Y-%m-%d"), -x["start"]),
+        reverse=True,
+    )
+
     # Remove date_obj before rendering as it's not needed in the template
     for segment in sorted_segments:
         del segment["date_obj"]
-        
+
     return template.render(segments=sorted_segments, episodes=episodes)
 
 
