@@ -1,5 +1,17 @@
 #!/usr/bin/env python3
+"""
+Segment podcast transcripts into individual questions and answers.
 
+This module processes JSONL files containing podcast transcripts, identifies
+question segments using LLM analysis, and outputs segmented JSONL files with
+timestamps and text for each question/answer segment.
+
+The main functionality includes:
+- Finding question boundaries in transcripts using language models
+- Handling grouped questions as single segments
+- Producing both JSONL and text output files with segmented content
+- Parallel processing of transcript chunks for efficiency
+"""
 import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -50,11 +62,22 @@ Do not skip, re-order or summarize.
 
 @lox.thread(10)
 def find_questions(words, start, end, rough=False):
+    """Identify questions in a segment of transcript words.
+    
+    Args:
+        words: List of word dicts containing text and timestamps
+        start: Start index in words list
+        end: End index in words list
+        rough: If True, skip questions near chunk boundaries to avoid duplicates
+        
+    Returns:
+        dict: Mapping of word indices to question text for found questions
+    """
     words = words[start:end]
     duration = words[-1]["end"] - words[0]["start"]
     dump(start, end, duration)
 
-    text = pretty(words)
+    text = pretty(words)  # Convert word list to continuous text
 
     model = "deepseek/deepseek-chat"
 
@@ -110,6 +133,17 @@ def find_questions(words, start, end, rough=False):
 
 
 def find_question_in_words(question, words):
+    """Locate the starting position of a question in the words list.
+    
+    Uses exact matching first, then falls back to fuzzy matching if needed.
+    
+    Args:
+        question: The question text to search for
+        words: List of word dicts containing text and timestamps
+        
+    Returns:
+        int or None: Index of matching word or None if not found
+    """
     question = question.strip().lower()
     num_words = len(words)
 
@@ -157,6 +191,13 @@ def find_question_in_words(question, words):
 
 
 def segment(input_file, output_file, text_file):
+    """Main segmentation function that processes a transcript file.
+    
+    Args:
+        input_file: Path to input JSONL file with transcript words
+        output_file: Path to output JSONL file for segmented questions
+        text_file: Path to output text file with human-readable segments
+    """
     dump(input_file)
 
     with jsonlines.open(input_file) as reader:
@@ -255,6 +296,14 @@ def segment(input_file, output_file, text_file):
 
 
 def pretty(merged):
+    """Convert list of word objects into continuous text.
+    
+    Args:
+        merged: List of word dicts containing text
+        
+    Returns:
+        str: Continuous text with word wrapping applied
+    """
     full_text = ""
     for obj in merged:
         full_text += obj.get("text", "")
@@ -267,6 +316,11 @@ def pretty(merged):
 
 
 def main():
+    """Command line interface for segmenting podcast transcripts.
+    
+    Processes one or more input files, producing segmented output files.
+    Supports force overwrite of existing files with --force flag.
+    """
     import argparse
 
     parser = argparse.ArgumentParser(
