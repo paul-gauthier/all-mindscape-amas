@@ -8,6 +8,12 @@ let segments = document.querySelectorAll('.segment-item');
 let currentSegment = 0;
 let shuffledIndices = Array.from(segments.keys()); // Array of original indices
 
+function getVisibleSegments() {
+    return Array.from(segments).filter(segment => 
+        segment.style.display !== 'none'
+    );
+}
+
 let firstPlay = true;
 
 // Update play/pause button icon based on player state
@@ -147,10 +153,15 @@ function updatePlayerSource() {
 playPauseButton.addEventListener('click', () => {
     if (player.paused) {
         if (firstPlay) {
-            segments[0].classList.add('playing');
+            const visibleSegments = getVisibleSegments();
+            if (visibleSegments.length === 0) return;
+            
+            segments.forEach(s => s.classList.remove('playing'));
+            visibleSegments[0].classList.add('playing');
+            currentSegment = shuffledIndices.indexOf(Array.from(segments).indexOf(visibleSegments[0]));
             updatePlayerSource();
-            const start = parseFloat(segments[0].dataset.start);
-            const end = parseFloat(segments[0].dataset.end);
+            const start = parseFloat(visibleSegments[0].dataset.start);
+            const end = parseFloat(visibleSegments[0].dataset.end);
             playSegment(start, end);
             firstPlay = false;
         } else {
@@ -190,12 +201,25 @@ shuffleButton.addEventListener('click', () => {
     console.log('Shuffle button clicked');
     window.scrollTo({ top: 0, behavior: 'smooth' });
     
-    // Shuffle the indices array
-    for (let i = shuffledIndices.length - 1; i > 0; i--) {
+    const visibleSegments = getVisibleSegments();
+    if (visibleSegments.length === 0) return;
+    
+    // Create array of visible indices
+    const visibleIndices = visibleSegments.map(segment => 
+        Array.from(segments).indexOf(segment)
+    );
+    
+    // Shuffle only the visible indices
+    for (let i = visibleIndices.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
-        [shuffledIndices[i], shuffledIndices[j]] = [shuffledIndices[j], shuffledIndices[i]];
+        [visibleIndices[i], visibleIndices[j]] = [visibleIndices[j], visibleIndices[i]];
     }
-    console.log('Shuffled indices:', shuffledIndices);
+    
+    // Update shuffledIndices to put visible segments first
+    shuffledIndices = [
+        ...visibleIndices,
+        ...shuffledIndices.filter(index => !visibleIndices.includes(index))
+    ];
     
     // Reorder the DOM elements based on shuffled indices
     const fragment = document.createDocumentFragment();
@@ -210,18 +234,14 @@ shuffleButton.addEventListener('click', () => {
     currentSegment = 0;
     segments.forEach(s => s.classList.remove('playing'));
     const firstSegment = segments[shuffledIndices[0]];
-    console.log('First segment after shuffle:', firstSegment);
     
     firstSegment.classList.add('playing');
     const start = parseFloat(firstSegment.dataset.start);
     const end = parseFloat(firstSegment.dataset.end);
-    console.log('Playing segment from', start, 'to', end);
     
     try {
         updatePlayerSource();
-        console.log('Player source updated');
         playSegment(start, end);
-        console.log('Play segment called');
     } catch (error) {
         console.error('Error during shuffle playback:', error);
     }
@@ -285,10 +305,19 @@ function playSegment(start, end) {
             durationElement.innerHTML = originalDurationText;
 
             if (currentSegment < segments.length - 1) {
-                currentSegment++;
-                const nextSegment = segments[shuffledIndices[currentSegment]];
-                scrollToSegment(nextSegment);
-                nextSegment.click();
+                // Find next visible segment
+                let nextSegmentIndex = currentSegment + 1;
+                while (nextSegmentIndex < segments.length && 
+                       segments[shuffledIndices[nextSegmentIndex]].style.display === 'none') {
+                    nextSegmentIndex++;
+                }
+                
+                if (nextSegmentIndex < segments.length) {
+                    currentSegment = nextSegmentIndex;
+                    const nextSegment = segments[shuffledIndices[currentSegment]];
+                    scrollToSegment(nextSegment);
+                    nextSegment.click();
+                }
             }
         } else {
             const remaining = end - player.currentTime;
