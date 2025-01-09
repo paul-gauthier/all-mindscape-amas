@@ -16,6 +16,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 import re
 import sys
+import argparse
 from pathlib import Path
 
 import jsonlines
@@ -143,7 +144,6 @@ def main():
     Processes one or more input files, generating summarized versions in both JSONL and text formats.
     Handles file existence checks and provides --force option to overwrite existing files.
     """
-    import argparse
 
     parser = argparse.ArgumentParser(
         description="Summarize podcast questions and answers from Sean Carroll's Mindscape podcast"
