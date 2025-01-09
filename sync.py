@@ -244,6 +244,7 @@ def process(fname, force=False):
 
     # Process segments and write synced version with updated timestamps
     with open(segments_file) as f, open(synced_file, "w") as out_f:
+        prev_segment = None
         for line in f:
             segment = json.loads(line)
             start_sec = segment["start"]
@@ -282,14 +283,19 @@ def process(fname, force=False):
                     last_match_pos = actual_pos + 1
 
                     # Update segment timestamps and write to synced file
+                    # Store current segment's start time before updating
+                    current_start = found_sec
                     duration = segment["end"] - segment["start"]
-                    segment["start"] = found_sec
+                    segment["start"] = current_start
 
-                    # if this is the last segment in the episode, use found_sec + duration, otherwise we want to set the end to be the START of the NEXT segment. ai!
-                    segment["end"] = found_sec + duration
-                    json.dump(segment, out_f)
-                    out_f.write("\n")
+                    # For the previous segment, update its end time to be this segment's start
+                    if prev_segment:
+                        prev_segment["end"] = current_start
+                        json.dump(prev_segment, out_f)
+                        out_f.write("\n")
 
+                    # Store current segment to update its end time when we process the next one
+                    prev_segment = segment
                     prev_duration = duration
                 else:
                     # Move to next chunk, overlapping slightly to avoid missing matches
@@ -302,6 +308,12 @@ def process(fname, force=False):
                 # Write original segment timing if match not found
                 json.dump(segment, out_f)
                 out_f.write("\n")
+        
+        # Write the last segment with its original duration
+        if prev_segment:
+            prev_segment["end"] = prev_segment["start"] + prev_duration
+            json.dump(prev_segment, out_f)
+            out_f.write("\n")
 
 
 if __name__ == "__main__":
