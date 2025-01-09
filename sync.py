@@ -289,6 +289,7 @@ def process(fname, force=False):
                     segment["start"] = current_start
 
                     # For the previous segment, update its end time to be this segment's start
+                    # This way we keep any ads which were inserted between this pair of segments.
                     if prev_segment:
                         prev_segment["end"] = current_start
                         json.dump(prev_segment, out_f)
