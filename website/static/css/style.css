@@ -141,7 +141,7 @@ h1 {
 .podcast-info {
     text-align: center;
     color: #718096;
-    margin: 1rem auto;
+    margin: 0 auto 1rem;
     font-size: 0.8rem;
     max-width: 760px;
     width: 100%;
