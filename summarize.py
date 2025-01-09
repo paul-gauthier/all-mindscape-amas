@@ -14,9 +14,9 @@ import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning)
 
+import argparse
 import re
 import sys
-import argparse
 from pathlib import Path
 
 import jsonlines
