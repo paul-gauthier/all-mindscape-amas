@@ -18,6 +18,7 @@ warnings.filterwarnings("ignore", category=UserWarning)
 
 import re
 import sys
+import textwrap
 from pathlib import Path
 
 import jsonlines
@@ -288,8 +289,6 @@ def segment(input_file, output_file, text_file):
             )
 
             # Write word-wrapped text to output file
-            import textwrap
-
             wrapped_text = "\n".join(textwrap.wrap(segment_text, width=80))
 
             txt_writer.write(f"=====\n{final_questions[q_index]}\n\n{wrapped_text}\n\n")
