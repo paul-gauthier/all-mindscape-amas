@@ -53,7 +53,8 @@ if (searchQuery) {
     searchInput.value = searchQuery;
     searchContainer.style.display = 'block';
     searchToggleButton.classList.add('active');
-    filterSegments();
+    // Need to wait for DOM to be fully ready before filtering
+    setTimeout(() => filterSegments(), 0);
 }
 
 searchToggleButton.addEventListener('click', () => {
