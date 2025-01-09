@@ -40,7 +40,7 @@ for input_file in "$@"; do
     echo
     
     # Run sync.py on the current file
-    ./sync.py $input_file
+    ./sync.py $force_flag $input_file
 done
 
 # After all files are processed, run render.py with all input files
