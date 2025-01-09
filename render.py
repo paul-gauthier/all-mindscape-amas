@@ -143,8 +143,7 @@ def main():
     # Generate HTML content
     html = generate_html(input_files)
 
-    # Write output to website/index.html
-    output_file = Path("website") / "index.html"
+    output_file = Path("docs") / "index.html"
     with open(output_file, "w") as f:
         f.write(html)
 
