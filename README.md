@@ -1,5 +1,5 @@
 
-# Mindscape AMA Transcripts and Player
+# All Mindscape AMAs
 
 This project provides a web-based interface for browsing and playing 
 individual questions from the
