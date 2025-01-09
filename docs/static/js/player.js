@@ -383,7 +383,7 @@ function playSegment(start, end) {
             }
         } else {
             const remaining = end - player.currentTime;
-            durationElement.textContent = formatTime(remaining);
+            durationElement.innerHTML = `${formatTime(remaining)} <i class="fas fa-external-link-alt"></i>`;
 
             // Start fading out during the last 750ms
             if (remaining <= fadeOutDuration) {
