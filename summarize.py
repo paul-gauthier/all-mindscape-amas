@@ -1,5 +1,15 @@
 #!/usr/bin/env python3
+"""
+This module provides functionality to summarize podcast episode transcripts from Sean Carroll's
+Mindscape podcast. It processes JSONL files containing question/answer segments, generates concise
+summaries using AI models, and outputs both JSONL and text files with the summarized content.
 
+Key Features:
+- Processes multiple input files in parallel using threading
+- Uses AI models to generate concise summaries of questions and answers
+- Maintains original JSONL structure while replacing full text with summaries
+- Produces both structured (JSONL) and plain text output formats
+"""
 import warnings
 
 warnings.filterwarnings("ignore", category=UserWarning)
@@ -39,9 +49,20 @@ TWO **SHORT** SENTENCES!
 
 @lox.thread(25)
 def summarize_one(text):
-    model = "deepseek/deepseek-chat"
+    """
+    Generate a concise summary of a single podcast question/answer segment using AI.
+    
+    Args:
+        text (str): The full text of the question/answer segment to summarize
+        
+    Returns:
+        str: A two-sentence summary containing:
+             - A concise summary of the question(s)
+             - A concise summary of Sean's answer
+    """
+    model = "deepseek/deepseek-chat"  # AI model to use for summarization
 
-    max_words = 50
+    max_words = 50  # Target maximum words for the summary
 
     messages = [
         dict(role="system", content=SYSTEM.format(max_words=max_words)),
@@ -76,7 +97,21 @@ def summarize_one(text):
 
 
 def summarize(input_file, output_file, text_file):
-    # Read input segments
+    """
+    Process a JSONL file of podcast segments, generate summaries, and save results.
+    
+    Args:
+        input_file (str): Path to input JSONL file containing full segments
+        output_file (str): Path to save summarized JSONL output
+        text_file (str): Path to save plain text version of summaries
+        
+    The function:
+    1. Reads the input JSONL file containing question/answer segments
+    2. Generates concise summaries for each segment in parallel
+    3. Saves the summarized segments in JSONL format
+    4. Creates a plain text version of all summaries
+    """
+    # Read input segments from JSONL file
     segments = []
     with jsonlines.open(input_file) as reader:
         segments = list(reader)
@@ -102,9 +137,17 @@ def summarize(input_file, output_file, text_file):
 
 
 def main():
+    """
+    Command-line interface for summarizing podcast question/answer segments.
+    
+    Processes one or more input files, generating summarized versions in both JSONL and text formats.
+    Handles file existence checks and provides --force option to overwrite existing files.
+    """
     import argparse
 
-    parser = argparse.ArgumentParser(description="Summarize podcast questions")
+    parser = argparse.ArgumentParser(
+        description="Summarize podcast questions and answers from Sean Carroll's Mindscape podcast"
+    )
     parser.add_argument("files", nargs="+", help="Input JSONL files to process")
     parser.add_argument(
         "--force", action="store_true", help="Overwrite existing output files"
