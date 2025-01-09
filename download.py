@@ -30,10 +30,10 @@ from ama_extractor import extract_ama_episodes
 def get_ama_episodes(xml_file):
     """
     Parse the podcast RSS feed XML and extract AMA episodes.
-    
+
     Args:
         xml_file (str): Path to the RSS feed XML file
-        
+
     Returns:
         list: List of dictionaries containing episode metadata with keys:
             - title: Episode title
@@ -64,11 +64,11 @@ def get_ama_episodes(xml_file):
 def download_episode(url, filename):
     """
     Download a podcast episode MP3 file with progress tracking.
-    
+
     Args:
         url (str): Source URL for the MP3 file
         filename (str): Destination path for the downloaded file
-        
+
     Returns:
         tuple: (success: bool, final_url: str)
             success: True if download completed successfully
@@ -114,11 +114,11 @@ def download_episode(url, filename):
 def format_filename(date_str, title):
     """
     Generate a standardized filename from episode metadata.
-    
+
     Args:
         date_str (str): Publication date string in RFC 2822 format
         title (str): Episode title (used to verify it's an AMA episode)
-        
+
     Returns:
         str: Filename in format 'data/YYYY-MM-AMA.mp3' or None if date parsing fails
     """
