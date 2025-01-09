@@ -25,7 +25,6 @@ from pathlib import Path
 
 import requests
 from mutagen.mp3 import MP3
-
 from dump import dump  # Debugging utility for printing values
 
 
@@ -182,7 +181,6 @@ def process(fname, force=False):
         metadata = json.load(f)
 
     existing_final_url = metadata["final_url"]
-    dump(existing_final_url)  # Debugging output
 
     # Check validation timestamp unless forced
     if not force and check_valid(existing_final_url):
