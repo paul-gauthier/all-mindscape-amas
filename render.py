@@ -21,10 +21,10 @@ from dump import dump  # Debugging utility for printing values
 def generate_html(input_files):
     """
     Generate HTML content from segment JSONL files and their metadata.
-    
+
     Args:
         input_files (list): List of paths to segment JSONL files
-        
+
     Returns:
         str: Rendered HTML content ready to be written to a file
     """
@@ -45,7 +45,7 @@ def generate_html(input_files):
 
         print()  # Spacer for debug output
         dump(input_file)  # Debug print current file being processed
-        
+
         # Determine which URL to use (prefer final_url if available)
         chosen_url = metadata["url"]  # Default to original URL
         if "final_url" in metadata and metadata["final_url"] is not None:
@@ -103,12 +103,12 @@ def generate_html(input_files):
         set(
             (
                 segment["date_obj"].strftime("%Y-%m-%d"),  # Sort key
-                segment["date_obj"].strftime("%Y %B"),     # Display text
+                segment["date_obj"].strftime("%Y %B"),  # Display text
             )
             for segment in all_segments
         ),
         key=lambda x: x[0],  # Sort by date string
-        reverse=True,        # Newest first
+        reverse=True,  # Newest first
     )
 
     # Sort segments by:
@@ -130,7 +130,7 @@ def generate_html(input_files):
 def main():
     """
     Main entry point for the render script.
-    
+
     Processes command line arguments, generates HTML, and writes output file.
     """
     if len(sys.argv) < 2:
@@ -139,7 +139,7 @@ def main():
 
     # Get input files from command line arguments
     input_files = sys.argv[1:]
-    
+
     # Generate HTML content
     html = generate_html(input_files)
 
