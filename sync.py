@@ -248,7 +248,7 @@ def process(fname, force=False):
     # Check validation timestamp unless forced
     if not force and check_valid(existing_final_url):
         print("Final URL is valid, skipping processing.")
-        # print the timestamp date ai!
+        print(f"Validation timestamp: {get_date_from_url(existing_final_url)}")
         print("Use --force to process anyway.")
         return
 
