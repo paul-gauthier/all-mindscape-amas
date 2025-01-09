@@ -51,10 +51,10 @@ TWO **SHORT** SENTENCES!
 def summarize_one(text):
     """
     Generate a concise summary of a single podcast question/answer segment using AI.
-    
+
     Args:
         text (str): The full text of the question/answer segment to summarize
-        
+
     Returns:
         str: A two-sentence summary containing:
              - A concise summary of the question(s)
@@ -99,12 +99,12 @@ def summarize_one(text):
 def summarize(input_file, output_file, text_file):
     """
     Process a JSONL file of podcast segments, generate summaries, and save results.
-    
+
     Args:
         input_file (str): Path to input JSONL file containing full segments
         output_file (str): Path to save summarized JSONL output
         text_file (str): Path to save plain text version of summaries
-        
+
     The function:
     1. Reads the input JSONL file containing question/answer segments
     2. Generates concise summaries for each segment in parallel
@@ -139,7 +139,7 @@ def summarize(input_file, output_file, text_file):
 def main():
     """
     Command-line interface for summarizing podcast question/answer segments.
-    
+
     Processes one or more input files, generating summarized versions in both JSONL and text formats.
     Handles file existence checks and provides --force option to overwrite existing files.
     """
