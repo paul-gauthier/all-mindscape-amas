@@ -19,10 +19,12 @@ let firstPlay = true;
 // Update play/pause button icon based on player state
 player.addEventListener('play', () => {
     playPauseButton.querySelector('i').classList.replace('fa-play', 'fa-pause');
+    playPauseButton.classList.add('active');
 });
 
 player.addEventListener('pause', () => {
     playPauseButton.querySelector('i').classList.replace('fa-pause', 'fa-play');
+    playPauseButton.classList.remove('active');
 });
 
 // Add error event listener to player
@@ -39,6 +41,7 @@ const visibleCount = document.getElementById('visible-count');
 searchToggleButton.addEventListener('click', () => {
     const isHidden = searchContainer.style.display === 'none';
     searchContainer.style.display = isHidden ? 'block' : 'none';
+    searchToggleButton.classList.toggle('active', isHidden);
     if (isHidden) {
         searchInput.focus();
     }
