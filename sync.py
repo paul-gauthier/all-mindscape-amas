@@ -216,27 +216,29 @@ def process(fname, force=False):
     # Follow redirects to get final URL using a small range request
     # Keep trying until we get a URL with a validation timestamp at least 12 hours in the future
     from datetime import datetime, timedelta
+
     while True:
-        response = requests.get(url, headers={"Range": "bytes=0-1024"}, allow_redirects=True)
+        response = requests.get(
+            url, headers={"Range": "bytes=0-1024"}, allow_redirects=True
+        )
         final_url = response.url
-        
+
         # Check validation timestamp
         match = re.search(r"validation=(\d+)", final_url)
         if match:
             timestamp = int(match.group(1))
             validation_time = datetime.fromtimestamp(timestamp)
             now = datetime.now()
-            
+
             # If validation is more than 12 hours in the future, we're good
             if validation_time > now + timedelta(hours=12):
                 break
-            
+
             # Otherwise wait a bit and try again
             time.sleep(5)
         else:
             # If no validation timestamp, just use this URL
             break
-
 
     metadata["final_url"] = final_url
 
