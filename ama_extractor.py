@@ -1,4 +1,8 @@
 #!/usr/bin/env python3
+
+import xml.etree.ElementTree as ET
+from urllib.parse import urlparse, urlunparse
+
 """
 AMA Episode Extractor
 
@@ -11,9 +15,6 @@ The script is specifically designed to work with Sean Carroll's Mindscape
 podcast RSS feed format, but can be adapted for other podcast feeds with
 similar XML structure.
 """
-
-import xml.etree.ElementTree as ET
-from urllib.parse import urlparse, urlunparse
 
 
 def extract_ama_episodes(xml_file):
