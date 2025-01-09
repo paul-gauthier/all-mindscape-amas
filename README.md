@@ -14,7 +14,10 @@ It includes tools for:
 
 ## Features
 
-- **Audio Player**: Play individual question segments with smooth transitions, shuffle
+- **Audio Player**
+  - Play individual question segments with smooth transitions
+  - Includes the original ads between questions
+  - Shuffle to play questions in random order
 - **Search & Filter**: Find questions by keyword or by episode
 - **Direct Podcast Links**: Launch the podcast starting from any specific question
 
