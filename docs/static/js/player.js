@@ -46,6 +46,16 @@ const allSegments = Array.from(segments);
 
 const visibleCount = document.getElementById('visible-count');
 
+// Check for q parameter in URL
+const urlParams = new URLSearchParams(window.location.search);
+const searchQuery = urlParams.get('q');
+if (searchQuery) {
+    searchInput.value = searchQuery;
+    searchContainer.style.display = 'block';
+    searchToggleButton.classList.add('active');
+    filterSegments();
+}
+
 searchToggleButton.addEventListener('click', () => {
     const isHidden = searchContainer.style.display === 'none';
     searchContainer.style.display = isHidden ? 'block' : 'none';
