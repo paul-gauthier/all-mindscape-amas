@@ -33,33 +33,17 @@ jobs:
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
         
-        for file in data/20*AMA.json; do
-            echo "Processing $file"
-            ./sync.sh --force "$file"
+        ./sync.sh --force --parallel data/20*AMA.json
             
-            # Add and commit changes for this specific file
-            base_name=$(basename "$file" .json)
-            git add "data/${base_name}.json"
-            git add "data/${base_name}.synced.jsonl"
-            git add "data/${base_name}.timestamps.json"
-            
-            if ! git diff --cached --quiet; then
-                git commit -m "Sync AMA data for ${base_name}"
-                git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
-            else
-                echo "No changes for ${base_name}"
-            fi
-        done
-
-        # Final sync and index update
-        echo "Running final sync on all files"
-        ./sync.sh data/20*AMA.json
+        git add data/*-AMA.json || echo no .json changes
+        git add data/*.synced.jsonl || echo no .synced.jsonl changes
+        git add data/*.timestamps.json || echo no .timestamps.json changes
+        git add docs/index.html || echo no docs/index.html changes
         
-        if git diff --quiet data/index.html; then
-            echo "No changes to index.html"
-        else
-            git add docs/index.html
-            git commit -m "Update AMA index"
+        if ! git diff --cached --quiet; then
+            git commit -m "Sync AMA data"
             git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+        else
+            echo "No changes to commit"
         fi
-        
+        done

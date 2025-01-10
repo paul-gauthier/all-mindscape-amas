@@ -25,6 +25,7 @@ from datetime import datetime, timedelta
 from io import BytesIO
 from pathlib import Path
 
+import lox
 import requests
 from mutagen.mp3 import MP3
 
@@ -228,6 +229,9 @@ def main():
         for fname in args.files:
             print(f"\nProcessing {fname}...")
             process(fname, args.force)
+
+    if args.parallel:
+        process.gather(tqdm=True)
 
 
 @lox.thread(10)
