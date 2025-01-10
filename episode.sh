@@ -44,6 +44,7 @@ for input_file in "$@"; do
     ./punct.py "$input_file"
     ./segment.py $force_flag "$input_file"
     ./summarize.py $force_flag "$input_file"
+    ./fingerprint.py "$input_file"
     ./sync.py $input_file
 done
 

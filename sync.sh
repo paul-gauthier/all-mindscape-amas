@@ -39,7 +39,6 @@ for input_file in "$@"; do
     echo "Processing file: $input_file"
     echo
     
-    # Run sync.py on the current file
     ./sync.py $force_flag $input_file
 done
 
