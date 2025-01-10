@@ -225,6 +225,15 @@ h1 {
     color: #2d3748;
 }
 
+.subtle-divider {
+    border: 0;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(226,232,240,0) 0%, rgba(226,232,240,1) 50%, rgba(226,232,240,0) 100%);
+    margin: 1.5rem auto;
+    width: 80%;
+    max-width: 400px;
+}
+
 .error-message {
     display: block;
     color: #e53e3e;
