@@ -213,12 +213,21 @@ def main():
         action="store_true",
         help="Force processing even if validation timestamp is in the future",
     )
+    parser.add_argument(
+        "--parallel",
+        action="store_true",
+        help="Process files in parallel using multiple threads",
+    )
     args = parser.parse_args()
 
-    # add --parallel switch, if used call process.scatter(fname, args.force) ai!
-    for fname in args.files:
-        print(f"\nProcessing {fname}...")
-        process(fname, args.force)
+    if args.parallel:
+        for fname in args.files:
+            print(f"\nQueuing {fname} for parallel processing...")
+            process.scatter(fname, args.force)
+    else:
+        for fname in args.files:
+            print(f"\nProcessing {fname}...")
+            process(fname, args.force)
 
 
 @lox.thread(10)
