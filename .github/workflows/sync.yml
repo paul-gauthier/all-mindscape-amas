@@ -39,7 +39,7 @@ jobs:
             git add "data/${base_name}.synced.jsonl"
             git add "data/${base_name}.timestamps.json"
             
-            if ! git diff --quiet || ! git diff --cached --quiet; then
+            if ! git diff --cached --quiet; then
                 git commit -m "Sync AMA data for ${base_name}"
                 git push
             else
