@@ -350,7 +350,7 @@ def process(fname, force=False):
         orig_offset = int(start_sec * orig_bytes_per_sec)
 
 
-        target_bytes = # get and decode the segment[fingerprint] ai!
+        target_bytes = bytes.fromhex(segment['fingerprint'])
 
         # Search for these bytes in new file starting after previous match
         search_start = last_match_pos
