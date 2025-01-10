@@ -170,7 +170,6 @@ def main():
 
             # Save metadata for this episode immediately
             episode_meta = {
-                "filename": filename,
                 "url": episode["url"],
                 "final_url": final_url,
                 "title": episode["title"],
