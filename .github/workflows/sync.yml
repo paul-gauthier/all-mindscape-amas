@@ -49,7 +49,7 @@ jobs:
 
         # Final sync and index update
         echo "Running final sync on all files"
-        ./sync.sh --force data/20*AMA.json
+        ./sync.sh data/20*AMA.json
         
         if git diff --quiet data/index.html; then
             echo "No changes to index.html"
