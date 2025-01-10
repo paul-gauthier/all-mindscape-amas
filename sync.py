@@ -236,7 +236,6 @@ def process(fname, force=False):
     6. Write updated segment data to synced output file
     """
     base_path = Path(fname).with_suffix("")
-    mp3_file = base_path.with_suffix(".mp3")
     metadata_file = base_path.with_suffix(".json")
     segments_file = base_path.with_suffix(".fingerprints.jsonl")
     synced_file = base_path.with_suffix(".synced.jsonl")
@@ -292,11 +291,8 @@ def process(fname, force=False):
                 break
 
     # If files are identical or we have cached timestamps, just copy segments to synced
-    if diff_len == 0 or all_fingerprints_cached:
-        if diff_len == 0:
-            print("New mp3 is identical, no sync needed.")
-        else:
-            print("Using cached timestamps from fingerprints")
+    if all_fingerprints_cached:
+        print("Using cached timestamps from fingerprints")
 
         # Save updated metadata with final URL
         with open(metadata_file, "w") as f:
