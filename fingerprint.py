@@ -15,6 +15,7 @@ import argparse
 import base64
 import json
 from pathlib import Path
+from mutagen.mp3 import MP3
 
 
 def get_fingerprint(mp3_bytes, offset, length=128):
