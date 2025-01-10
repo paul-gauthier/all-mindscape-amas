@@ -58,6 +58,10 @@ def generate_html(input_files):
                 start = int(segment["start"])
                 end = int(segment["end"])
                 duration = end - start
+
+                if duration < 5:
+                    continue
+
                 # Format duration as "XmYYs" for >=60s, else "Xs"
                 duration_str = (
                     f"{duration // 60}m{duration % 60:02d}s"
