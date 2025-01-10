@@ -7,6 +7,7 @@ individual questions from the
 
 ## Try it
 
+// how to make this more prominent ai!
 <a href="https://paul-gauthier.github.io/all-mindscape-amas/">
   All Mindscape AMAs
 </a>
