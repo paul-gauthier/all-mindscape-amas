@@ -16,20 +16,22 @@ import base64
 import json
 from pathlib import Path
 
+
 def get_fingerprint(mp3_bytes, offset, length=128):
     """
     Extract a fingerprint from MP3 bytes at given offset.
-    
+
     Args:
         mp3_bytes (bytes): The MP3 file content
         offset (int): Byte position to start fingerprint
         length (int): Number of bytes for fingerprint
-        
+
     Returns:
         str: Base64-encoded fingerprint
     """
-    fingerprint = mp3_bytes[offset:offset+length]
-    return base64.b64encode(fingerprint).decode('utf-8')
+    fingerprint = mp3_bytes[offset : offset + length]
+    return base64.b64encode(fingerprint).decode("utf-8")
+
 
 def main():
     """
@@ -45,10 +47,11 @@ def main():
         print(f"\nProcessing {fname}...")
         process(fname)
 
+
 def process(fname):
     """
     Process a single file to add fingerprints to its segments.
-    
+
     Args:
         fname (str): Path to the file to process
     """
@@ -59,27 +62,28 @@ def process(fname):
 
     # Read the MP3 file
     mp3_bytes = Path(mp3_file).read_bytes()
-    
+
     # Calculate bytes per second from MP3 duration
     total_bytes = len(mp3_bytes)
     audio = MP3(mp3_file)
     bytes_per_sec = total_bytes / audio.info.length
-    
+
     # Process each segment
     with open(segments_file) as infile, open(fingerprints_file, "w") as outfile:
         for line in infile:
             segment = json.loads(line)
             start_sec = segment["start"]
-            
+
             # Calculate byte offset
             offset = int(start_sec * bytes_per_sec)
-            
+
             # Get fingerprint and add to segment
             fingerprint = get_fingerprint(mp3_bytes, offset)
             segment["fingerprint"] = fingerprint
-            
+
             # Write updated segment
             outfile.write(json.dumps(segment) + "\n")
+
 
 if __name__ == "__main__":
     main()
