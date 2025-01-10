@@ -42,7 +42,7 @@ jobs:
             
             if ! git diff --cached --quiet; then
                 git commit -m "Sync AMA data for ${base_name}"
-                git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+                git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git
             else
                 echo "No changes for ${base_name}"
             fi
@@ -57,6 +57,6 @@ jobs:
         else
             git add data/index.html
             git commit -m "Update AMA index"
-            git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+            git push https://${{ secrets.PAT }}@github.com/${{ github.repository }}.git
         fi
         
