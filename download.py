@@ -22,8 +22,8 @@ from urllib.parse import urlparse, urlunparse
 from xml.etree import ElementTree as ET
 
 import requests
-from tqdm import tqdm
 from mutagen.mp3 import MP3
+from tqdm import tqdm
 
 from ama_extractor import extract_ama_episodes
 
@@ -78,13 +78,11 @@ def calculate_mp3_metadata(filename):
         file_size = os.path.getsize(filename)
         audio = MP3(filename)
         bytes_per_sec = file_size / audio.info.length
-        return {
-            "file_size": file_size,
-            "bytes_per_sec": bytes_per_sec
-        }
+        return {"file_size": file_size, "bytes_per_sec": bytes_per_sec}
     except Exception as e:
         print(f"Error calculating MP3 metadata: {e}")
         return {}
+
 
 def download_episode(url, filename):
     """
@@ -195,14 +193,14 @@ def main():
 
             # Calculate MP3 metadata whether we downloaded or not
             mp3_metadata = calculate_mp3_metadata(filename)
-            
+
             # Save metadata for this episode immediately
             episode_meta = {
                 "url": episode["url"],
                 "final_url": final_url,
                 "title": episode["title"],
                 "date": episode["date"],
-                **mp3_metadata  # Merge in the MP3 metadata
+                **mp3_metadata,  # Merge in the MP3 metadata
             }
 
             with open(json_filename, "w") as f:
