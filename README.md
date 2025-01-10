@@ -30,6 +30,7 @@ The project consists of several Python scripts that handle different stages of p
 - **segment.py**: Identifies and segments individual questions/answers using DeepSeek
 - **summarize.py**: Generates concise summaries of each segment using DeepSeek
 - **sync.py**: Synchronizes segment timestamps with updated audio files
+- **fingerprint.py**: Creates audio fingerprints for segment synchronization
 - **render.py**: Generates HTML pages from processed data
 
 ## Notes
