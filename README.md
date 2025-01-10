@@ -22,12 +22,12 @@ individual questions from the
 - Download the MP3 files for episodes with titles that contain "AMA"
 - Use Whisper to transcribe the MP3s to text with word granularity time stamps
   - Break the 2-3 hour long audio files into overlapping chunks small enough for Whisper to process
-  - Stitch the transcript back together at the midpoints where chunks overlap
-- Use DeepSeek to read the transcript and find every question
+  - Stitch the timestamped transcript back together at the midpoints within the overlaps between chunks
+- Use DeepSeek to read the transcript and find every question asked
   - DeepSeek returns the exact text of every "question" it finds in the transcript
 - Find the MP3 timestamps for each question that DeepSeek found
   - Find the text of each question in the timestamped transcript
-  - Use fuzzy matching if needed, to handle cases where DeepSeek didn't exactly match the transcript
+  - Use fuzzy matching if needed, to handle cases where DeepSeek returned a slightly incorrect copy of a question
 - Create MP3 URLs for each question that deep link into the official podcast feed with `#t=start,end` timestamps
 - Ask DeepSeek to generate a short summary of each question & answer.
 - Combine the MP3 deep link URLs and summaries into a web page that allows search, browse, shuffle of all the AMA questions
