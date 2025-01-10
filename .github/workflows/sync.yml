@@ -10,6 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+      actions: write
     
     steps:
     - name: Checkout code
@@ -46,6 +47,10 @@ jobs:
         if ! git diff --cached --quiet; then
             git commit -m "Sync AMA data"
             git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
+            
+            # Trigger the static deployment workflow
+            gh auth login --with-token <<< "${{ secrets.GITHUB_TOKEN }}"
+            gh workflow run static.yml
         else
             echo "No changes to commit"
         fi
