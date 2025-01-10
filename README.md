@@ -4,13 +4,6 @@
 This project provides a web-based interface for browsing and playing 
 individual questions from the
 "Ask Me Anything" (AMA) episodes of Sean Carroll's Mindscape podcast. 
-It includes tools for:
-
-- Downloading podcast episodes
-- Transcribing audio with word-level timestamps, using Whisper
-- Segmenting transcripts into individual questions/answers, using DeepSeek
-- Summarizing the questions and answers, using DeepSeek
-- Generating searchable HTML pages with audio playback
 
 ## Features
 
