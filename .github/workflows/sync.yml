@@ -43,7 +43,7 @@ jobs:
             git add "data/${base_name}.timestamps.json"
             
             if ! git diff --cached --quiet; then
-                git commit -m "Sync AMA data for ${base_name} [skip ci]"
+                git commit -m "Sync AMA data for ${base_name}"
                 git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
             else
                 echo "No changes for ${base_name}"
