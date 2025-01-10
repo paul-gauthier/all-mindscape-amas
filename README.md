@@ -32,7 +32,7 @@ Please consider supporting
 <a href="https://www.patreon.com/seanmcarroll" target="_blank" rel="noopener noreferrer">
     Mindscape on Patreon</a>.
 
-All audio streams directly from the
+All audio plays directly from the
 <a href="https://art19.com/shows/sean-carrolls-mindscape" target="_blank" rel="noopener noreferrer">
     official feed</a> of the
 <a href="https://www.preposterousuniverse.com/podcast/" target="_blank" rel="noopener noreferrer">
