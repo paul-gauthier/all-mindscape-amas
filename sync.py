@@ -348,8 +348,9 @@ def process(fname, force=False):
 
         # Calculate byte offset in original file using metadata values
         orig_offset = int(start_sec * orig_bytes_per_sec)
-        # Get target bytes from new file using the calculated offset
-        target_bytes = get_byte_range(url, orig_offset, num_bytes)
+
+
+        target_bytes = # get and decode the segment[fingerprint] ai!
 
         # Search for these bytes in new file starting after previous match
         search_start = last_match_pos
