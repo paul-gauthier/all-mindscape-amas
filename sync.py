@@ -264,7 +264,6 @@ def process(fname, force=False):
     print(f"New URL date: {get_date_from_url(final_url)}")
 
     url = final_url  # Use final URL for subsequent operations
-    orig_file = Path(mp3_file).read_bytes()
 
     # Get new file metadata without downloading whole file
     new_len = get_file_size(url)
@@ -351,9 +350,13 @@ def process(fname, force=False):
         segment = json.loads(line)
         start_sec = segment["start"]
 
+        # ai ...
+
         # Calculate byte offset in original file
         orig_offset = int(start_sec * orig_bytes_per_sec)
         target_bytes = orig_file[orig_offset : orig_offset + num_bytes]
+
+        # ... this code should use the filesize and bytes/sec from the metadata ai!
 
         # Search for these bytes in new file starting after previous match
         search_start = last_match_pos
