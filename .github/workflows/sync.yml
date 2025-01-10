@@ -25,22 +25,27 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
 
-    - name: Run sync script
-      run: |
-        ./sync.sh --force data/20*AMA.json
-
-    - name: Commit changes
+    - name: Sync and commit each file
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        git add data/*.synced.jsonl
-        git add data/*.timestamps.json
-        if ! git diff --quiet || ! git diff --cached --quiet; then
-            git commit -m "Sync AMA data"
-            git push
-        else
-            echo "No changes to commit"
-        fi
+        
+        for file in data/20*AMA.json; do
+            echo "Processing $file"
+            ./sync.sh --force "$file"
+            
+            # Add and commit changes for this specific file
+            base_name=$(basename "$file" .json)
+            git add "data/${base_name}.synced.jsonl"
+            git add "data/${base_name}.timestamps.json"
+            
+            if ! git diff --quiet || ! git diff --cached --quiet; then
+                git commit -m "Sync AMA data for ${base_name}"
+                git push
+            else
+                echo "No changes for ${base_name}"
+            fi
+        done
 
         
         
