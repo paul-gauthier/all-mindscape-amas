@@ -32,6 +32,7 @@ jobs:
       run: |
         git config --global user.name "GitHub Actions"
         git config --global user.email "actions@github.com"
-        git add .
-        git diff --quiet && git diff --cached --quiet || git commit -m "Sync AMA data [skip ci]"
+        git add data/*.synced.json
+        git add data/*.timestamps.json
+        git commit -m "Sync AMA data"
         git push
