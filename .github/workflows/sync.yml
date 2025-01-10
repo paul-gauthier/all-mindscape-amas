@@ -57,7 +57,7 @@ jobs:
         if git diff --quiet data/index.html; then
             echo "No changes to index.html"
         else
-            git add data/index.html
+            git add docs/index.html
             git commit -m "Update AMA index"
             git push https://${{ secrets.GITHUB_TOKEN }}@github.com/${{ github.repository }}.git
         fi
