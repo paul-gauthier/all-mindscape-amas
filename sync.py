@@ -28,6 +28,7 @@ import requests
 from mutagen.mp3 import MP3
 
 from dump import dump  # Debugging utility for printing values
+from fingerprint import get_fingerprint
 
 
 def get_file_size(url):
@@ -229,15 +230,17 @@ def process(fname, force=False):
     The processing workflow:
     1. Load metadata and check URL validity
     2. Compare original and new file sizes
-    3. Calculate encoding rate (bytes/sec)
-    4. Synchronize each segment by finding matching byte patterns
-    5. Write updated segment data to synced output file
+    3. Check if we have cached timestamps for all fingerprints
+    4. If cached timestamps exist, use them
+    5. Otherwise, synchronize each segment by finding matching byte patterns
+    6. Write updated segment data to synced output file
     """
     base_path = Path(fname).with_suffix("")
     mp3_file = base_path.with_suffix(".mp3")
     metadata_file = base_path.with_suffix(".json")
     segments_file = base_path.with_suffix(".summarized.jsonl")
     synced_file = base_path.with_suffix(".synced.jsonl")
+    timestamps_file = base_path.with_suffix(".timestamps.json")
 
     # Read metadata file to get URL
     with open(metadata_file) as f:
@@ -273,15 +276,52 @@ def process(fname, force=False):
     print(f"Difference: {diff_len:,}")
     print()
 
-    # If files are identical, just copy segments to synced
-    if diff_len == 0:
-        print("New mp3 is identical, no sync needed.")
+    # Load timestamps if file exists
+    timestamps = {}
+    if timestamps_file.exists():
+        with open(timestamps_file) as f:
+            timestamps = json.load(f)
+
+    # Check if we have cached timestamps for all fingerprints
+    all_fingerprints_cached = True
+    with open(segments_file) as f:
+        for line in f:
+            segment = json.loads(line)
+            key = f"{new_len},{segment['fingerprint']}"
+            if key not in timestamps:
+                all_fingerprints_cached = False
+                break
+
+    # If files are identical or we have cached timestamps, just copy segments to synced
+    if diff_len == 0 or all_fingerprints_cached:
+        if diff_len == 0:
+            print("New mp3 is identical, no sync needed.")
+        else:
+            print("Using cached timestamps from fingerprints")
 
         # Save updated metadata with final URL
         with open(metadata_file, "w") as f:
             json.dump(metadata, f, indent=2)
 
-        shutil.copy2(segments_file, synced_file)
+        # Update segments with cached timestamps if needed
+        if all_fingerprints_cached:
+            out_segments = []
+            with open(segments_file) as infile:
+                for line in infile:
+                    segment = json.loads(line)
+                    key = f"{new_len},{segment['fingerprint']}"
+                    start_sec = timestamps[key]
+                    duration = segment["end"] - segment["start"]
+                    segment["start"] = start_sec
+                    segment["end"] = start_sec + duration
+                    out_segments.append(segment)
+
+            # Write updated segments
+            with open(synced_file, "w") as f:
+                for segment in out_segments:
+                    f.write(json.dumps(segment) + "\n")
+        else:
+            shutil.copy2(segments_file, synced_file)
         return
 
     # Calculate encoding rate from original file
@@ -355,6 +395,10 @@ def process(fname, force=False):
         found = True
         last_match_pos = actual_pos + 1
 
+        # Add new timestamp to cache
+        key = f"{new_len},{segment['fingerprint']}"
+        timestamps[key] = found_sec
+
         # Update segment timestamps and write to synced file
         # Store current segment's start time before updating
         current_start = found_sec
@@ -374,6 +418,10 @@ def process(fname, force=False):
     # Save updated metadata with final URL
     with open(metadata_file, "w") as f:
         json.dump(metadata, f, indent=2)
+
+    # Save updated timestamps
+    with open(timestamps_file, "w") as f:
+        json.dump(timestamps, f, indent=2)
 
     # Save synchronized segments
     with open(synced_file, "w") as f:
