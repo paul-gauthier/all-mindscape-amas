@@ -10,9 +10,9 @@ individual questions from the
 ## Features
 
 - **Audio Player**
-  - Play individual questions directly from the official podcast mp3 feed
+  - Fast forward, rewind, shuffle through questions
+  - Plays audio directly from the official podcast mp3 feed
   - Includes all the original ads between questions
-  - Shuffle to play questions in random order
 - **Search & Filter**: Find questions by keyword or by episode
 - **Direct Podcast Links**: Launch the podcast starting from any specific question
 

@@ -229,7 +229,7 @@ h1 {
     border: 0;
     height: 1px;
     background: linear-gradient(90deg, rgba(226,232,240,0) 0%, rgba(226,232,240,1) 50%, rgba(226,232,240,0) 100%);
-    margin: 1.5rem auto;
+    margin: 1.0rem auto;
     width: 80%;
     max-width: 400px;
 }
