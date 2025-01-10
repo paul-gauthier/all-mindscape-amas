@@ -349,6 +349,7 @@ def process(fname, force=False):
         # Calculate byte offset in original file using metadata values
         orig_offset = int(start_sec * orig_bytes_per_sec)
 
+        # not hex! ai!
         target_bytes = bytes.fromhex(segment["fingerprint"])
 
         # Search for these bytes in new file starting after previous match
