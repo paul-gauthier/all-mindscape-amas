@@ -39,6 +39,7 @@ jobs:
             
             # Add and commit changes for this specific file
             base_name=$(basename "$file" .json)
+            git add "data/${base_name}.json"
             git add "data/${base_name}.synced.jsonl"
             git add "data/${base_name}.timestamps.json"
             
