@@ -350,13 +350,10 @@ def process(fname, force=False):
         segment = json.loads(line)
         start_sec = segment["start"]
 
-        # ai ...
-
-        # Calculate byte offset in original file
+        # Calculate byte offset in original file using metadata values
         orig_offset = int(start_sec * orig_bytes_per_sec)
-        target_bytes = orig_file[orig_offset : orig_offset + num_bytes]
-
-        # ... this code should use the filesize and bytes/sec from the metadata ai!
+        # Get target bytes from new file using the calculated offset
+        target_bytes = get_byte_range(url, orig_offset, num_bytes)
 
         # Search for these bytes in new file starting after previous match
         search_start = last_match_pos
