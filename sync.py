@@ -15,6 +15,7 @@ previously identified segments.
 """
 
 import argparse
+import base64
 import json
 import re
 import shutil
@@ -349,8 +350,8 @@ def process(fname, force=False):
         # Calculate byte offset in original file using metadata values
         orig_offset = int(start_sec * orig_bytes_per_sec)
 
-        # not hex! ai!
-        target_bytes = bytes.fromhex(segment["fingerprint"])
+        # Decode base64 fingerprint
+        target_bytes = base64.b64decode(segment["fingerprint"])
 
         # Search for these bytes in new file starting after previous match
         search_start = last_match_pos
