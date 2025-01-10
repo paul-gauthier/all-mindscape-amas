@@ -42,5 +42,3 @@ All audio plays directly from the
 and includes all the original ads between questions.
 
 This project has no affiliation with Mindscape.
-
-[Aider](https://aider.chat/) wrote more than half of the code for this project.
