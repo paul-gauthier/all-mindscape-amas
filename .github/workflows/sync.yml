@@ -28,7 +28,7 @@ jobs:
     - name: Run sync script
       run: |
         chmod +x sync.sh
-        ./sync.sh data/20*AMA.json
+        ./sync.sh --force data/20*AMA.json
 
     - name: Commit changes
       run: |
