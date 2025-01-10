@@ -47,5 +47,15 @@ jobs:
             fi
         done
 
+        # Final sync and index update
+        echo "Running final sync on all files"
+        ./sync.sh --force data/20*AMA.json
         
+        if git diff --quiet data/index.html; then
+            echo "No changes to index.html"
+        else
+            git add data/index.html
+            git commit -m "Update AMA index"
+            git push
+        fi
         
