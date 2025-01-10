@@ -38,7 +38,8 @@ for input_file in "$@"; do
     echo
     echo "Processing file: $input_file"
     echo "============================"
-    
+
+    # remove the numbers in comments below ai!
     # Run each processing step:
     # 1. Transcribe audio to text
     ./transcribe.py $force_flag "$input_file"
@@ -51,6 +52,8 @@ for input_file in "$@"; do
     
     # 4. Generate summaries for each segment
     ./summarize.py $force_flag "$input_file"
+    
+    # ./fingerprint.py $input_file
     
     # 5. Synchronize audio segments with transcript
     ./sync.py $input_file
