@@ -215,11 +215,13 @@ def main():
     )
     args = parser.parse_args()
 
+    # add --parallel switch, if used call process.scatter(fname, args.force) ai!
     for fname in args.files:
         print(f"\nProcessing {fname}...")
         process(fname, args.force)
 
 
+@lox.thread(10)
 def process(fname, force=False):
     """
     Process a single file to synchronize its segments with updated audio.
