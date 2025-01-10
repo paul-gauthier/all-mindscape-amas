@@ -5,12 +5,11 @@ This project provides a web-based interface for browsing and playing
 individual questions from the
 "Ask Me Anything" (AMA) episodes of Sean Carroll's Mindscape podcast. 
 
-## Try it
+# 🎧 Try It Now!
 
-// how to make this more prominent ai!
-<a href="https://paul-gauthier.github.io/all-mindscape-amas/">
-  All Mindscape AMAs
-</a>
+Browse and play all the AMA questions at:
+
+### [📱 All Mindscape AMAs](https://paul-gauthier.github.io/all-mindscape-amas/)
 
 ## Features
 
