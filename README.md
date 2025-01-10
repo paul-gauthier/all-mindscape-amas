@@ -29,9 +29,9 @@ The project consists of several Python scripts that handle different stages of p
 - **transcribe.py**: Transcribes audio using Whisper
 - **segment.py**: Identifies and segments individual questions/answers using DeepSeek
 - **summarize.py**: Generates concise summaries of each segment using DeepSeek
+- **fingerprint.py**: Creates fingerprints for segment synchronization
 - **sync.py**: Synchronizes segment timestamps with updated audio files
-- **fingerprint.py**: Creates audio fingerprints for segment synchronization
-- **render.py**: Generates HTML pages from processed data
+- **render.py**: Generates the HTML page from all the processed data
 
 ## Notes
 
