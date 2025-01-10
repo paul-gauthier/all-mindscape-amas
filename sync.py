@@ -268,7 +268,7 @@ def process(fname, force=False):
 
     # Get new file metadata without downloading whole file
     new_len = get_file_size(url)
-    orig_len = len(orig_file)
+    orig_len = metadata["file_size"]
     diff_len = new_len - orig_len
 
     print(f"Original length: {orig_len:,}")
