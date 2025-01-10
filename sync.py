@@ -324,16 +324,17 @@ def process(fname, force=False):
             shutil.copy2(segments_file, synced_file)
         return
 
-    # Calculate encoding rate from original file
-    orig_audio = MP3(mp3_file)
-    orig_bytes_per_sec = orig_len / orig_audio.info.length
+    # Get encoding rate and original length from metadata
+    orig_bytes_per_sec = metadata["bytes_per_sec"]
+    orig_len = metadata["file_size"]
     print(f"Original bytes/sec: {orig_bytes_per_sec:.2f}")
 
     # Calculate and display duration information
+    orig_duration = orig_len / orig_bytes_per_sec
     new_duration = get_duration(url, orig_bytes_per_sec)
-    print(f"Original duration: {format_time(orig_audio.info.length)}")
+    print(f"Original duration: {format_time(orig_duration)}")
     print(f"New duration: {format_time(new_duration)}")
-    print(f"Duration difference: {format_time(new_duration - orig_audio.info.length)}")
+    print(f"Duration difference: {format_time(new_duration - orig_duration)}")
     print()
 
     # Number of bytes to use for pattern matching
