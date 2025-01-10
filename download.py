@@ -23,6 +23,7 @@ from xml.etree import ElementTree as ET
 
 import requests
 from tqdm import tqdm
+from mutagen.mp3 import MP3
 
 from ama_extractor import extract_ama_episodes
 
@@ -60,6 +61,30 @@ def get_ama_episodes(xml_file):
                 episodes.append({"title": title, "url": clean_url, "date": pub_date})
     return episodes
 
+
+def calculate_mp3_metadata(filename):
+    """
+    Calculate MP3 file size and bytes-per-second encoding rate.
+
+    Args:
+        filename (str): Path to MP3 file
+
+    Returns:
+        dict: Dictionary containing:
+            - file_size: Size in bytes
+            - bytes_per_sec: Encoding rate in bytes/second
+    """
+    try:
+        file_size = os.path.getsize(filename)
+        audio = MP3(filename)
+        bytes_per_sec = file_size / audio.info.length
+        return {
+            "file_size": file_size,
+            "bytes_per_sec": bytes_per_sec
+        }
+    except Exception as e:
+        print(f"Error calculating MP3 metadata: {e}")
+        return {}
 
 def download_episode(url, filename):
     """
@@ -168,12 +193,16 @@ def main():
                 else:
                     print(f"Failed to download {filename}")
 
+            # Calculate MP3 metadata whether we downloaded or not
+            mp3_metadata = calculate_mp3_metadata(filename)
+            
             # Save metadata for this episode immediately
             episode_meta = {
                 "url": episode["url"],
                 "final_url": final_url,
                 "title": episode["title"],
                 "date": episode["date"],
+                **mp3_metadata  # Merge in the MP3 metadata
             }
 
             with open(json_filename, "w") as f:
