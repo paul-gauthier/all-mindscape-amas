@@ -2,6 +2,8 @@ name: Sync AMA Data
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '0 */12 * * *'  # Every 12 hours at minute 0
 
 jobs:
   sync:
