@@ -70,6 +70,13 @@ def process(fname):
     audio = MP3(mp3_file)
     bytes_per_sec = total_bytes / audio.info.length
 
+    # Load existing timestamps if file exists
+    timestamps_file = base_path.with_suffix(".timestamps.json")
+    timestamps = {}
+    if timestamps_file.exists():
+        with open(timestamps_file) as f:
+            timestamps = json.load(f)
+
     # Process each segment
     with open(segments_file) as infile, open(fingerprints_file, "w") as outfile:
         for line in infile:
@@ -85,6 +92,14 @@ def process(fname):
 
             # Write updated segment
             outfile.write(json.dumps(segment) + "\n")
+
+            # Add to timestamps dict
+            key = f"{total_bytes},{fingerprint}"
+            timestamps[key] = start_sec
+
+    # Save updated timestamps
+    with open(timestamps_file, "w") as f:
+        json.dump(timestamps, f, indent=2)
 
 
 if __name__ == "__main__":
