@@ -5,6 +5,12 @@ This project provides a web-based interface for browsing and playing
 individual questions from the
 "Ask Me Anything" (AMA) episodes of Sean Carroll's Mindscape podcast. 
 
+## Try it
+
+<a href="https://paul-gauthier.github.io/all-mindscape-amas/">
+  All Mindscape AMAs
+</a>
+
 ## Features
 
 - **Audio Player**
