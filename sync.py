@@ -397,7 +397,7 @@ def process(fname, force=False):
 
         if not found:
             print(f"Segment at {format_time(start_sec)} not found.")
-            assert False
+            assert False, segments_file
 
         # Found matching bytes - calculate new timing
         actual_pos = pos + chunk_pos
